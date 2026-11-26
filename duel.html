@@ -9,572 +9,87 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <meta name="theme-color" content="#141b36">
+  <meta
+    name="theme-color"
+    content="#a9ddff"
+  >
 
   <meta
     name="description"
-    content="Speel QuizBallon Duel tegen een vriend!"
+    content="Speel QuizBallon Duel tegen je vrienden!"
   >
 
   <title>QuizBallon Duel ⚔️🎈</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    :root {
-      --red: #ff4865;
-      --blue: #70a5ff;
-      --green: #67ebae;
-      --text: #ffffff;
-      --muted: #bac6e9;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      color: var(--text);
-
-      background:
-        radial-gradient(
-          circle at 80% 6%,
-          #4159aa,
-          transparent 34%
-        ),
-        radial-gradient(
-          circle at 12% 72%,
-          #342965,
-          transparent 42%
-        ),
-        linear-gradient(
-          160deg,
-          #131a35,
-          #202d58 55%,
-          #111629
-        );
-    }
-
-    button,
-    input {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-
-    .page {
-      width: min(94%, 780px);
-      margin: auto;
-      padding: 24px 0 70px;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 42px;
-    }
-
-    .brand {
-      color: white;
-      text-decoration: none;
-      font-size: 23px;
-      font-weight: 900;
-    }
-
-    .brand span {
-      color: var(--red);
-    }
-
-    .back {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    .hero {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .hero-icon {
-      font-size: 57px;
-    }
-
-    h1 {
-      margin: 10px 0;
-      font-size: clamp(35px, 7vw, 58px);
-      letter-spacing: -2px;
-    }
-
-    h1 span {
-      color: var(--red);
-    }
-
-    .subtitle {
-      max-width: 520px;
-      margin: 0 auto;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .panel {
-      margin-bottom: 20px;
-      padding: 26px;
-
-      border: 1px solid
-        rgba(255,255,255,.15);
-
-      border-radius: 24px;
-
-      background:
-        rgba(255,255,255,.085);
-
-      box-shadow:
-        0 18px 50px rgba(0,0,0,.13);
-    }
-
-    h2 {
-      margin: 0 0 12px;
-      font-size: 23px;
-    }
-
-    h3 {
-      margin: 0 0 12px;
-      font-size: 17px;
-    }
-
-    p {
-      line-height: 1.65;
-    }
-
-    .panel-description {
-      color: var(--muted);
-      font-size: 14px;
-      margin: 0 0 20px;
-    }
-
-    label {
-      display: block;
-      margin: 0 0 9px;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: .07em;
-    }
-
-    input {
-      width: 100%;
-      padding: 15px;
-
-      background: rgba(0,0,0,.21);
-      color: white;
-
-      border: 2px solid
-        rgba(255,255,255,.17);
-
-      border-radius: 14px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: var(--red);
-    }
-
-    input::placeholder {
-      color: #a0add1;
-    }
-
-    .name-hint {
-      display: block;
-      margin-top: 9px;
-      color: #b0bee3;
-      font-size: 12px;
-    }
-
-    .button {
-      width: 100%;
-      padding: 16px 19px;
-
-      border: 0;
-      border-radius: 14px;
-
-      background: var(--red);
-      color: white;
-
-      font-size: 14px;
-      font-weight: 900;
-
-      transition:
-        transform .2s ease,
-        background .2s ease;
-    }
-
-    .button:hover:not(:disabled) {
-      background: #ff6d82;
-      transform: translateY(-2px);
-    }
-
-    .button.secondary {
-      background: #3a4e91;
-    }
-
-    .button.secondary:hover:not(:disabled) {
-      background: #4b62ae;
-    }
-
-    .button:disabled {
-      opacity: .46;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .join-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .join-row input {
-      min-width: 0;
-      flex: 1;
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      font-size: 21px;
-      font-weight: 900;
-    }
-
-    .join-row .button {
-      width: 150px;
-    }
-
-    .status {
-      margin-bottom: 20px;
-      padding: 15px 18px;
-
-      border-radius: 14px;
-
-      background: rgba(255,255,255,.09);
-      color: #e0e8ff;
-
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .status.success {
-      color: #b1ffdd;
-      background: rgba(54,200,132,.15);
-    }
-
-    .status.error {
-      color: #ffc0ca;
-      background: rgba(255,70,95,.15);
-    }
-
-    .room-code {
-      display: block;
-      margin: 18px 0;
-      padding: 18px;
-
-      border: 2px dashed #ff7186;
-      border-radius: 16px;
-
-      background: rgba(250,67,95,.11);
-      color: #ffb1bf;
-
-      font-size: clamp(31px, 7vw, 52px);
-      font-weight: 900;
-      letter-spacing: 7px;
-      text-align: center;
-    }
-
-    .players {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin: 24px 0;
-    }
-
-    .player {
-      padding: 20px 12px;
-      border-radius: 17px;
-
-      border: 2px solid transparent;
-      background: rgba(255,255,255,.08);
-
-      text-align: center;
-
-      transition:
-        border-color .2s ease,
-        background .2s ease;
-    }
-
-    .player.active {
-      background: rgba(255,255,255,.15);
-      border-color: #ffe189;
-    }
-
-    .player-label {
-      display: block;
-      margin-bottom: 9px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 900;
-    }
-
-    .player-name {
-      display: block;
-      min-height: 27px;
-
-      font-size: 21px;
-      font-weight: 900;
-      overflow-wrap: anywhere;
-    }
-
-    .hearts {
-      margin: 12px 0;
-      font-size: 25px;
-      letter-spacing: 3px;
-    }
-
-    .player-score {
-      display: block;
-      font-size: 18px;
-      font-weight: 900;
-    }
-
-    .player-progress {
-      margin-top: 9px;
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    .player-state {
-      display: block;
-      margin-top: 11px;
-      font-size: 12px;
-      color: #d7e2ff;
-    }
-
-    .game-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-
-    .round-badge {
-      padding: 9px 13px;
-      border-radius: 100px;
-
-      background: rgba(255,255,255,.12);
-      color: #e0e7ff;
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .timer {
-      min-width: 74px;
-      padding: 11px 14px;
-      border-radius: 14px;
-
-      background: rgba(255,255,255,.12);
-      text-align: center;
-
-      font-size: 25px;
-      font-weight: 900;
-    }
-
-    .timer.urgent {
-      background: #a92848;
-      color: white;
-    }
-
-    .question-category {
-      margin-bottom: 10px;
-      color: #ffbdca;
-
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .question-text {
-      font-size: clamp(24px, 4vw, 35px);
-      line-height: 1.24;
-      margin-bottom: 15px;
-    }
-
-    .turn-message {
-      margin-bottom: 20px;
-      color: #d3ddff;
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .answer-form {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    .answer-form input {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .answer-form button {
-      width: 160px;
-    }
-
-    .feedback {
-      min-height: 27px;
-      margin: 0;
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .feedback.good {
-      color: #94ffd0;
-    }
-
-    .feedback.bad {
-      color: #ffc2ce;
-    }
-
-    .used-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 9px;
-      min-height: 25px;
-      margin-top: 15px;
-    }
-
-    .used-answer {
-      padding: 8px 11px;
-      border-radius: 100px;
-
-      background: rgba(255,255,255,.12);
-      color: #e4ecff;
-
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .last-event {
-      margin: 16px 0 0;
-      padding: 14px;
-      border-radius: 12px;
-
-      background: rgba(255,255,255,.07);
-      color: #e5eaff;
-
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .winner {
-      text-align: center;
-    }
-
-    .winner-icon {
-      font-size: 68px;
-      margin-bottom: 12px;
-    }
-
-    .winner h2 {
-      font-size: clamp(29px, 6vw, 44px);
-      color: #ffe48c;
-    }
-
-    .note {
-      margin: 18px 0 0;
-      color: #aab8dc;
-      font-size: 12px;
-      line-height: 1.7;
-      text-align: center;
-    }
-
-    @media (max-width: 560px) {
-      .topbar {
-        margin-bottom: 30px;
-      }
-
-      .panel {
-        padding: 20px;
-      }
-
-      .join-row,
-      .answer-form {
-        flex-direction: column;
-      }
-
-      .join-row .button,
-      .answer-form button {
-        width: 100%;
-      }
-
-      .player {
-        padding: 16px 8px;
-      }
-
-      .player-name {
-        font-size: 17px;
-      }
-
-      .hearts {
-        font-size: 20px;
-      }
-
-      .room-code {
-        letter-spacing: 4px;
-      }
-    }
-  </style>
-
+  <link rel="stylesheet" href="duel.css">
 </head>
 
 <body>
 
-  <div class="page">
+  <!-- ACHTERGROND -->
 
-    <header class="topbar">
-      <a href="index.html" class="brand">
+  <div class="duel-background" aria-hidden="true">
+    <div class="background-sun"></div>
+
+    <div class="background-cloud cloud-a"></div>
+    <div class="background-cloud cloud-b"></div>
+    <div class="background-cloud cloud-c"></div>
+
+    <div class="background-hill hill-a"></div>
+    <div class="background-hill hill-b"></div>
+
+    <span class="background-star star-a">✦</span>
+    <span class="background-star star-b">✦</span>
+    <span class="background-star star-c">✧</span>
+  </div>
+
+
+  <!-- PAGINA -->
+
+  <div class="duel-page">
+
+    <header class="duel-header">
+
+      <a href="index.html" class="duel-logo">
         🎈 Quiz<span>Ballon</span>
       </a>
 
-      <a href="index.html" class="back">
-        ← Terug
+      <div class="header-mode">
+        ⚔️ DUEL
+      </div>
+
+      <a href="index.html" class="header-back">
+        ← Homepage
       </a>
+
     </header>
 
 
-    <section class="hero">
-      <div class="hero-icon">⚔️</div>
+    <!-- TITEL -->
+
+    <div class="duel-heading">
+
+      <div class="duel-eyebrow">
+        ✨ SPEEL LIVE TEGEN JE VRIENDEN
+      </div>
 
       <h1>
-        QUIZBALLON <span>DUEL</span>
+        QUIZBALLON <span>DUEL!</span>
       </h1>
 
-      <p class="subtitle">
-        Geef om de beurt een antwoord.
-        Scoor met zeldzame antwoorden,
-        verdien extra levens en versla je vriend!
+      <p>
+        Denk snel. Antwoord verrassend.
+        Bescherm je levens!
       </p>
-    </section>
 
+    </div>
+
+
+    <!-- FIREBASE-VERBINDING -->
 
     <div
-      class="status"
       id="connection-status"
+      class="duel-notice"
       role="status"
       aria-live="polite"
     >
@@ -582,215 +97,390 @@
     </div>
 
 
-    <!-- ===================================
-         ROOM MAKEN OF DEELNEMEN
-    ==================================== -->
+    <!-- =====================================
+         STARTLOBBY
+    ====================================== -->
 
-    <div id="lobby-start">
+    <div id="lobby-start" class="duel-lobby">
 
-      <section class="panel">
-        <h2>👤 Kies je spelersnaam</h2>
+      <section class="duel-card">
 
-        <p class="panel-description">
-          Deze naam verschijnt tijdens het duel
-          bij beide spelers.
+        <div class="section-eyebrow">
+          STAP 1
+        </div>
+
+        <h2>👋 Wie ben jij?</h2>
+
+        <p class="card-description">
+          Kies een naam en een karakter
+          voor jouw duel.
         </p>
 
-        <label for="player-name">
-          SPELERSNAAM
+        <label for="player-name" class="field-label">
+          JOUW SPELERSNAAM
         </label>
 
         <input
           id="player-name"
+          class="duel-input"
+          type="text"
           maxlength="18"
-          placeholder="Bijvoorbeeld: Max"
           autocomplete="nickname"
           spellcheck="false"
+          placeholder="Bijvoorbeeld: Max"
         >
 
-        <span class="name-hint">
-          2 tot 18 tekens.
-          Gebruik letters, cijfers, spaties,
-          punten, streepjes of underscores.
-        </span>
+        <div class="avatar-choice-title">
+          🎨 KIES JE KARAKTER
+        </div>
+
+        <div
+          id="avatar-picker"
+          class="avatar-picker"
+          role="group"
+          aria-label="Kies een karakter"
+        ></div>
+
       </section>
 
-      <section class="panel">
-        <h2>🏠 Maak een room</h2>
 
-        <p class="panel-description">
-          Maak een room en deel de code
-          met je tegenstander.
-        </p>
+      <div class="lobby-actions">
 
-        <button
-          class="button"
-          id="create-button"
-          type="button"
-          disabled
-        >
-          ROOM AANMAKEN
-        </button>
-      </section>
+        <!-- ROOM MAKEN -->
 
-      <section class="panel">
-        <h2>🔑 Deelnemen met een code</h2>
+        <section class="duel-card">
 
-        <p class="panel-description">
-          Vul de code van je vriend in.
-        </p>
+          <div class="section-eyebrow">
+            STAP 2
+          </div>
 
-        <div class="join-row">
+          <h2>🏠 Maak een room</h2>
+
+          <p class="card-description">
+            Ontvang een code van 6 tekens
+            en deel die met een vriend.
+          </p>
+
+          <button
+            id="create-button"
+            class="duel-button"
+            type="button"
+            disabled
+          >
+            ROOM AANMAKEN ↗
+          </button>
+
+        </section>
+
+
+        <!-- DEELNEMEN -->
+
+        <section class="duel-card">
+
+          <div class="section-eyebrow">
+            OF
+          </div>
+
+          <h2>🔑 Doe mee</h2>
+
+          <p class="card-description">
+            Heeft je vriend al een room?
+            Vul hier de code in.
+          </p>
+
           <input
             id="room-input"
+            class="duel-input code-input"
+            type="text"
             maxlength="6"
-            placeholder="ABC123"
             autocomplete="off"
             spellcheck="false"
+            placeholder="ABC123"
             aria-label="Roomcode"
           >
 
           <button
-            class="button secondary"
             id="join-button"
+            class="duel-button duel-button-blue"
             type="button"
             disabled
           >
-            DEELNEMEN
+            DEELNEMEN →
           </button>
-        </div>
-      </section>
+
+        </section>
+
+      </div>
 
     </div>
 
 
-    <!-- ===================================
-         ROOM / WACHTKAMER
-    ==================================== -->
+    <!-- =====================================
+         DUELROOM
+    ====================================== -->
 
-    <section
-      class="panel"
+    <main
       id="room-panel"
+      class="duel-room"
       hidden
     >
 
-      <h2>🎈 Jouw duelroom</h2>
+      <!-- ROOMCODE -->
 
-      <p class="panel-description">
-        Deel deze code met je vriend.
-      </p>
+      <section class="room-topline">
 
-      <strong
-        id="room-code"
-        class="room-code"
-      >
-        ------
-      </strong>
+        <div>
+          <span class="topline-label">
+            JOUW ROOMCODE
+          </span>
 
-      <button
-        class="button secondary"
-        id="copy-button"
-        type="button"
-      >
-        📋 CODE KOPIËREN
-      </button>
+          <strong id="room-code">
+            ------
+          </strong>
+        </div>
 
-      <div class="players">
-
-        <div
-          class="player"
-          id="host-card"
+        <button
+          id="copy-button"
+          class="copy-code"
+          type="button"
         >
-          <span class="player-label">
+          📋 Kopieer code
+        </button>
+
+      </section>
+
+
+      <!-- ===================================
+           SPELERS TEGENOVER ELKAAR
+      ==================================== -->
+
+      <section class="duel-arena">
+
+        <!-- SPELER 1 -->
+
+        <article
+          id="host-card"
+          class="fighter fighter-red"
+        >
+
+          <span class="fighter-label">
             🔴 SPELER 1
           </span>
 
+          <div
+            id="host-avatar"
+            class="fighter-avatar"
+            aria-hidden="true"
+          ></div>
+
           <strong
-            class="player-name"
             id="host-name"
+            class="fighter-name"
           >
             Wachten...
           </strong>
 
           <div
-            class="hearts"
             id="host-hearts"
+            class="fighter-hearts"
+            aria-label="Levens"
           >
             ❤️❤️
           </div>
 
-          <strong
-            class="player-score"
-            id="host-score"
-          >
-            0 punten
-          </strong>
+          <div class="fighter-score">
+            ⭐
+            <strong id="host-score">
+              0
+            </strong>
+            <span>punten</span>
+          </div>
+
+          <div class="life-progress-title">
+            💖 VOLGEND LEVEN
+          </div>
 
           <div
-            class="player-progress"
-            id="host-progress"
+            class="life-progress-track"
+            role="progressbar"
+            aria-label="Voortgang extra leven speler 1"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            id="host-progress-track"
           >
-            0/250 naar extra leven
+            <div
+              id="host-progress-fill"
+              class="life-progress-fill"
+            ></div>
           </div>
 
           <small
-            class="player-state"
+            id="host-progress-label"
+            class="life-progress-label"
+          >
+            0%
+          </small>
+
+          <small
             id="host-status"
+            class="fighter-status"
           >
             Verbinden...
           </small>
+
+          <!-- HARTJESANIMATIES -->
+
+          <div
+            id="host-heart-effects"
+            class="heart-effects"
+            aria-hidden="true"
+          ></div>
+
+        </article>
+
+
+        <!-- CENTRALE LUCHTBALLON -->
+
+        <div class="arena-center">
+
+          <div class="versus-badge">
+            VS
+          </div>
+
+          <div
+            id="timer-balloon"
+            class="timer-balloon"
+            aria-hidden="true"
+          >
+
+            <div class="timer-balloon-envelope">
+              <span class="balloon-panel panel-left"></span>
+              <span class="balloon-panel panel-mid"></span>
+              <span class="balloon-panel panel-right"></span>
+
+              <span class="balloon-qb">
+                QB
+              </span>
+            </div>
+
+            <div class="balloon-strings">
+              <span></span>
+              <span></span>
+            </div>
+
+            <div class="balloon-basket"></div>
+
+            <div
+              id="balloon-flame"
+              class="balloon-flame"
+            >
+              <span class="flame-outer"></span>
+              <span class="flame-inner"></span>
+            </div>
+
+            <div class="balloon-burst">
+              ✨
+            </div>
+
+          </div>
+
+          <span class="center-caption">
+            QUIZBALLON
+          </span>
+
         </div>
 
-        <div
-          class="player"
+
+        <!-- SPELER 2 -->
+
+        <article
           id="guest-card"
+          class="fighter fighter-blue"
         >
-          <span class="player-label">
+
+          <span class="fighter-label">
             🔵 SPELER 2
           </span>
 
+          <div
+            id="guest-avatar"
+            class="fighter-avatar"
+            aria-hidden="true"
+          ></div>
+
           <strong
-            class="player-name"
             id="guest-name"
+            class="fighter-name"
           >
             Nog niemand
           </strong>
 
           <div
-            class="hearts"
             id="guest-hearts"
+            class="fighter-hearts"
+            aria-label="Levens"
           >
             ❤️❤️
           </div>
 
-          <strong
-            class="player-score"
-            id="guest-score"
-          >
-            0 punten
-          </strong>
+          <div class="fighter-score">
+            ⭐
+            <strong id="guest-score">
+              0
+            </strong>
+            <span>punten</span>
+          </div>
+
+          <div class="life-progress-title">
+            💖 VOLGEND LEVEN
+          </div>
 
           <div
-            class="player-progress"
-            id="guest-progress"
+            class="life-progress-track"
+            role="progressbar"
+            aria-label="Voortgang extra leven speler 2"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            id="guest-progress-track"
           >
-            0/250 naar extra leven
+            <div
+              id="guest-progress-fill"
+              class="life-progress-fill"
+            ></div>
           </div>
 
           <small
-            class="player-state"
+            id="guest-progress-label"
+            class="life-progress-label"
+          >
+            0%
+          </small>
+
+          <small
             id="guest-status"
+            class="fighter-status"
           >
             Wachten...
           </small>
-        </div>
 
-      </div>
+          <div
+            id="guest-heart-effects"
+            class="heart-effects"
+            aria-hidden="true"
+          ></div>
 
+        </article>
+
+      </section>
+
+
+      <!-- ROOMSTATUS -->
 
       <div
-        class="status"
         id="room-status"
+        class="duel-notice room-notice"
         role="status"
         aria-live="polite"
       >
@@ -798,110 +488,225 @@
       </div>
 
 
-      <!-- STARTKNOP ALLEEN VOOR HOST -->
+      <!-- STARTKNOP -->
 
       <button
-        class="button"
         id="start-duel-button"
+        class="duel-button start-duel-button"
         type="button"
         hidden
       >
-        ⚔️ START HET DUEL
+        ⚔️ START HET DUEL!
       </button>
 
 
-      <!-- =================================
-           ECHTE QUIZ
-      ================================== -->
+      <!-- ===================================
+           SPEELSCHERM
+      ==================================== -->
 
       <section
         id="game-section"
+        class="game-section"
         hidden
       >
 
-        <div class="game-top">
-          <span
-            class="round-badge"
-            id="round-display"
-          >
-            VRAAG 1
-          </span>
+        <div class="question-header">
 
           <div
-            class="timer"
+            id="round-display"
+            class="round-badge"
+          >
+            VRAAG 1
+          </div>
+
+          <div
             id="turn-timer"
+            class="timer-badge"
           >
             12
           </div>
+
         </div>
 
-        <div
-          class="question-category"
-          id="question-category"
-        >
-          ALGEMENE KENNIS
+
+        <!-- VRAAGKAART -->
+
+        <section class="question-panel">
+
+          <div
+            id="question-category"
+            class="question-category"
+          >
+            KENNISVRAAG
+          </div>
+
+          <h2 id="question-text">
+            Hier verschijnt de vraag.
+          </h2>
+
+          <p class="question-description">
+            Geef om de beurt een geldig antwoord.
+            Een gebruikt antwoord mag niet nog eens.
+          </p>
+
+        </section>
+
+
+        <!-- TWEE ANTWOORDVAKKEN -->
+
+        <div class="answer-lanes">
+
+          <!-- LINKS: SPELER 1 -->
+
+          <section
+            id="host-answer-lane"
+            class="answer-lane lane-red"
+          >
+
+            <div class="answer-lane-header">
+              <strong id="host-turn-label">
+                🔴 SPELER 1
+              </strong>
+
+              <span
+                id="host-turn-status"
+                class="turn-status"
+              >
+                Wachten...
+              </span>
+            </div>
+
+            <div class="answer-input-shell">
+
+              <input
+                id="host-answer-input"
+                class="duel-input"
+                type="text"
+                maxlength="100"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Wachten op je beurt..."
+                disabled
+              >
+
+              <span class="typing-indicator">
+                LIVE
+              </span>
+
+            </div>
+
+          </section>
+
+
+          <!-- RECHTS: SPELER 2 -->
+
+          <section
+            id="guest-answer-lane"
+            class="answer-lane lane-blue"
+          >
+
+            <div class="answer-lane-header">
+              <strong id="guest-turn-label">
+                🔵 SPELER 2
+              </strong>
+
+              <span
+                id="guest-turn-status"
+                class="turn-status"
+              >
+                Wachten...
+              </span>
+            </div>
+
+            <div class="answer-input-shell">
+
+              <input
+                id="guest-answer-input"
+                class="duel-input"
+                type="text"
+                maxlength="100"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Wachten op je beurt..."
+                disabled
+              >
+
+              <span class="typing-indicator">
+                LIVE
+              </span>
+
+            </div>
+
+          </section>
+
         </div>
 
-        <h2
-          class="question-text"
-          id="question-text"
-        >
-          Hier verschijnt de vraag.
-        </h2>
+
+        <!-- BEURTMELDING -->
 
         <div
-          class="turn-message"
           id="turn-message"
+          class="turn-message"
+          role="status"
         >
           Wachten op de eerste beurt...
         </div>
 
+
+        <!-- VERSTUREN -->
+
         <form
-          class="answer-form"
           id="answer-form"
+          class="answer-submit-area"
           autocomplete="off"
         >
 
-          <input
-            id="answer-input"
-            type="text"
-            maxlength="100"
-            placeholder="Typ jouw antwoord..."
-            spellcheck="false"
-            autocomplete="off"
-            aria-label="Jouw antwoord"
-            required
-          >
-
           <button
-            class="button"
             id="answer-button"
+            class="duel-button answer-submit-button"
             type="submit"
+            disabled
           >
-            ANTWOORD
+            ✅ ANTWOORD INDIENEN
           </button>
 
         </form>
 
+
+        <!-- FEEDBACK -->
+
         <p
-          class="feedback"
           id="answer-feedback"
+          class="answer-feedback"
           aria-live="polite"
         ></p>
 
-        <h3>
-          📚 Al gebruikte antwoorden
-          (<span id="used-count">0</span>/12)
-        </h3>
+
+        <!-- GEBRUIKTE ANTWOORDEN -->
+
+        <section class="used-panel">
+
+          <div class="used-heading">
+            <h3>📚 Al gegeven antwoorden</h3>
+
+            <span>
+              <strong id="used-count">0</strong>/12
+            </span>
+          </div>
+
+          <div
+            id="used-list"
+            class="used-list"
+          >
+            Nog geen antwoorden.
+          </div>
+
+        </section>
+
 
         <div
-          class="used-list"
-          id="used-list"
-        ></div>
-
-        <div
-          class="last-event"
           id="last-event"
+          class="last-event"
         >
           Het duel is begonnen!
         </div>
@@ -909,19 +714,20 @@
       </section>
 
 
-      <!-- =================================
-           EINDSCHERM
-      ================================== -->
+      <!-- ===================================
+           WINNAAR
+      ==================================== -->
 
       <section
-        class="winner"
         id="winner-section"
+        class="winner-section"
         hidden
       >
+
         <div class="winner-icon">🏆</div>
 
         <h2 id="winner-title">
-          We hebben een winnaar!
+          WE HEBBEN EEN WINNAAR!
         </h2>
 
         <p id="winner-description">
@@ -929,21 +735,23 @@
         </p>
 
         <button
-          class="button secondary"
           id="new-room-button"
+          class="duel-button"
           type="button"
         >
-          🔄 NIEUW DUEL
+          🔄 NIEUW DUEL SPELEN
         </button>
+
       </section>
 
-      <p class="note">
-        QuizBallon Duel — testversie.
-        Sluit je het venster tijdens een duel,
-        dan kan je tegenstander nog beurten zien verlopen.
+
+      <p class="duel-footer-note">
+        🎈 QuizBallon Duel ·
+        12 seconden per beurt ·
+        250 punten voor een extra leven
       </p>
 
-    </section>
+    </main>
 
   </div>
 
@@ -951,10 +759,9 @@
   <!-- =====================================
        VRAGENBANK
 
-       We laden alleen de bestaande
-       uitbreiding met kennisvragen.
-       De Daily Challenge wordt hier
-       niet gestart.
+       Duel gebruikt voorlopig zijn
+       bestaande antwoordlijst uit
+       vragen-uitbreiding.js.
   ====================================== -->
 
   <script>
@@ -963,10 +770,7 @@
 
   <script src="vragen-uitbreiding.js"></script>
 
-
-  <!-- =====================================
-       MULTIPLAYERLOGICA
-  ====================================== -->
+  <!-- MULTIPLAYER -->
 
   <script
     type="module"
