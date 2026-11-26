@@ -1,21 +1,26 @@
 /* ==========================================
-   QUIZBALLON
-   COMPLETE SPELLOGICA
+   QUIZBALLON - VERSIE 3
 
-   NIEUWE FUNCTIES:
-   - ONBEPERKT OPNIEUW PROBEREN
-   - TIMER LOOPT DOOR BIJ FOUT ANTWOORD
-   - SLIMME TYPO-SUGGESTIES
-   - SUGGESTIES BIJ ONVOLLEDIGE NAMEN
-   - KLIKBARE ANTWOORDSUGGESTIES
+   NIEUW:
+   - GROTERE ANTWOORDENBANK
+   - MINIMAAL 50 ANTWOORDEN PER VRAAG
+   - 1 RAKETANTWOORD PER VRAAG
+   - 7 STERRENANTWOORDEN
+   - 10 WOLKENANTWOORDEN
+   - 10 MOOIE VLUCHTEN
+   - OVERIGE ANTWOORDEN 20 PUNTEN
+   - TIJDELIJKE RAKETANIMATIE
 
-   BESTAANDE FUNCTIES:
-   - 10 VRAGEN PER POTJE
-   - 25 SECONDEN PER VRAAG
-   - ZELDZAAMHEIDSPUNTEN
-   - STIJGENDE LUCHTBALLON
-   - LUCHTZONES EN PLANETEN
+   BEHOUDEN:
+   - 10 VRAGEN
+   - 25 SECONDEN
+   - MEERDERE POGINGEN
+   - SLIMME SUGGESTIES
+   - LUCHTZONES
+   - PLANETEN
    - PERSOONLIJK RECORD
+
+   GEBRUIKT HET BESTAANDE vragen.js
 ========================================== */
 
 (function () {
@@ -27,7 +32,6 @@
   ======================================== */
 
   const QUESTIONS_PER_GAME = 10;
-
   const SECONDS_PER_QUESTION = 25;
 
   const KM_PER_POINT = 2;
@@ -38,6 +42,662 @@
   const RECORD_KEY = "quizballon-record-v1";
 
   const MAX_SUGGESTIONS = 3;
+
+  const MIN_ANSWERS = 50;
+
+  const ROCKET_DURATION = 2600;
+
+
+  /* ========================================
+     SCORECATEGORIEËN
+  ======================================== */
+
+  const TIERS = {
+
+    rocket: {
+      points: 100,
+      title: "🚀 RAKETANTWOORD!",
+      description: "Het zeldzaamste antwoord van deze vraag!",
+      icon: "🚀"
+    },
+
+    stars: {
+      points: 90,
+      title: "🌟 TUSSEN DE STERREN!",
+      description: "Een uitzonderlijk zeldzaam antwoord!",
+      icon: "🌟"
+    },
+
+    clouds: {
+      points: 70,
+      title: "☁️ BOVEN DE WOLKEN!",
+      description: "Een sterk en origineel antwoord!",
+      icon: "☁️"
+    },
+
+    flight: {
+      points: 45,
+      title: "🎈 MOOIE VLUCHT!",
+      description: "Goed bedacht!",
+      icon: "🎈"
+    },
+
+    low: {
+      points: 20,
+      title: "🍃 ER ZIT MEER IN!",
+      description: "Goed antwoord, maar er zijn zeldzamere mogelijkheden.",
+      icon: "🍃"
+    }
+
+  };
+
+
+  /* ========================================
+     UITBREIDING ANTWOORDENBANK
+
+     Deze antwoorden worden toegevoegd
+     aan de bestaande vragen uit vragen.js.
+
+     Formaat:
+     "Antwoord|zeldzaamheidswaarde|alias"
+
+     De zeldzaamheidswaarde bepaalt
+     de rangorde van de antwoorden.
+
+     Vervolgens worden de antwoorden
+     ingedeeld in de scorecategorieën.
+  ======================================== */
+
+  const EXTRA_ANSWERS = {
+
+
+    /* ======================================
+       0. VOGELSOORTEN
+    ====================================== */
+
+    0: [
+      "Groene ara|72",
+      "Hyacintara|85",
+      "Roodschouderara|78",
+      "Blauwgele ara|54",
+      "Geelvleugelara|60",
+      "Vlagstaartkolibrie|89",
+      "Zwaardkolibrie|93",
+      "Bijkolibrie|96",
+      "Robijnkeelkolibrie|66",
+      "Andesrotshaan|90",
+      "Helmneushoornvogel|97",
+      "Dubbelhoornige neushoornvogel|85",
+      "Neushoornvogel|52",
+      "Toko|60",
+      "Reuzentoekan|64",
+      "Zwavelborsttoekan|82",
+      "Groene kakelaar|92",
+      "Roodbuikbuulbuul|80",
+      "Japanse kraanvogel|86",
+      "Kroonkraanvogel|66",
+      "Jufferkraanvogel|79",
+      "Mandarijneend|46",
+      "Muskuseend|40",
+      "Blauwgele tangare|88",
+      "Scharrelaar|72",
+      "Lilaborstroller|94",
+      "Zwarte kaketoe|81",
+      "Geelkuifkaketoe|59",
+      "Galah|84",
+      "Lori|53",
+      "Regenbooglori|62",
+      "Afrikaanse grijze roodstaart|61",
+      "Roodmaskerparkiet|83",
+      "Zuidelijke ijsvogel|78",
+      "Goudfazant|54",
+      "Lady Amherstfazant|87",
+      "Amerikaanse flamingo|55",
+      "Chileense flamingo|66",
+      "Kleine flamingo|70",
+      "Grote flamingo|38"
+    ],
+
+
+    /* ======================================
+       1. AFRIKAANSE LANDEN
+
+       De oorspronkelijke vragenbank
+       bevat al ruim 50 landen.
+    ====================================== */
+
+    1: [],
+
+
+    /* ======================================
+       2. ZEEDIEREN
+    ====================================== */
+
+    2: [
+      "Zwaardvis|32",
+      "Zeilvis|43",
+      "Tonijn|20",
+      "Blauwvintonijn|52",
+      "Makreel|23",
+      "Haring|17",
+      "Sardine|22",
+      "Ansjovis|34",
+      "Kabeljauw|25",
+      "Heilbot|39",
+      "Tarbot|49",
+      "Zeedraakvis|82",
+      "Steenvis|68",
+      "Koraalduivelvis|64",
+      "Koraalvlinder|58",
+      "Doktersvis|45",
+      "Blauwe doktersvis|52",
+      "Papegaaivis|39",
+      "Trekkervis|65",
+      "Engelvis|38",
+      "Koffervis|72",
+      "Klipvis|74",
+      "Barracuda|43",
+      "Schorpioenvis|75",
+      "Goblinhaai|91",
+      "Franjehaai|93",
+      "Groenlandse haai|88",
+      "Reuzenhaai|60",
+      "Zandhaai|63",
+      "Tijgerhaai|42",
+      "Citroenhaai|57",
+      "Zwartpuntrifhaai|65",
+      "Zilverpunthaai|78",
+      "Haringhaai|73",
+      "Blauwe haai|48",
+      "Groene zeeschildpad|47",
+      "Lederschildpad|57",
+      "Caretschildpad|68",
+      "Onechte karetschildpad|76",
+      "Platvis|30"
+    ],
+
+
+    /* ======================================
+       3. LANDEN WERELDWIJD
+
+       De vraag wordt verbreed van
+       Europese landen naar alle landen.
+    ====================================== */
+
+    3: [
+      "Canada|9",
+      "Verenigde Staten|8|Amerika|VS",
+      "Mexico|13",
+      "Brazilië|13|Brazilie",
+      "Argentinië|17|Argentinie",
+      "Chili|24",
+      "Peru|27",
+      "Colombia|24",
+      "Venezuela|29",
+      "Ecuador|41",
+      "Bolivia|48",
+      "Paraguay|61",
+      "Uruguay|51",
+      "Guyana|78",
+      "Suriname|26",
+      "Japan|9",
+      "China|8",
+      "India|9",
+      "Pakistan|29",
+      "Bangladesh|34",
+      "Nepal|35",
+      "Bhutan|81",
+      "Sri Lanka|38",
+      "Thailand|16",
+      "Vietnam|20",
+      "Cambodja|37",
+      "Laos|54",
+      "Myanmar|49",
+      "Maleisië|29|Maleisie",
+      "Singapore|19",
+      "Indonesië|15|Indonesie",
+      "Filipijnen|18",
+      "Zuid-Korea|17|Zuid Korea",
+      "Noord-Korea|30|Noord Korea",
+      "Mongolië|52|Mongolie",
+      "Australië|10|Australie",
+      "Nieuw-Zeeland|17|Nieuw Zeeland",
+      "Papoea-Nieuw-Guinea|76",
+      "Vanuatu|82",
+      "Salomonseilanden|83",
+      "Kiribati|97",
+      "Tuvalu|98",
+      "Nauru|100",
+      "Palau|95",
+      "Micronesië|96|Micronesie",
+      "Marshalleilanden|97"
+    ],
+
+
+    /* ======================================
+       4. FRUIT
+    ====================================== */
+
+    4: [
+      "Grapefruit|27",
+      "Pomelo|42",
+      "Rode bes|30",
+      "Zwarte bes|37",
+      "Kruisbes|51",
+      "Veenbes|61",
+      "Cranberry|43",
+      "Moerbei|62",
+      "Dadel|36",
+      "Olijf|45",
+      "Persimmon|65",
+      "Nashi|74|Aziatische peer",
+      "Rode pitaja|65",
+      "Witte pitaja|73",
+      "Buddha's hand|92",
+      "Yuzu|79",
+      "Sudachi|95",
+      "Calamansi|89",
+      "Makrutlimoen|94",
+      "Kaffirlimoen|90",
+      "Bergamot|81",
+      "Finger lime|92|Vingerlimoen",
+      "Jambolan|98",
+      "Langsat|96",
+      "Duku|95",
+      "Santol|96",
+      "Pulasan|98",
+      "Ambarella|99",
+      "Soursop|85|Zuurzak",
+      "Noni|90",
+      "Atemoya|94",
+      "Cupuaçu|99|Cupuacu",
+      "Camu camu|98",
+      "Açaí|80|Acai",
+      "Taybes|90"
+    ],
+
+
+    /* ======================================
+       5. HOOFDSTEDEN WERELDWIJD
+
+       De vraag wordt verbreed.
+    ====================================== */
+
+    5: [
+      "Washington D.C.|11|Washington",
+      "Ottawa|19",
+      "Mexico-Stad|18|Mexico City",
+      "Brasília|22|Brasilia",
+      "Buenos Aires|16",
+      "Santiago|25",
+      "Lima|23",
+      "Bogotá|28|Bogota",
+      "Caracas|31",
+      "Quito|42",
+      "La Paz|39",
+      "Sucre|72",
+      "Asunción|75|Asuncion",
+      "Montevideo|53",
+      "Georgetown|87",
+      "Paramaribo|42",
+      "Tokio|10|Tokyo",
+      "Peking|16|Beijing",
+      "New Delhi|20",
+      "Islamabad|50",
+      "Dhaka|62",
+      "Kathmandu|48",
+      "Thimphu|93",
+      "Sri Jayawardenapura Kotte|100",
+      "Bangkok|17",
+      "Hanoi|32",
+      "Phnom Penh|47",
+      "Vientiane|80",
+      "Naypyidaw|91",
+      "Kuala Lumpur|27",
+      "Singapore|20",
+      "Manilla|24|Manila",
+      "Seoul|22",
+      "Pyongyang|33",
+      "Ulaanbaatar|77",
+      "Canberra|28",
+      "Wellington|36",
+      "Port Moresby|90",
+      "Port Vila|92",
+      "Honiara|95",
+      "Tarawa|98",
+      "Funafuti|100"
+    ],
+
+
+    /* ======================================
+       6. HONDENRASSEN
+    ====================================== */
+
+    6: [
+      "Australische herder|36",
+      "Australian cattle dog|55",
+      "Belgische herder|29",
+      "Mechelse herder|34",
+      "Groenendaeler|71",
+      "Tervuerense herder|83",
+      "Laekense herder|94",
+      "Bobtail|48",
+      "Old English sheepdog|55",
+      "Duitse dog|32",
+      "Deense dog|35",
+      "Ierse wolfshond|59",
+      "Schotse deerhound|80",
+      "Afghaanse windhond|63",
+      "Italiaans windhondje|66",
+      "Italiaanse mastiff|57",
+      "Engelse mastiff|56",
+      "Bullmastiff|46",
+      "Bordeauxdog|55",
+      "Dogo argentino|72",
+      "Fila brasileiro|93",
+      "Boerboel|85",
+      "Rhodesian ridgeback|56",
+      "Pharaohond|89",
+      "Cirneco dell'Etna|96",
+      "Podenco ibicenco|88",
+      "Podenco canario|91",
+      "Duitse staande korthaar|60",
+      "Ierse setter|45",
+      "Engelse setter|48",
+      "Gordon setter|73",
+      "Clumberspaniël|98|Clumber spaniel",
+      "Sussexspaniël|100|Sussex spaniel",
+      "Fieldspaniël|97|Field spaniel",
+      "Welsh springerspaniël|75",
+      "Lagotto romagnolo|80",
+      "Kooikerhondje|49",
+      "Markiesje|90",
+      "Stabijhoun|74",
+      "Wetterhoun|92"
+    ],
+
+
+    /* ======================================
+       7. OLYMPISCHE DISCIPLINES
+
+       De vraag wordt verduidelijkt:
+       sporten én disciplines.
+    ====================================== */
+
+    7: [
+      "100 meter sprint|12",
+      "200 meter sprint|18",
+      "400 meter sprint|21",
+      "800 meter hardlopen|28",
+      "1500 meter hardlopen|31",
+      "5000 meter hardlopen|40",
+      "10000 meter hardlopen|48",
+      "Marathon|15",
+      "110 meter horden|47",
+      "400 meter horden|52",
+      "3000 meter steeplechase|79",
+      "Hoogspringen|30",
+      "Verspringen|28",
+      "Hink-stap-springen|66",
+      "Polsstokhoogspringen|39",
+      "Speerwerpen|31",
+      "Discuswerpen|30",
+      "Kogelstoten|34",
+      "Kogelslingeren|57",
+      "Tienkamp|45",
+      "Zevenkamp|53",
+      "Estafetteloop|25",
+      "4x100 meter estafette|43",
+      "4x400 meter estafette|56",
+      "100 meter rugslag|40",
+      "200 meter rugslag|45",
+      "100 meter schoolslag|37",
+      "200 meter schoolslag|49",
+      "100 meter vlinderslag|46",
+      "200 meter wisselslag|53",
+      "Synchroonzwemmen|41|Artistiek zwemmen",
+      "Schoonspringen|36",
+      "10 meter platformduiken|67",
+      "3 meter plankduiken|72",
+      "BMX freestyle|58",
+      "BMX racing|59",
+      "Keirin|77",
+      "Omnium|84",
+      "Individuele tijdrit|48",
+      "Klimonderdeel sportklimmen|65"
+    ],
+
+
+    /* ======================================
+       8. STEDEN IN JAPAN
+    ====================================== */
+
+    8: [
+      "Otaru|78",
+      "Asahikawa|84",
+      "Obihiro|93",
+      "Kitami|94",
+      "Muroran|95",
+      "Tomakomai|92",
+      "Hirosaki|88",
+      "Hachinohe|92",
+      "Ichinoseki|97",
+      "Hanamaki|97",
+      "Yokote|100",
+      "Noshiro|98",
+      "Sakata|97",
+      "Tsuruoka|96",
+      "Fukushima|73",
+      "Koriyama|84",
+      "Iwaki|87",
+      "Mito|82",
+      "Hitachi|91",
+      "Tsuchiura|95",
+      "Kawagoe|85",
+      "Tokorozawa|89",
+      "Saitama|66",
+      "Funabashi|85",
+      "Kashiwa|91",
+      "Ichikawa|89",
+      "Machida|88",
+      "Hachioji|87",
+      "Fujisawa|89",
+      "Odawara|88",
+      "Yokosuka|83",
+      "Yamanashi|92",
+      "Nagano|77",
+      "Ueda|97",
+      "Suwa|99",
+      "Joetsu|97|Jōetsu",
+      "Nagaoka|95",
+      "Takaoka|97",
+      "Komatsu|96",
+      "Sabae|100"
+    ],
+
+
+    /* ======================================
+       9. MANEN VAN HET ZONNESTELSEL
+    ====================================== */
+
+    9: [
+      "Leda|96",
+      "Lysithea|98",
+      "Ananke|96",
+      "Callirrhoe|99",
+      "Taygete|100",
+      "Chaldene|99",
+      "Harpalyke|99",
+      "Kalyke|98",
+      "Iocaste|100",
+      "Erinome|99",
+      "Isonoe|99",
+      "Praxidike|100",
+      "Autonoe|99",
+      "Thyone|99",
+      "Hermippe|99",
+      "Aitne|99",
+      "Eurydome|100",
+      "Euanthe|100",
+      "Euporie|100",
+      "Orthosie|100",
+      "Sponde|100",
+      "Kale|100",
+      "Pasithee|100",
+      "Hegemone|100",
+      "Mneme|100",
+      "Aoede|100",
+      "Thelxinoe|100",
+      "Arche|100",
+      "Kallichore|100",
+      "Helike|100",
+      "Carpo|100",
+      "Eukelade|100",
+      "Cyllene|100",
+      "Kore|100",
+      "Herse|100"
+    ],
+
+
+    /* ======================================
+       10. MUZIEKINSTRUMENTEN
+    ====================================== */
+
+    10: [
+      "Piccolo|48",
+      "Basklarinet|65",
+      "Altklarinet|73",
+      "Contrafagot|89",
+      "Engelse hoorn|72",
+      "Althobo|80",
+      "Hoorn|42|Franse hoorn",
+      "Eufonium|78",
+      "Tuba|33",
+      "Sousafoon|73",
+      "Bastrombone|71",
+      "Bugel|66",
+      "Cornet|72",
+      "Flügelhorn|83",
+      "Altsaxofoon|37",
+      "Tenorsaxofoon|43",
+      "Baritonsaxofoon|62",
+      "Sopraansaxofoon|57",
+      "Basgitaar|13",
+      "Elektrische gitaar|11",
+      "Akoestische gitaar|13",
+      "Steelgitaar|67",
+      "Dobro|84",
+      "Luit|55",
+      "Theorbe|99",
+      "Klavecimbel|56",
+      "Clavichord|92",
+      "Celesta|77",
+      "Carillon|80",
+      "Pijporgel|56",
+      "Harmonium|82",
+      "Bandoneon|86",
+      "Concertina|89",
+      "Shakuhachi|95",
+      "Hulusi|100",
+      "Dizi|95",
+      "Morin khuur|99",
+      "Sarangi|97",
+      "Gayageum|99",
+      "Guqin|100"
+    ],
+
+
+    /* ======================================
+       11. DINOSAURIËRS
+    ====================================== */
+
+    11: [
+      "Torosaurus|73",
+      "Centrosaurus|76",
+      "Chasmosaurus|79",
+      "Diabloceratops|94",
+      "Kosmoceratops|94",
+      "Nasutoceratops|95",
+      "Einiosaurus|93",
+      "Achelousaurus|96",
+      "Pentasaurus|97",
+      "Pentaceratops|82",
+      "Rubeosaurus|97",
+      "Regaliceratops|98",
+      "Sinoceratops|87",
+      "Yutyrannus|92",
+      "Dilong|99",
+      "Daspletosaurus|83",
+      "Tarbosaurus|76",
+      "Alioramus|94",
+      "Qianzhousaurus|98",
+      "Lythronax|95",
+      "Teratophoneus|97",
+      "Raptorex|93",
+      "Austroraptor|96",
+      "Buitreraptor|98",
+      "Bambiraptor|92",
+      "Saurornitholestes|97",
+      "Achillobator|96",
+      "Dromaeosaurus|88",
+      "Halszkaraptor|99",
+      "Adasaurus|99",
+      "Pyroraptor|87",
+      "Tianyuraptor|100",
+      "Zhenyuanlong|100",
+      "Sinornithosaurus|94",
+      "Changyuraptor|100"
+    ],
+
+
+    /* ======================================
+       12. EILANDEN
+    ====================================== */
+
+    12: [
+      "Hokkaido|40",
+      "Honshu|32",
+      "Shikoku|67",
+      "Kyushu|49",
+      "Okinawa|45",
+      "Iriomote|95",
+      "Ishigaki|86",
+      "Yakushima|92",
+      "Tsushima|89",
+      "Sado|96",
+      "Shodoshima|98",
+      "Jeju|49",
+      "Ulleungdo|96",
+      "Taiwan|23",
+      "Hainan|55",
+      "Luzon|44",
+      "Mindanao|52",
+      "Palawan|45",
+      "Boracay|30",
+      "Cebu|34",
+      "Bohol|58",
+      "Negros|68",
+      "Panay|74",
+      "Samar|82",
+      "Leyte|78",
+      "Siargao|57",
+      "Siargao-eiland|57",
+      "Bantayan|84",
+      "Camiguin|88",
+      "Siquijor|87",
+      "El Hierro|73",
+      "La Gomera|64",
+      "La Palma|58",
+      "Formentera|55",
+      "La Graciosa|86",
+      "Pantelleria|93",
+      "Lampedusa|75",
+      "Elba|71",
+      "Capri|48",
+      "Ischia|59"
+    ]
+
+  };
 
 
   /* ========================================
@@ -50,7 +710,6 @@
 
   let totalScore = 0;
   let totalHeight = 0;
-
   let correctAnswers = 0;
 
   let secondsLeft = SECONDS_PER_QUESTION;
@@ -77,9 +736,7 @@
   const elements = {
 
     world: byId("world"),
-
     balloonContainer: byId("balloon-container"),
-
     particles: byId("flight-particles"),
 
     startScreen: byId("start-screen"),
@@ -129,10 +786,7 @@
 
 
   /* ========================================
-     EXTRA ELEMENTEN VOOR SUGGESTIES
-
-     Deze worden automatisch aangemaakt.
-     Je hoeft index.html niet te veranderen.
+     EXTRA ELEMENTEN
   ======================================== */
 
   let feedbackElement = null;
@@ -141,49 +795,16 @@
 
 
   /* ========================================
-     BASISFUNCTIES
+     HULPFUNCTIES
   ======================================== */
 
-  function formatNumber(number) {
-
-    return new Intl.NumberFormat("nl-NL").format(number);
-
+  function formatNumber(value) {
+    return new Intl.NumberFormat("nl-NL").format(value);
   }
 
-
-  function formatHeight(height) {
-
-    return formatNumber(Math.round(height)) + " km";
-
+  function formatHeight(value) {
+    return formatNumber(Math.round(value)) + " km";
   }
-
-
-  function randomNumber(max) {
-
-    return Math.floor(Math.random() * max);
-
-  }
-
-
-  function prefersReducedMotion() {
-
-    return window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-  }
-
-
-  /* ========================================
-     ANTWOORDEN NORMALISEREN
-
-     Voorbeelden:
-
-     Kākāpō       -> kakapo
-     FLAMINGO     -> flamingo
-     Zuid-Afrika  -> zuid afrika
-     "  Toekan "  -> toekan
-  ======================================== */
 
   function normalizeAnswer(value) {
 
@@ -203,24 +824,15 @@
 
   }
 
-
-  /* ========================================
-     VRAGEN DOOR ELKAAR SCHUDDEN
-  ======================================== */
-
   function shuffleArray(array) {
 
     const result = [...array];
 
     for (let i = result.length - 1; i > 0; i--) {
 
-      const j = randomNumber(i + 1);
+      const j = Math.floor(Math.random() * (i + 1));
 
-      const temp = result[i];
-
-      result[i] = result[j];
-
-      result[j] = temp;
+      [result[i], result[j]] = [result[j], result[i]];
 
     }
 
@@ -228,47 +840,897 @@
 
   }
 
+  function prefersReducedMotion() {
+    return window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+  }
+
 
   /* ========================================
-     SCHERM TONEN
+     ANTWOORDREGEL OMZETTEN
   ======================================== */
 
-  function showScreen(screenName) {
+  function parseExtraAnswer(line) {
 
-    const screens = [
-      elements.startScreen,
-      elements.gameScreen,
-      elements.endScreen
-    ];
+    const parts = line.split("|");
 
-    screens.forEach(function (screen) {
+    return {
+      answer: parts[0].trim(),
 
-      screen.classList.remove("active");
+      points: Math.max(
+        1,
+        Math.min(100, Number(parts[1]) || 1)
+      ),
+
+      aliases: parts.slice(2).map(function (alias) {
+        return alias.trim();
+      })
+
+    };
+
+  }
+
+
+  /* ========================================
+     BESTAANDE VRAGEN UITBREIDEN
+  ======================================== */
+
+  function buildExpandedQuestions() {
+
+    const original = window.QUIZ_QUESTIONS;
+
+    if (!Array.isArray(original)) {
+      return [];
+    }
+
+    return original.map(function (question, index) {
+
+      const answers = question.answers.map(
+        function (answer) {
+
+          return {
+            answer: answer.answer,
+            points: answer.points,
+            aliases: [...(answer.aliases || [])]
+          };
+
+        }
+      );
+
+      const seen = new Set();
+
+      answers.forEach(function (answer) {
+
+        [
+          answer.answer,
+          ...answer.aliases
+        ].forEach(function (name) {
+
+          seen.add(normalizeAnswer(name));
+
+        });
+
+      });
+
+      const additions = EXTRA_ANSWERS[index] || [];
+
+      additions.forEach(function (line) {
+
+        const item = parseExtraAnswer(line);
+
+        const key = normalizeAnswer(item.answer);
+
+        if (!key || seen.has(key)) {
+          return;
+        }
+
+        /*
+         * Voorkom ook dubbele alternatieve
+         * schrijfwijzen.
+         */
+
+        item.aliases = item.aliases.filter(
+          function (alias) {
+
+            const normalized = normalizeAnswer(alias);
+
+            return normalized && !seen.has(normalized);
+
+          }
+        );
+
+        answers.push(item);
+
+        seen.add(key);
+
+        item.aliases.forEach(function (alias) {
+          seen.add(normalizeAnswer(alias));
+        });
+
+      });
+
+      /*
+       * Bepaal de scoregroepen.
+       */
+
+      assignTiers(answers);
+
+      /*
+       * Twee vragen worden verbreed
+       * zodat extra landen en steden
+       * ook logisch geldig zijn.
+       */
+
+      let questionText = question.question;
+      let questionHint = question.hint;
+
+      if (index === 3) {
+
+        questionText =
+          "Noem een land ergens ter wereld.";
+
+        questionHint =
+          "Er zijn bijna tweehonderd landen. " +
+          "Denk aan kleine en minder bekende landen.";
+
+      }
+
+      if (index === 5) {
+
+        questionText =
+          "Noem een hoofdstad ergens ter wereld.";
+
+        questionHint =
+          "Van bekende wereldsteden tot " +
+          "kleine en bijzondere hoofdsteden.";
+
+      }
+
+      if (index === 7) {
+
+        questionText =
+          "Noem een sport of discipline van de Olympische Zomerspelen.";
+
+        questionHint =
+          "Een sport of een specifieke " +
+          "olympische discipline is geldig.";
+
+      }
+
+      if (answers.length < MIN_ANSWERS) {
+
+        console.warn(
+          "QuizBallon: vraag " +
+          (index + 1) +
+          " heeft " +
+          answers.length +
+          " antwoorden; doel is minimaal 50."
+        );
+
+      }
+
+      return {
+        category: question.category,
+        question: questionText,
+        hint: questionHint,
+        answers: answers
+      };
 
     });
 
-    if (screenName === "start") {
+  }
 
-      elements.startScreen.classList.add("active");
 
-    }
+  /* ========================================
+     SCOREGROEPEN TOEKENNEN
 
-    if (screenName === "game") {
+     Rangorde:
+     1   = RAKET
+     2-8 = STERREN
+     9-18 = WOLKEN
+     19-28 = MOOIE VLUCHT
+     29+ = ER ZIT MEER IN
 
-      elements.gameScreen.classList.add("active");
+     Bij gelijke waarden wordt alfabetisch
+     gesorteerd. Zo blijft de indeling
+     voor dezelfde vragenbank gelijk.
+  ======================================== */
 
-    }
+  function assignTiers(answers) {
 
-    if (screenName === "end") {
+    const ranked = [...answers].sort(
+      function (a, b) {
 
-      elements.endScreen.classList.add("active");
+        if (b.points !== a.points) {
+          return b.points - a.points;
+        }
 
-    }
+        return a.answer.localeCompare(
+          b.answer,
+          "nl"
+        );
 
-    window.scrollTo({
-      top: 0,
-      behavior: "auto"
+      }
+    );
+
+    ranked.forEach(function (answer, index) {
+
+      let tier;
+
+      if (index === 0) {
+
+        tier = "rocket";
+
+      } else if (index <= 7) {
+
+        tier = "stars";
+
+      } else if (index <= 17) {
+
+        tier = "clouds";
+
+      } else if (index <= 27) {
+
+        tier = "flight";
+
+      } else {
+
+        tier = "low";
+
+      }
+
+      answer.tier = tier;
+
+      answer.points = TIERS[tier].points;
+
     });
+
+  }
+
+
+  /* ========================================
+     EXTRA CSS
+
+     Wordt automatisch geladen.
+     style.css hoeft niet te veranderen.
+  ======================================== */
+
+  function addExtraStyles() {
+
+    if (byId("quizballon-v3-styles")) {
+      return;
+    }
+
+    const style = document.createElement("style");
+
+    style.id = "quizballon-v3-styles";
+
+    style.textContent = `
+
+      /* ===================================
+         FOUT ANTWOORD
+      =================================== */
+
+      .qb-feedback {
+        margin-top: 16px;
+        padding: 18px;
+
+        border: 1px solid #ffccbb;
+        border-radius: 14px;
+
+        background: #fff3ef;
+        color: #803c2e;
+      }
+
+      .qb-feedback-text {
+        margin: 0;
+
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.7;
+      }
+
+
+      /* ===================================
+         ANTWOORDSUGGESTIES
+      =================================== */
+
+      .qb-suggestions {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+
+        margin-top: 15px;
+      }
+
+      .qb-suggestions-title {
+        margin: 0 0 3px;
+
+        color: #4a5876;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .qb-suggestion-button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+
+        width: 100%;
+        min-height: 46px;
+
+        padding: 11px 14px;
+
+        border: 1px solid #c5d5ff;
+        border-radius: 10px;
+
+        background: white;
+        color: #315ce0;
+
+        font-size: 13px;
+        font-weight: 800;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .qb-suggestion-button:hover {
+        background: #edf2ff;
+      }
+
+      .qb-suggestion-button:focus-visible {
+        outline: 3px solid #ffce52;
+        outline-offset: 3px;
+      }
+
+
+      /* ===================================
+         RAKETANIMATIE
+
+         De ballon verandert tijdelijk
+         in een raket bij 100 punten.
+      =================================== */
+
+      .balloon-container.rocket-mode {
+        z-index: 20;
+      }
+
+      .balloon-container.rocket-mode
+      .balloon {
+        animation:
+          qbRocketBlast .45s ease-in-out
+          infinite alternate !important;
+      }
+
+      .balloon-container.rocket-mode
+      .balloon-top,
+
+      .balloon-container.rocket-mode
+      .balloon-ropes,
+
+      .balloon-container.rocket-mode
+      .balloon-basket,
+
+      .balloon-container.rocket-mode
+      .balloon-name {
+        opacity: 0 !important;
+      }
+
+      .balloon-container.rocket-mode
+      .balloon::before {
+        content: "🚀";
+
+        position: absolute;
+        z-index: 10;
+
+        top: 0;
+        left: 3px;
+
+        font-size: 135px;
+        line-height: 1;
+
+        transform: rotate(-35deg);
+
+        filter:
+          drop-shadow(
+            0 15px 20px
+            rgba(255, 115, 36, .35)
+          );
+      }
+
+      .balloon-container.rocket-mode
+      .balloon::after {
+        content: "🔥";
+
+        position: absolute;
+        z-index: 9;
+
+        top: 110px;
+        left: 27px;
+
+        font-size: 63px;
+        line-height: 1;
+
+        transform: rotate(-35deg);
+
+        animation:
+          qbFlame .18s ease-in-out
+          infinite alternate;
+      }
+
+      @keyframes qbRocketBlast {
+
+        from {
+          transform:
+            translateY(0)
+            scale(1);
+        }
+
+        to {
+          transform:
+            translateY(-65px)
+            scale(1.13);
+        }
+
+      }
+
+      @keyframes qbFlame {
+
+        from {
+          opacity: .7;
+          scale: .8;
+        }
+
+        to {
+          opacity: 1;
+          scale: 1.15;
+        }
+
+      }
+
+
+      /* ===================================
+         RAKETMELDING
+      =================================== */
+
+      .answer-result.rocket-result {
+        background:
+          linear-gradient(
+            135deg,
+            #fff1bd,
+            #ffe0af
+          );
+
+        border: 2px solid #ffb347;
+      }
+
+      .answer-result.rocket-result
+      .result-points {
+        color: #d66b19;
+      }
+
+      .answer-result.rocket-result
+      .result-icon {
+        animation:
+          qbRocketIcon .55s ease
+          infinite alternate;
+      }
+
+      @keyframes qbRocketIcon {
+
+        from {
+          transform:
+            translateY(0)
+            rotate(-5deg);
+        }
+
+        to {
+          transform:
+            translateY(-12px)
+            rotate(5deg);
+        }
+
+      }
+
+
+      /* ===================================
+         MOBIEL
+      =================================== */
+
+      @media (max-width: 480px) {
+
+        .qb-feedback {
+          padding: 15px;
+        }
+
+        .qb-suggestion-button {
+          min-height: 48px;
+        }
+
+        .balloon-container.rocket-mode
+        .balloon::before {
+          font-size: 135px;
+        }
+
+      }
+
+
+      /* ===================================
+         MINDER BEWEGING
+      =================================== */
+
+      @media (prefers-reduced-motion: reduce) {
+
+        .balloon-container.rocket-mode
+        .balloon,
+
+        .balloon-container.rocket-mode
+        .balloon::after,
+
+        .answer-result.rocket-result
+        .result-icon {
+          animation: none !important;
+        }
+
+      }
+
+    `;
+
+    document.head.appendChild(style);
+
+  }
+
+
+  /* ========================================
+     FEEDBACK AANMAKEN
+  ======================================== */
+
+  function createFeedbackElements() {
+
+    feedbackElement = document.createElement("div");
+
+    feedbackElement.className = "qb-feedback";
+    feedbackElement.hidden = true;
+
+    feedbackElement.setAttribute(
+      "role",
+      "status"
+    );
+
+    feedbackText = document.createElement("p");
+
+    feedbackText.className = "qb-feedback-text";
+
+    suggestionsElement = document.createElement("div");
+
+    suggestionsElement.className = "qb-suggestions";
+
+    feedbackElement.append(
+      feedbackText,
+      suggestionsElement
+    );
+
+    elements.answerForm.insertAdjacentElement(
+      "afterend",
+      feedbackElement
+    );
+
+  }
+
+
+  /* ========================================
+     FEEDBACK VERBERGEN
+  ======================================== */
+
+  function hideFeedback() {
+
+    feedbackElement.hidden = true;
+
+    feedbackText.textContent = "";
+
+    suggestionsElement.replaceChildren();
+
+  }
+
+
+  /* ========================================
+     LEVENSHTEIN-AFSTAND
+
+     Herkent kleine typefouten.
+  ======================================== */
+
+  function levenshteinDistance(first, second) {
+
+    if (first === second) {
+      return 0;
+    }
+
+    if (!first.length) {
+      return second.length;
+    }
+
+    if (!second.length) {
+      return first.length;
+    }
+
+    let previous = [];
+
+    for (let j = 0; j <= second.length; j++) {
+      previous[j] = j;
+    }
+
+    for (let i = 1; i <= first.length; i++) {
+
+      const current = [i];
+
+      for (let j = 1; j <= second.length; j++) {
+
+        const cost =
+          first[i - 1] === second[j - 1]
+            ? 0
+            : 1;
+
+        current[j] = Math.min(
+          current[j - 1] + 1,
+          previous[j] + 1,
+          previous[j - 1] + cost
+        );
+
+      }
+
+      previous = current;
+
+    }
+
+    return previous[second.length];
+
+  }
+
+
+  /* ========================================
+     SUGGESTIES ZOEKEN
+  ======================================== */
+
+  function findSuggestions(question, userAnswer) {
+
+    const input = normalizeAnswer(userAnswer);
+
+    if (input.length < 4) {
+      return [];
+    }
+
+    const suggestions = [];
+
+    question.answers.forEach(function (item) {
+
+      const names = [
+        item.answer,
+        ...(item.aliases || [])
+      ];
+
+      let bestMatch = Infinity;
+
+      names.forEach(function (name) {
+
+        const candidate = normalizeAnswer(name);
+
+        if (candidate === input) {
+          return;
+        }
+
+        const difference = Math.abs(
+          candidate.length - input.length
+        );
+
+        /*
+         * Een typefout van één letter.
+         */
+
+        if (
+          input.length >= 4 &&
+          difference <= 1
+        ) {
+
+          const distance = levenshteinDistance(
+            input,
+            candidate
+          );
+
+          if (distance === 1) {
+
+            bestMatch = Math.min(
+              bestMatch,
+              1
+            );
+
+          }
+
+        }
+
+        /*
+         * Een onvolledig antwoord.
+         *
+         * neushoorn -> neushoornvogel
+         */
+
+        if (
+          input.length >= 5 &&
+          candidate.startsWith(input) &&
+          input.length >= candidate.length * .6
+        ) {
+
+          bestMatch = Math.min(
+            bestMatch,
+            2
+          );
+
+        }
+
+      });
+
+      if (bestMatch === Infinity) {
+        return;
+      }
+
+      suggestions.push({
+        answer: item.answer,
+        matchScore: bestMatch
+      });
+
+    });
+
+    suggestions.sort(function (a, b) {
+
+      if (a.matchScore !== b.matchScore) {
+
+        return a.matchScore - b.matchScore;
+
+      }
+
+      return a.answer.localeCompare(
+        b.answer,
+        "nl"
+      );
+
+    });
+
+    return suggestions.slice(
+      0,
+      MAX_SUGGESTIONS
+    );
+
+  }
+
+
+  /* ========================================
+     SUGGESTIES TONEN
+  ======================================== */
+
+  function showSuggestions(suggestions) {
+
+    suggestionsElement.replaceChildren();
+
+    if (!suggestions.length) {
+      return;
+    }
+
+    const title = document.createElement("p");
+
+    title.className = "qb-suggestions-title";
+
+    title.textContent =
+      "💡 Bedoelde je misschien:";
+
+    suggestionsElement.appendChild(title);
+
+    suggestions.forEach(function (suggestion) {
+
+      const button = document.createElement("button");
+
+      button.type = "button";
+      button.className = "qb-suggestion-button";
+
+      const label = document.createElement("span");
+
+      label.textContent = suggestion.answer;
+
+      const arrow = document.createElement("span");
+
+      arrow.textContent = "→";
+
+      button.append(label, arrow);
+
+      button.addEventListener("click", function () {
+
+        if (!gameActive || answerLocked) {
+          return;
+        }
+
+        if (Date.now() >= timerDeadline) {
+
+          handleTimeUp();
+          return;
+
+        }
+
+        elements.answerInput.value =
+          suggestion.answer;
+
+        hideFeedback();
+
+        processAnswer();
+
+      });
+
+      suggestionsElement.appendChild(button);
+
+    });
+
+  }
+
+
+  /* ========================================
+     FOUT ANTWOORD
+
+     TIMER LOOPT DOOR.
+     OPNIEUW PROBEREN MAG.
+  ======================================== */
+
+  function showIncorrectFeedback(userAnswer) {
+
+    const question =
+      questions[currentQuestionIndex];
+
+    const suggestions = findSuggestions(
+      question,
+      userAnswer
+    );
+
+    feedbackElement.hidden = false;
+
+    feedbackText.textContent =
+      suggestions.length
+        ? "Dit antwoord is nog niet herkend. Probeer een suggestie of vul iets anders in!"
+        : "❌ Dit antwoord wordt nog niet herkend. Probeer iets anders zolang de tijd loopt!";
+
+    showSuggestions(suggestions);
+
+  }
+
+
+  /* ========================================
+     ANTWOORD CONTROLEREN
+  ======================================== */
+
+  function checkAnswer(question, userAnswer) {
+
+    const input = normalizeAnswer(userAnswer);
+
+    if (!input) {
+      return null;
+    }
+
+    for (const item of question.answers) {
+
+      const names = [
+        item.answer,
+        ...(item.aliases || [])
+      ];
+
+      if (names.some(function (name) {
+
+        return normalizeAnswer(name) === input;
+
+      })) {
+
+        return item;
+
+      }
+
+    }
+
+    return null;
 
   }
 
@@ -281,19 +1743,14 @@
 
     try {
 
-      const saved = localStorage.getItem(RECORD_KEY);
+      const saved = Number(
+        localStorage.getItem(RECORD_KEY)
+      );
 
-      const value = Number(saved);
-
-      if (Number.isFinite(value) && value >= 0) {
-
-        personalRecord = value;
-
-      } else {
-
-        personalRecord = 0;
-
-      }
+      personalRecord =
+        Number.isFinite(saved) && saved >= 0
+          ? saved
+          : 0;
 
     } catch (error) {
 
@@ -327,7 +1784,7 @@
 
     } catch (error) {
 
-      // Het spel blijft werken zonder localStorage.
+      // Het spel blijft gewoon werken.
 
     }
 
@@ -402,7 +1859,7 @@
 
 
   /* ========================================
-     HUIDIGE ZONE
+     HUIDIGE ZONE BEPALEN
   ======================================== */
 
   function getCurrentZone(height) {
@@ -444,7 +1901,7 @@
 
 
   /* ========================================
-     LUCHTBALLONPOSITIE
+     BALLONPOSITIE
   ======================================== */
 
   function updateBalloonPosition() {
@@ -456,17 +1913,9 @@
       1
     );
 
-    let bottom;
-
-    if (isMobile) {
-
-      bottom = 12 + progress * 18;
-
-    } else {
-
-      bottom = 22 + progress * 25;
-
-    }
+    const bottom = isMobile
+      ? 12 + progress * 18
+      : 22 + progress * 25;
 
     elements.balloonContainer.style.bottom =
       bottom + "%";
@@ -475,7 +1924,7 @@
 
 
   /* ========================================
-     STATISTIEKEN
+     SCORE EN HOOGTE
   ======================================== */
 
   function updateStats() {
@@ -503,47 +1952,16 @@
 
 
   /* ========================================
-     STIJGANIMATIE
-  ======================================== */
-
-  function animateBalloon() {
-
-    if (risingTimeout !== null) {
-
-      clearTimeout(risingTimeout);
-
-    }
-
-    elements.balloonContainer.classList.add(
-      "rising"
-    );
-
-    if (!prefersReducedMotion()) {
-
-      createFlightParticles();
-
-    }
-
-    risingTimeout = setTimeout(function () {
-
-      elements.balloonContainer.classList.remove(
-        "rising"
-      );
-
-      risingTimeout = null;
-
-    }, 1400);
-
-  }
-
-
-  /* ========================================
-     VLIEGDEELTJES
+     NORMALE STIJGANIMATIE
   ======================================== */
 
   function createFlightParticles() {
 
-    const balloonRect =
+    if (prefersReducedMotion()) {
+      return;
+    }
+
+    const rectangle =
       elements.balloonContainer.getBoundingClientRect();
 
     for (let i = 0; i < 12; i++) {
@@ -552,18 +1970,17 @@
 
       particle.className = "flight-particle";
 
-      const x =
-        balloonRect.left +
-        balloonRect.width * .5 +
-        (Math.random() - .5) * 110;
+      particle.style.left =
+        rectangle.left +
+        rectangle.width * .5 +
+        (Math.random() - .5) * 110 +
+        "px";
 
-      const y =
-        balloonRect.top +
-        balloonRect.height * .65 +
-        (Math.random() - .5) * 90;
-
-      particle.style.left = x + "px";
-      particle.style.top = y + "px";
+      particle.style.top =
+        rectangle.top +
+        rectangle.height * .65 +
+        (Math.random() - .5) * 90 +
+        "px";
 
       elements.particles.appendChild(particle);
 
@@ -579,571 +1996,54 @@
 
 
   /* ========================================
-     SLIMME SUGGESTIES - CSS
-
-     Wordt automatisch aan de pagina
-     toegevoegd door JavaScript.
+     RAKET EN BALLONANIMATIE
   ======================================== */
 
-  function addSuggestionStyles() {
+  function animateBalloon(isRocket) {
 
-    if (byId("quizballon-suggestion-styles")) {
-      return;
+    if (risingTimeout !== null) {
+
+      clearTimeout(risingTimeout);
+
     }
 
-    const style = document.createElement("style");
-
-    style.id = "quizballon-suggestion-styles";
-
-    style.textContent = `
-
-      /* ===================================
-         FOUT ANTWOORD MELDING
-      =================================== */
-
-      .qb-feedback {
-        margin-top: 16px;
-        padding: 18px;
-
-        border: 1px solid #ffccbb;
-        border-radius: 14px;
-
-        background: #fff3ef;
-        color: #803c2e;
-      }
-
-      .qb-feedback-text {
-        margin: 0;
-
-        font-size: 13px;
-        font-weight: 700;
-        line-height: 1.7;
-      }
-
-
-      /* ===================================
-         SUGGESTIES
-      =================================== */
-
-      .qb-suggestions {
-        display: flex;
-        flex-direction: column;
-        gap: 9px;
-
-        margin-top: 15px;
-      }
-
-      .qb-suggestions-title {
-        margin: 0 0 3px;
-
-        color: #4a5876;
-
-        font-size: 12px;
-        font-weight: 800;
-        line-height: 1.5;
-      }
-
-      .qb-suggestion-button {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-
-        width: 100%;
-        min-height: 46px;
-
-        padding: 11px 14px;
-
-        border: 1px solid #c5d5ff;
-        border-radius: 10px;
-
-        background: #ffffff;
-        color: #315ce0;
-
-        font-size: 13px;
-        font-weight: 800;
-        text-align: left;
-
-        cursor: pointer;
-
-        transition:
-          background .2s ease,
-          border-color .2s ease;
-      }
-
-      .qb-suggestion-button:hover {
-        background: #edf2ff;
-        border-color: #7e9ef3;
-      }
-
-      .qb-suggestion-button:focus-visible {
-        outline: 3px solid #ffce52;
-        outline-offset: 3px;
-      }
-
-      .qb-suggestion-arrow {
-        flex-shrink: 0;
-        font-size: 18px;
-      }
-
-
-      /* ===================================
-         MOBIEL
-      =================================== */
-
-      @media (max-width: 480px) {
-
-        .qb-feedback {
-          padding: 15px;
-        }
-
-        .qb-suggestion-button {
-          min-height: 48px;
-        }
-
-      }
-
-    `;
-
-    document.head.appendChild(style);
-
-  }
-
-
-  /* ========================================
-     MELDINGEN AANMAKEN
-  ======================================== */
-
-  function createFeedbackElements() {
-
-    addSuggestionStyles();
-
-    feedbackElement = document.createElement("div");
-
-    feedbackElement.className = "qb-feedback";
-
-    feedbackElement.id = "qb-feedback";
-
-    feedbackElement.hidden = true;
-
-    feedbackElement.setAttribute(
-      "role",
-      "status"
+    elements.balloonContainer.classList.remove(
+      "rising",
+      "rocket-mode"
     );
-
-    feedbackText = document.createElement("p");
-
-    feedbackText.className = "qb-feedback-text";
-
-    suggestionsElement = document.createElement("div");
-
-    suggestionsElement.className = "qb-suggestions";
-
-    feedbackElement.appendChild(feedbackText);
-
-    feedbackElement.appendChild(suggestionsElement);
-
-    elements.answerForm.insertAdjacentElement(
-      "afterend",
-      feedbackElement
-    );
-
-  }
-
-
-  /* ========================================
-     MELDING VERBERGEN
-  ======================================== */
-
-  function hideFeedback() {
-
-    if (!feedbackElement) {
-      return;
-    }
-
-    feedbackElement.hidden = true;
-
-    feedbackText.textContent = "";
-
-    suggestionsElement.replaceChildren();
-
-  }
-
-
-  /* ========================================
-     LETTERVERSCHIL BEREKENEN
-
-     Voorbeeld:
-
-     flamingp -> flamingo
-     Verschil: 1
-
-     We gebruiken Levenshtein-afstand.
-
-     Daardoor herkennen we:
-     - 1 verkeerde letter
-     - 1 ontbrekende letter
-     - 1 extra letter
-  ======================================== */
-
-  function levenshteinDistance(first, second) {
-
-    if (first === second) {
-      return 0;
-    }
-
-    if (!first.length) {
-      return second.length;
-    }
-
-    if (!second.length) {
-      return first.length;
-    }
-
-    const previous = [];
-
-    for (let j = 0; j <= second.length; j++) {
-
-      previous[j] = j;
-
-    }
-
-    for (let i = 1; i <= first.length; i++) {
-
-      const current = [i];
-
-      for (let j = 1; j <= second.length; j++) {
-
-        const cost =
-          first[i - 1] === second[j - 1]
-            ? 0
-            : 1;
-
-        current[j] = Math.min(
-
-          current[j - 1] + 1,
-
-          previous[j] + 1,
-
-          previous[j - 1] + cost
-
-        );
-
-      }
-
-      for (let j = 0; j <= second.length; j++) {
-
-        previous[j] = current[j];
-
-      }
-
-    }
-
-    return previous[second.length];
-
-  }
-
-
-  /* ========================================
-     ONVOLLEDIGE NAAM HERKENNEN
-
-     Voorbeeld:
-
-     neushoorn
-     neushoornvogel
-
-     Omdat 'neushoorn' het begin vormt
-     van 'neushoornvogel', kan het spel
-     die vogel als suggestie geven.
-
-     Om niet te snel antwoorden weg
-     te geven, geldt dit alleen vanaf
-     minimaal vijf letters.
-  ======================================== */
-
-  function getSuggestionDistance(input, candidate) {
-
-    if (input === candidate) {
-      return -1;
-    }
-
-    const difference =
-      Math.abs(input.length - candidate.length);
 
     /*
-     * Eén letter verschil:
-     * typefout, extra letter of
-     * ontbrekende letter.
+     * RAKETANTWOORD:
+     * de ballon verandert tijdelijk
+     * in een raket.
      */
 
-    if (
-      input.length >= 4 &&
-      difference <= 1
-    ) {
+    if (isRocket) {
 
-      const distance = levenshteinDistance(
-        input,
-        candidate
+      elements.balloonContainer.classList.add(
+        "rocket-mode"
       );
-
-      if (distance === 1) {
-
-        return 1;
-
-      }
-
-    }
-
-    /*
-     * Begin van een langer woord.
-     *
-     * Bijvoorbeeld:
-     * neushoorn -> neushoornvogel
-     */
-
-    if (
-      input.length >= 5 &&
-      candidate.startsWith(input) &&
-      input.length >= candidate.length * .6
-    ) {
-
-      return 2;
-
-    }
-
-    return -1;
-
-  }
-
-
-  /* ========================================
-     SUGGESTIES ZOEKEN
-
-     We doorzoeken alleen de antwoorden
-     die geldig zijn bij de huidige vraag.
-
-     Maximaal 3 suggesties.
-  ======================================== */
-
-  function findSuggestions(question, userAnswer) {
-
-    const input = normalizeAnswer(userAnswer);
-
-    if (input.length < 4) {
-      return [];
-    }
-
-    const suggestions = [];
-
-    const seenAnswers = new Set();
-
-    question.answers.forEach(function (item) {
-
-      const possibleNames = [
-        item.answer,
-        ...(item.aliases || [])
-      ];
-
-      let bestMatch = Infinity;
-
-      possibleNames.forEach(function (name) {
-
-        const candidate = normalizeAnswer(name);
-
-        const match = getSuggestionDistance(
-          input,
-          candidate
-        );
-
-        if (
-          match >= 0 &&
-          match < bestMatch
-        ) {
-
-          bestMatch = match;
-
-        }
-
-      });
-
-      if (bestMatch === Infinity) {
-        return;
-      }
-
-      const key = normalizeAnswer(item.answer);
-
-      if (seenAnswers.has(key)) {
-        return;
-      }
-
-      seenAnswers.add(key);
-
-      suggestions.push({
-
-        answer: item.answer,
-
-        matchScore: bestMatch,
-
-        points: item.points
-
-      });
-
-    });
-
-    /*
-     * Eerst typefouten.
-     * Daarna onvolledige namen.
-     */
-
-    suggestions.sort(function (a, b) {
-
-      if (a.matchScore !== b.matchScore) {
-
-        return a.matchScore - b.matchScore;
-
-      }
-
-      return a.answer.localeCompare(
-        b.answer,
-        "nl"
-      );
-
-    });
-
-    return suggestions.slice(
-      0,
-      MAX_SUGGESTIONS
-    );
-
-  }
-
-
-  /* ========================================
-     SUGGESTIES TONEN
-  ======================================== */
-
-  function showSuggestions(suggestions) {
-
-    suggestionsElement.replaceChildren();
-
-    if (!suggestions.length) {
-      return;
-    }
-
-    const title = document.createElement("p");
-
-    title.className = "qb-suggestions-title";
-
-    title.textContent =
-      "💡 Bedoelde je misschien:";
-
-    suggestionsElement.appendChild(title);
-
-    suggestions.forEach(function (suggestion) {
-
-      const button = document.createElement("button");
-
-      button.type = "button";
-
-      button.className = "qb-suggestion-button";
-
-      button.setAttribute(
-        "aria-label",
-        "Probeer " + suggestion.answer
-      );
-
-      const name = document.createElement("span");
-
-      name.textContent = suggestion.answer;
-
-      const arrow = document.createElement("span");
-
-      arrow.className = "qb-suggestion-arrow";
-
-      arrow.textContent = "→";
-
-      button.append(name, arrow);
-
-      /*
-       * Klik op een suggestie.
-       *
-       * Het antwoord wordt ingevuld
-       * én direct gecontroleerd.
-       */
-
-      button.addEventListener("click", function () {
-
-        if (!gameActive || answerLocked) {
-          return;
-        }
-
-        if (Date.now() >= timerDeadline) {
-
-          handleTimeUp();
-          return;
-
-        }
-
-        elements.answerInput.value =
-          suggestion.answer;
-
-        hideFeedback();
-
-        processAnswer();
-
-      });
-
-      suggestionsElement.appendChild(button);
-
-    });
-
-  }
-
-
-  /* ========================================
-     FOUT ANTWOORD MELDEN
-
-     BELANGRIJK:
-
-     - De vraag stopt NIET.
-     - De timer stopt NIET.
-     - Het antwoordveld blijft open.
-     - De speler mag opnieuw proberen.
-  ======================================== */
-
-  function showIncorrectFeedback(userAnswer) {
-
-    if (!feedbackElement) {
-      return;
-    }
-
-    const question =
-      questions[currentQuestionIndex];
-
-    const suggestions = findSuggestions(
-      question,
-      userAnswer
-    );
-
-    feedbackElement.hidden = false;
-
-    if (suggestions.length > 0) {
-
-      feedbackText.textContent =
-        "Dit antwoord is nog niet goedgekeurd. " +
-        "Misschien heb je een andere naam bedoeld. " +
-        "Je mag opnieuw proberen zolang de tijd loopt!";
 
     } else {
 
-      feedbackText.textContent =
-        "❌ Dit antwoord wordt niet herkend. " +
-        "Probeer gerust iets anders! " +
-        "De timer loopt gewoon door.";
+      elements.balloonContainer.classList.add(
+        "rising"
+      );
 
     }
 
-    showSuggestions(suggestions);
+    createFlightParticles();
+
+    risingTimeout = setTimeout(function () {
+
+      elements.balloonContainer.classList.remove(
+        "rising",
+        "rocket-mode"
+      );
+
+      risingTimeout = null;
+
+    }, isRocket ? ROCKET_DURATION : 1400);
 
   }
 
@@ -1168,7 +2068,7 @@
 
 
   /* ========================================
-     TIMER WEERGEVEN
+     TIMER TONEN
   ======================================== */
 
   function updateTimerDisplay() {
@@ -1237,7 +2137,7 @@
 
       updateTimerDisplay();
 
-      if (secondsLeft <= 0) {
+      if (secondsLeft === 0) {
 
         handleTimeUp();
 
@@ -1249,51 +2149,34 @@
 
 
   /* ========================================
-     ANTWOORD CONTROLEREN
-
-     Exacte schrijfwijze is niet nodig.
-
-     Hoofdletters, accenten en kleine
-     schrijfverschillen zoals streepjes
-     worden automatisch genegeerd.
-
-     Echte typefouten worden niet zomaar
-     goedgekeurd; daarvoor geven we
-     suggesties.
+     SCHERM TONEN
   ======================================== */
 
-  function checkAnswer(question, userAnswer) {
+  function showScreen(name) {
 
-    const normalizedInput =
-      normalizeAnswer(userAnswer);
+    elements.startScreen.classList.remove("active");
+    elements.gameScreen.classList.remove("active");
+    elements.endScreen.classList.remove("active");
 
-    if (!normalizedInput) {
-      return null;
-    }
+    if (name === "start") {
 
-    for (const item of question.answers) {
-
-      const possibleAnswers = [
-        item.answer,
-        ...(item.aliases || [])
-      ];
-
-      const found = possibleAnswers.some(
-        function (possibleAnswer) {
-
-          return normalizeAnswer(possibleAnswer) ===
-            normalizedInput;
-
-        }
-      );
-
-      if (found) {
-        return item;
-      }
+      elements.startScreen.classList.add("active");
 
     }
 
-    return null;
+    if (name === "game") {
+
+      elements.gameScreen.classList.add("active");
+
+    }
+
+    if (name === "end") {
+
+      elements.endScreen.classList.add("active");
+
+    }
+
+    window.scrollTo(0, 0);
 
   }
 
@@ -1304,14 +2187,10 @@
 
   function startGame() {
 
-    if (
-      !Array.isArray(window.QUIZ_QUESTIONS) ||
-      window.QUIZ_QUESTIONS.length < QUESTIONS_PER_GAME
-    ) {
+    if (questions.length < QUESTIONS_PER_GAME) {
 
       alert(
-        "De vragenbank kon niet worden geladen. " +
-        "Controleer of vragen.js goed is opgeslagen."
+        "De vragenbank bevat nog niet genoeg vragen."
       );
 
       return;
@@ -1323,30 +2202,29 @@
     if (risingTimeout !== null) {
 
       clearTimeout(risingTimeout);
-
       risingTimeout = null;
 
     }
-
-    questions = shuffleArray(
-      window.QUIZ_QUESTIONS
-    ).slice(0, QUESTIONS_PER_GAME);
 
     currentQuestionIndex = 0;
 
     totalScore = 0;
     totalHeight = 0;
-
     correctAnswers = 0;
 
     answerLocked = false;
     gameActive = true;
 
-    elements.progressFill.style.width = "0%";
+    questions = shuffleArray(
+      window.QUIZBALLON_EXPANDED_QUESTIONS
+    ).slice(0, QUESTIONS_PER_GAME);
 
     elements.balloonContainer.classList.remove(
-      "rising"
+      "rising",
+      "rocket-mode"
     );
+
+    elements.progressFill.style.width = "0%";
 
     hideFeedback();
 
@@ -1360,7 +2238,7 @@
 
 
   /* ========================================
-     NIEUWE VRAAG
+     VRAAG TONEN
   ======================================== */
 
   function showQuestion() {
@@ -1369,10 +2247,7 @@
       return;
     }
 
-    if (
-      currentQuestionIndex >=
-      questions.length
-    ) {
+    if (currentQuestionIndex >= questions.length) {
 
       endGame();
       return;
@@ -1383,9 +2258,6 @@
       questions[currentQuestionIndex];
 
     answerLocked = false;
-
-    elements.questionNumber.textContent =
-      String(currentQuestionIndex + 1);
 
     elements.questionCategory.textContent =
       question.category;
@@ -1399,33 +2271,34 @@
     elements.answerInput.value = "";
 
     elements.answerInput.disabled = false;
-
     elements.answerButton.disabled = false;
 
     elements.answerForm.hidden = false;
-
     elements.answerResult.hidden = true;
 
     elements.answerResult.classList.remove(
       "correct",
-      "incorrect"
+      "incorrect",
+      "rocket-result"
     );
 
     hideFeedback();
 
     elements.nextButton.replaceChildren();
 
-    const nextText = document.createTextNode(
-      currentQuestionIndex === questions.length - 1
-        ? "BEKIJK JE RESULTAAT "
-        : "VOLGENDE VRAAG "
+    elements.nextButton.appendChild(
+      document.createTextNode(
+        currentQuestionIndex === questions.length - 1
+          ? "BEKIJK JE RESULTAAT "
+          : "VOLGENDE VRAAG "
+      )
     );
 
     const arrow = document.createElement("span");
 
     arrow.textContent = "→";
 
-    elements.nextButton.append(nextText, arrow);
+    elements.nextButton.appendChild(arrow);
 
     updateStats();
 
@@ -1436,14 +2309,6 @@
 
   /* ========================================
      ANTWOORD VERWERKEN
-
-     Dit is de belangrijkste wijziging.
-
-     Bij een fout antwoord wordt alleen
-     een melding getoond.
-
-     De speler blijft bij dezelfde vraag
-     en kan opnieuw proberen.
   ======================================== */
 
   function processAnswer() {
@@ -1451,11 +2316,6 @@
     if (!gameActive || answerLocked) {
       return;
     }
-
-    /*
-     * Controleer eerst of de tijd
-     * ondertussen voorbij is.
-     */
 
     if (Date.now() >= timerDeadline) {
 
@@ -1482,12 +2342,6 @@
 
     if (answer) {
 
-      /*
-       * Goed antwoord.
-       *
-       * De vraag is nu klaar.
-       */
-
       hideFeedback();
 
       handleCorrectAnswer(answer);
@@ -1495,39 +2349,18 @@
     } else {
 
       /*
-       * Fout of onbekend antwoord.
+       * FOUT ANTWOORD:
        *
-       * NIET:
-       * - Timer stoppen
-       * - Vraag afsluiten
-       * - Antwoordveld uitschakelen
-       *
-       * WEL:
-       * - Melding tonen
-       * - Suggesties zoeken
-       * - Opnieuw proberen toestaan
+       * Timer blijft lopen.
+       * De speler kan opnieuw proberen.
        */
 
       showIncorrectFeedback(userAnswer);
 
       elements.answerInput.focus();
-
       elements.answerInput.select();
 
     }
-
-  }
-
-
-  /* ========================================
-     FORMULIER INDIENEN
-  ======================================== */
-
-  function submitAnswer(event) {
-
-    event.preventDefault();
-
-    processAnswer();
 
   }
 
@@ -1546,40 +2379,40 @@
 
     stopTimer();
 
-    const points = answer.points;
+    const tier = TIERS[answer.tier];
+
+    const points = tier.points;
 
     const gainedHeight =
       points * KM_PER_POINT;
 
-    totalScore += points;
+    const isRocket =
+      answer.tier === "rocket";
 
+    totalScore += points;
     totalHeight += gainedHeight;
 
     correctAnswers++;
 
     updateStats();
 
-    animateBalloon();
+    animateBalloon(isRocket);
 
     showAnswerResult({
 
       correct: true,
 
-      icon: points >= 80
-        ? "🚀"
-        : points >= 50
-          ? "🌟"
-          : "🎈",
+      rocket: isRocket,
 
-      title: points >= 80
-        ? "ONGELOOFLIJK ZELDZAAM!"
-        : points >= 50
-          ? "HEEL STERK ANTWOORD!"
-          : "GOED ANTWOORD!",
+      icon: tier.icon,
+
+      title: tier.title,
 
       description:
+        tier.description +
+        " Je antwoord was " +
         answer.answer +
-        " is goedgekeurd. Je stijgt " +
+        ". Je stijgt " +
         formatHeight(gainedHeight) +
         "!",
 
@@ -1592,10 +2425,6 @@
 
   /* ========================================
      TIJD OP
-
-     Dit is het enige moment waarop
-     een foutieve beurt definitief
-     wordt afgesloten.
   ======================================== */
 
   function handleTimeUp() {
@@ -1618,14 +2447,15 @@
 
       correct: false,
 
+      rocket: false,
+
       icon: "⏱️",
 
       title: "DE TIJD IS OP!",
 
       description:
         "Je 25 seconden zijn voorbij. " +
-        "Bij de volgende vraag krijg je " +
-        "een nieuwe kans.",
+        "Bij de volgende vraag krijg je een nieuwe kans.",
 
       points: 0
 
@@ -1635,22 +2465,21 @@
 
 
   /* ========================================
-     RESULTAAT TONEN
+     RESULTAAT
   ======================================== */
 
   function showAnswerResult(result) {
 
     elements.answerInput.disabled = true;
-
     elements.answerButton.disabled = true;
 
     elements.answerForm.hidden = true;
-
     elements.answerResult.hidden = false;
 
     elements.answerResult.classList.remove(
       "correct",
-      "incorrect"
+      "incorrect",
+      "rocket-result"
     );
 
     elements.answerResult.classList.add(
@@ -1658,6 +2487,14 @@
         ? "correct"
         : "incorrect"
     );
+
+    if (result.rocket) {
+
+      elements.answerResult.classList.add(
+        "rocket-result"
+      );
+
+    }
 
     elements.resultIcon.textContent =
       result.icon;
@@ -1686,10 +2523,7 @@
 
     currentQuestionIndex++;
 
-    if (
-      currentQuestionIndex >=
-      questions.length
-    ) {
+    if (currentQuestionIndex >= questions.length) {
 
       endGame();
 
@@ -1764,24 +2598,20 @@
     gameActive = false;
     answerLocked = true;
 
-    currentQuestionIndex = 0;
-
     totalScore = 0;
     totalHeight = 0;
-
     correctAnswers = 0;
 
     hideFeedback();
 
-    elements.progressFill.style.width = "0%";
-
     elements.balloonContainer.classList.remove(
-      "rising"
+      "rising",
+      "rocket-mode"
     );
 
-    updateWorld();
+    elements.progressFill.style.width = "0%";
 
-    elements.balloonContainer.style.bottom = "";
+    updateWorld();
 
     showScreen("start");
 
@@ -1802,9 +2632,8 @@
     }
 
     const confirmed = window.confirm(
-      "Weet je zeker dat je deze vlucht " +
-      "wilt stoppen? Je huidige score " +
-      "wordt niet opgeslagen."
+      "Weet je zeker dat je deze vlucht wilt stoppen? " +
+      "Je huidige score wordt niet opgeslagen."
     );
 
     if (confirmed) {
@@ -1844,7 +2673,13 @@
 
     elements.answerForm.addEventListener(
       "submit",
-      submitAnswer
+      function (event) {
+
+        event.preventDefault();
+
+        processAnswer();
+
+      }
     );
 
     elements.nextButton.addEventListener(
@@ -1852,20 +2687,12 @@
       nextQuestion
     );
 
-    /*
-     * Zodra iemand opnieuw begint
-     * te typen, verdwijnt de oude
-     * foutmelding.
-     */
-
     elements.answerInput.addEventListener(
       "input",
       function () {
 
         if (!answerLocked) {
-
           hideFeedback();
-
         }
 
       }
@@ -1875,12 +2702,6 @@
       "resize",
       updateBalloonPosition
     );
-
-    /*
-     * Controleer de eindtijd opnieuw
-     * wanneer iemand terugkomt naar
-     * het tabblad.
-     */
 
     document.addEventListener(
       "visibilitychange",
@@ -1912,9 +2733,24 @@
 
     loadRecord();
 
+    addExtraStyles();
+
     createFeedbackElements();
 
     initializeEvents();
+
+    const expandedQuestions =
+      buildExpandedQuestions();
+
+    window.QUIZBALLON_EXPANDED_QUESTIONS =
+      expandedQuestions;
+
+    /*
+     * Bewaar een kopie om het aantal
+     * vragen te controleren.
+     */
+
+    questions = expandedQuestions;
 
     elements.world.className =
       "world zone-earth";
@@ -1924,7 +2760,23 @@
     showScreen("start");
 
     console.log(
-      "🎈 QuizBallon gestart met slimme suggesties!"
+      "🎈 QuizBallon versie 3 gestart!"
+    );
+
+    console.table(
+      expandedQuestions.map(function (question) {
+
+        return {
+          vraag: question.question,
+          antwoorden: question.answers.length,
+          raketantwoorden: question.answers.filter(
+            function (answer) {
+              return answer.tier === "rocket";
+            }
+          ).length
+        };
+
+      })
     );
 
   }
