@@ -1,14 +1,24 @@
 /* ======================================================
    QUIZBALLON DUEL
-   LICHT ONTWERP - VERSIE 2
+   COMPACT WEDSTRIJDSCHERM - VERSIE 3
 
-   - LICHTBLAUWE QUIZBALLON-WERELD
-   - GETEKENDE KARAKTERS
-   - TWEE SPELERS TEGENOVER ELKAAR
-   - RODE QB-BALLON MET GROEIENDE VLAM
-   - HARTJESANIMATIES
-   - VOORTGANGSBALKEN
-   - TWEE LIVE ANTWOORDVAKKEN
+   VERBETERINGEN:
+   - Alles tegelijk zichtbaar op Chromebook
+   - Kleinere spelerskaarten tijdens het duel
+   - Compacte vraagkaart
+   - Antwoordvakken direct onder de vraag
+   - Kleinere QB-ballon
+   - Mooiere groeiende vlam
+   - Oranje gloed bij gevaar
+   - Trillende ballon bij weinig tijd
+   - Vuuruitbarsting wanneer tijd op is
+
+   DE SPELLOGICA BLIJFT ONGEWIJZIGD
+====================================================== */
+
+
+/* ======================================================
+   BASIS
 ====================================================== */
 
 :root {
@@ -25,7 +35,7 @@
   --qb-green: #20b981;
 
   --qb-shadow:
-    0 16px 42px rgba(48, 101, 160, .13);
+    0 12px 30px rgba(48, 101, 160, .11);
 }
 
 * {
@@ -50,7 +60,7 @@ body {
   background:
     linear-gradient(
       180deg,
-      #8fd4ff 0%,
+      #92d6ff 0%,
       #d8f1ff 49%,
       #f2fbff 100%
     );
@@ -77,12 +87,13 @@ button:disabled {
 
 
 /* ======================================================
-   ACHTERGROND
+   LICHTE ACHTERGROND
 ====================================================== */
 
 .duel-background {
   position: fixed;
   inset: 0;
+
   overflow: hidden;
 
   z-index: -1;
@@ -91,44 +102,47 @@ button:disabled {
 
 .background-sun {
   position: absolute;
-  top: 9%;
-  right: 13%;
 
-  width: 130px;
-  height: 130px;
+  top: 8%;
+  right: 12%;
+
+  width: 110px;
+  height: 110px;
 
   border-radius: 50%;
 
   background:
     radial-gradient(
       circle at 35% 35%,
-      #fffbe2,
-      #ffe174 65%,
-      #ffc34e
+      #fffde8,
+      #ffe780 62%,
+      #ffc85c
     );
 
   box-shadow:
-    0 0 75px rgba(255, 239, 147, .8);
+    0 0 65px rgba(255,239,147,.7);
 }
 
 .background-cloud {
   position: absolute;
+
   width: 190px;
   height: 54px;
 
   border-radius: 80px;
-  background: rgba(255,255,255,.75);
 
-  filter: blur(1px);
+  background: rgba(255,255,255,.7);
 
   animation:
-    cloudDrift 11s ease-in-out infinite alternate;
+    cloudDrift 12s ease-in-out infinite alternate;
 }
 
 .background-cloud::before,
 .background-cloud::after {
   content: "";
+
   position: absolute;
+
   border-radius: 50%;
   background: inherit;
 }
@@ -136,6 +150,7 @@ button:disabled {
 .background-cloud::before {
   width: 100px;
   height: 80px;
+
   left: 30px;
   bottom: 10px;
 }
@@ -143,6 +158,7 @@ button:disabled {
 .background-cloud::after {
   width: 95px;
   height: 75px;
+
   right: 22px;
   bottom: 5px;
 }
@@ -153,21 +169,24 @@ button:disabled {
 }
 
 .cloud-b {
-  top: 42%;
+  top: 43%;
   right: -90px;
+
   transform: scale(.8);
   animation-delay: -4s;
 }
 
 .cloud-c {
-  top: 71%;
+  top: 72%;
   left: -90px;
+
   transform: scale(1.2);
   animation-delay: -7s;
 }
 
 .background-hill {
   position: absolute;
+
   bottom: -180px;
 
   width: 80%;
@@ -184,14 +203,19 @@ button:disabled {
 .hill-b {
   right: -30%;
   bottom: -200px;
+
   background: #9edac4;
 }
 
 .background-star {
   position: absolute;
+
   color: rgba(255,255,255,.9);
+
   font-size: 30px;
-  animation: starFloat 5s ease-in-out infinite;
+
+  animation:
+    starFloat 5s ease-in-out infinite;
 }
 
 .star-a {
@@ -239,23 +263,29 @@ button:disabled {
 ====================================================== */
 
 .duel-page {
-  width: min(1120px, 94%);
+  width: min(1120px, 96%);
+
   margin: 0 auto;
-  padding: 22px 0 65px;
+  padding: 14px 0 35px;
 }
 
 .duel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
+
+  min-height: 39px;
 }
 
 .duel-logo {
   color: #173a6e;
-  font-size: 24px;
+
+  font-size: 23px;
   font-weight: 1000;
+
   text-decoration: none;
   letter-spacing: -.8px;
 }
@@ -265,13 +295,14 @@ button:disabled {
 }
 
 .header-mode {
-  padding: 9px 16px;
+  padding: 8px 14px;
+
   border-radius: 50px;
 
   background: #fff;
   color: var(--qb-red);
 
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 1000;
   letter-spacing: .1em;
 
@@ -280,22 +311,31 @@ button:disabled {
 
 .header-back {
   color: #335b8e;
+
   text-decoration: none;
-  font-size: 13px;
+
+  font-size: 12px;
   font-weight: 900;
 }
 
+
+/* ======================================================
+   TITEL
+====================================================== */
+
 .duel-heading {
   text-align: center;
-  padding: 29px 0 25px;
+  padding: 24px 0 20px;
 }
 
 .duel-eyebrow {
   display: inline-block;
-  margin-bottom: 12px;
+
+  margin-bottom: 10px;
 
   color: #2b71be;
-  font-size: 12px;
+
+  font-size: 11px;
   font-weight: 1000;
   letter-spacing: .1em;
 }
@@ -304,7 +344,8 @@ button:disabled {
   margin: 0;
 
   color: #183966;
-  font-size: clamp(33px, 5vw, 56px);
+
+  font-size: clamp(31px, 5vw, 52px);
   font-weight: 1000;
   letter-spacing: -2px;
 }
@@ -314,9 +355,11 @@ button:disabled {
 }
 
 .duel-heading p {
-  margin: 12px 0 0;
+  margin: 9px 0 0;
+
   color: var(--qb-muted);
-  font-size: 15px;
+
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -327,61 +370,70 @@ button:disabled {
 
 .duel-card,
 .duel-room {
-  border-radius: 24px;
-  border: 1px solid rgba(255,255,255,.85);
+  border-radius: 22px;
 
-  background: rgba(255,255,255,.92);
+  border: 1px solid
+    rgba(255,255,255,.85);
+
+  background:
+    rgba(255,255,255,.94);
 
   box-shadow: var(--qb-shadow);
 }
 
 .duel-card {
-  padding: 26px;
+  padding: 24px;
 }
 
 .duel-card h2 {
-  margin: 0 0 10px;
+  margin: 0 0 9px;
 
-  font-size: 25px;
+  font-size: 24px;
   font-weight: 1000;
 }
 
 .card-description {
-  margin: 0 0 23px;
+  margin: 0 0 20px;
 
   color: var(--qb-muted);
-  font-size: 14px;
-  line-height: 1.65;
+
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .section-eyebrow {
-  margin-bottom: 12px;
+  margin-bottom: 11px;
 
   color: var(--qb-blue);
-  font-size: 11px;
+
+  font-size: 10px;
   font-weight: 1000;
   letter-spacing: .13em;
 }
 
 .duel-lobby {
   display: grid;
-  gap: 20px;
+  gap: 18px;
 }
 
 .lobby-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
 }
 
 .field-label,
 .avatar-choice-title {
   display: block;
 
-  margin-bottom: 12px;
+  margin-bottom: 11px;
 
   color: #4a678e;
-  font-size: 12px;
+
+  font-size: 11px;
   font-weight: 1000;
   letter-spacing: .06em;
 }
@@ -390,17 +442,17 @@ button:disabled {
   width: 100%;
   min-width: 0;
 
-  padding: 15px 16px;
+  padding: 13px 15px;
 
   border: 2px solid #d6e5f7;
-  border-radius: 14px;
+  border-radius: 13px;
 
   outline: none;
 
   background: #f8fbff;
   color: #18365f;
 
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
 
   transition: border-color .2s ease;
@@ -420,33 +472,40 @@ button:disabled {
 }
 
 .avatar-choice-title {
-  margin-top: 24px;
+  margin-top: 21px;
 }
+
+
+/* ======================================================
+   KARAKTERKEUZE
+====================================================== */
 
 .avatar-picker {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 12px;
+
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+
+  gap: 11px;
 }
 
 .avatar-option {
   min-width: 0;
 
-  padding: 10px 6px 9px;
+  padding: 9px 5px 8px;
 
   border: 3px solid transparent;
-  border-radius: 17px;
+  border-radius: 16px;
 
   background: #eff6ff;
 
   transition:
     transform .2s ease,
-    border-color .2s ease,
-    background .2s ease;
+    border-color .2s ease;
 }
 
 .avatar-option:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
 }
 
 .avatar-option.selected {
@@ -456,29 +515,39 @@ button:disabled {
 
 .avatar-option svg {
   display: block;
+
   width: 100%;
-  max-width: 88px;
+  max-width: 85px;
   height: auto;
+
   margin: auto;
 }
 
 .avatar-option span {
   display: block;
-  margin-top: 5px;
+
+  margin-top: 4px;
 
   color: #456189;
-  font-size: 11px;
+
+  font-size: 10px;
   font-weight: 900;
 }
 
+
+/* ======================================================
+   KNOPPEN
+====================================================== */
+
 .duel-button {
   display: block;
+
   width: 100%;
 
-  padding: 17px 19px;
+  padding: 15px 18px;
 
   border: 0;
-  border-radius: 15px;
+  border-radius: 14px;
 
   background:
     linear-gradient(
@@ -487,12 +556,13 @@ button:disabled {
       #df284a
     );
 
-  color: #fff;
-  font-size: 14px;
+  color: white;
+
+  font-size: 13px;
   font-weight: 1000;
 
   box-shadow:
-    0 9px 20px rgba(235, 57, 91, .22);
+    0 8px 18px rgba(235,57,91,.2);
 
   transition:
     transform .2s ease,
@@ -500,10 +570,10 @@ button:disabled {
 }
 
 .duel-button:hover:not(:disabled) {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 
   box-shadow:
-    0 13px 25px rgba(235, 57, 91, .28);
+    0 12px 23px rgba(235,57,91,.27);
 }
 
 .duel-button:disabled {
@@ -512,7 +582,7 @@ button:disabled {
 }
 
 .duel-button-blue {
-  margin-top: 12px;
+  margin-top: 11px;
 
   background:
     linear-gradient(
@@ -522,32 +592,40 @@ button:disabled {
     );
 
   box-shadow:
-    0 9px 20px rgba(45, 114, 226, .2);
+    0 8px 18px rgba(45,114,226,.2);
 }
 
 .code-input {
   text-transform: uppercase;
   text-align: center;
+
   letter-spacing: 3px;
-  font-size: 20px;
+
+  font-size: 19px;
 }
 
+
+/* ======================================================
+   MELDINGEN
+====================================================== */
+
 .duel-notice {
-  padding: 14px 18px;
-  margin: 0 0 20px;
+  padding: 11px 15px;
+  margin: 0 0 15px;
 
-  border-radius: 15px;
+  border-radius: 13px;
 
-  background: rgba(255,255,255,.85);
+  background: rgba(255,255,255,.87);
   color: #47678d;
 
   text-align: center;
-  font-size: 13px;
+
+  font-size: 12px;
   font-weight: 900;
-  line-height: 1.6;
+  line-height: 1.5;
 
   box-shadow:
-    0 5px 15px rgba(48, 101, 160, .06);
+    0 5px 15px rgba(48,101,160,.06);
 }
 
 .duel-notice.success {
@@ -566,79 +644,88 @@ button:disabled {
 ====================================================== */
 
 .duel-room {
-  padding: 22px;
+  padding: 17px;
 }
 
 .room-topline {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+
+  gap: 12px;
   flex-wrap: wrap;
 
-  margin-bottom: 20px;
-  padding: 15px 19px;
+  margin-bottom: 14px;
+  padding: 10px 15px;
 
-  border-radius: 17px;
+  border-radius: 14px;
+
   background: #eef6ff;
 }
 
 .topline-label {
   display: block;
-  margin-bottom: 4px;
+
+  margin-bottom: 2px;
 
   color: #6485ae;
-  font-size: 10px;
+
+  font-size: 9px;
   font-weight: 1000;
 }
 
 #room-code {
   display: block;
+
   color: #1d5bae;
 
-  font-size: 26px;
+  font-size: 21px;
   font-weight: 1000;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
 }
 
 .copy-code {
-  padding: 12px 16px;
+  padding: 9px 13px;
 
-  border: none;
-  border-radius: 12px;
+  border: 0;
+  border-radius: 11px;
 
   background: #fff;
   color: #326ed1;
-  font-size: 12px;
+
+  font-size: 11px;
   font-weight: 1000;
 }
 
 
 /* ======================================================
-   SPELERS TEGENOVER ELKAAR
+   SPELERSARENA
 ====================================================== */
 
 .duel-arena {
   display: grid;
+
   grid-template-columns:
     minmax(0, 1fr)
-    150px
+    120px
     minmax(0, 1fr);
 
-  gap: 18px;
+  gap: 12px;
+
   align-items: center;
 
-  margin-bottom: 20px;
+  margin-bottom: 13px;
 }
 
 .fighter {
   position: relative;
 
   min-width: 0;
-  padding: 18px 15px;
 
-  border-radius: 23px;
+  padding: 13px 12px;
+
   border: 3px solid transparent;
+  border-radius: 19px;
 
   text-align: center;
 
@@ -675,40 +762,43 @@ button:disabled {
 }
 
 .fighter.active {
-  transform: translateY(-3px);
-
   box-shadow:
-    0 12px 22px rgba(72, 106, 170, .1);
+    0 8px 18px rgba(72,106,170,.1);
 }
 
 .fighter-label {
   display: block;
-  margin-bottom: 7px;
+
+  margin-bottom: 4px;
 
   color: #6e82a0;
-  font-size: 11px;
+
+  font-size: 10px;
   font-weight: 1000;
 }
 
 .fighter-avatar {
-  width: clamp(83px, 11vw, 128px);
-  height: clamp(83px, 11vw, 128px);
-  margin: 0 auto 8px;
+  width: 93px;
+  height: 93px;
+
+  margin: 0 auto 5px;
 }
 
 .fighter-avatar svg {
   display: block;
+
   width: 100%;
   height: 100%;
 }
 
 .fighter-name {
   display: block;
-  min-height: 28px;
+
+  min-height: 24px;
 
   color: #173b65;
 
-  font-size: clamp(18px, 2vw, 24px);
+  font-size: 20px;
   font-weight: 1000;
 
   overflow-wrap: anywhere;
@@ -716,37 +806,46 @@ button:disabled {
 
 .fighter-hearts {
   position: relative;
-  margin: 9px 0;
 
-  font-size: clamp(19px, 2.7vw, 27px);
-  letter-spacing: 3px;
+  margin: 5px 0;
+
+  font-size: 23px;
+  letter-spacing: 2px;
 
   white-space: nowrap;
 }
 
 .fighter-score {
   color: #4e6a90;
-  font-size: 13px;
+
+  font-size: 12px;
   font-weight: 800;
 }
 
 .fighter-score strong {
   color: #223f70;
-  font-size: 23px;
+  font-size: 20px;
 }
 
+
+/* ======================================================
+   VOORTGANG EXTRA LEVEN
+====================================================== */
+
 .life-progress-title {
-  margin-top: 17px;
+  margin-top: 10px;
 
   color: #5b789a;
-  font-size: 10px;
+
+  font-size: 9px;
   font-weight: 1000;
   letter-spacing: .05em;
 }
 
 .life-progress-track {
-  height: 15px;
-  margin-top: 8px;
+  height: 12px;
+
+  margin-top: 6px;
 
   overflow: hidden;
 
@@ -768,26 +867,35 @@ button:disabled {
       #e52b62
     );
 
-  transition: width .5s ease;
+  transition: width .45s ease;
 }
 
 .life-progress-label {
   display: block;
-  margin-top: 5px;
+
+  margin-top: 4px;
 
   color: #6381a5;
-  font-size: 11px;
+
+  font-size: 10px;
   font-weight: 900;
 }
 
 .fighter-status {
   display: block;
-  margin-top: 12px;
+
+  margin-top: 8px;
 
   color: #58789e;
-  font-size: 11px;
+
+  font-size: 10px;
   font-weight: 800;
 }
+
+
+/* ======================================================
+   HARTJESANIMATIES
+====================================================== */
 
 .heart-effects {
   position: absolute;
@@ -805,10 +913,10 @@ button:disabled {
 
   font-size: 39px;
 
+  z-index: 30;
+
   animation:
     heartFlyAway 1.3s ease-out forwards;
-
-  z-index: 30;
 }
 
 .heart-particle.gained {
@@ -819,21 +927,26 @@ button:disabled {
 @keyframes heartFlyAway {
   0% {
     opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+
+    transform:
+      translate(-50%, 0)
+      scale(1);
   }
 
-  60% {
+  55% {
     opacity: .95;
+
     transform:
-      translate(-90%, -80px)
+      translate(-90%, -65px)
       rotate(-15deg)
-      scale(1.2);
+      scale(1.3);
   }
 
   100% {
     opacity: 0;
+
     transform:
-      translate(-115%, -135px)
+      translate(-120%, -110px)
       rotate(-24deg)
       scale(.3);
   }
@@ -842,23 +955,32 @@ button:disabled {
 @keyframes heartGain {
   0% {
     opacity: 0;
-    transform: translate(-50%, 40px) scale(.3);
+
+    transform:
+      translate(-50%, 35px)
+      scale(.3);
   }
 
   45% {
     opacity: 1;
-    transform: translate(-50%, -40px) scale(1.6);
+
+    transform:
+      translate(-50%, -40px)
+      scale(1.6);
   }
 
   100% {
     opacity: 0;
-    transform: translate(-50%, -75px) scale(1);
+
+    transform:
+      translate(-50%, -75px)
+      scale(1);
   }
 }
 
 
 /* ======================================================
-   MIDDEN: VS EN QB-BALLON
+   CENTRALE ARENA
 ====================================================== */
 
 .arena-center {
@@ -868,40 +990,69 @@ button:disabled {
   justify-content: center;
 
   min-width: 0;
+
+  overflow: visible;
 }
 
 .versus-badge {
   display: grid;
   place-items: center;
 
-  width: 59px;
-  height: 59px;
+  width: 49px;
+  height: 49px;
 
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 
   border-radius: 50%;
 
   background: white;
   color: #e64364;
 
-  font-size: 25px;
+  font-size: 22px;
   font-weight: 1000;
   font-style: italic;
 
   box-shadow: var(--qb-shadow);
 }
 
+
+/* ======================================================
+   QB-LUCHTBALLON
+
+   De ballon wordt getekend met CSS.
+
+   De bestaande JavaScript-code
+   past tijdens het spelen deze
+   eigenschappen aan:
+
+   --flame-scale
+   --flame-opacity
+
+   Daardoor groeit de vlam
+   automatisch gedurende de beurt.
+====================================================== */
+
 .timer-balloon {
   position: relative;
 
   width: 112px;
-  height: 182px;
+  height: 174px;
 
   transform-origin: center bottom;
 
   animation:
     balloonFloat 3s ease-in-out infinite;
+
+  filter:
+    drop-shadow(
+      0 6px 6px rgba(100,50,45,.13)
+    );
 }
+
+
+/* ======================================================
+   BALLONZAK
+====================================================== */
 
 .timer-balloon-envelope {
   position: absolute;
@@ -927,8 +1078,18 @@ button:disabled {
     );
 
   box-shadow:
-    inset -11px -7px 17px rgba(84, 0, 27, .3),
-    0 8px 18px rgba(181, 47, 76, .2);
+    inset -11px -7px 17px
+      rgba(84,0,27,.3),
+
+    inset 8px 5px 13px
+      rgba(255,255,255,.16),
+
+    0 6px 15px
+      rgba(181,47,76,.18);
+
+  transition:
+    box-shadow .25s ease,
+    filter .25s ease;
 }
 
 .balloon-panel {
@@ -943,19 +1104,25 @@ button:disabled {
 .panel-left {
   left: 12%;
   width: 30%;
-  background: rgba(111, 0, 39, .3);
+
+  background:
+    rgba(111,0,39,.3);
 }
 
 .panel-mid {
   left: 39%;
   width: 21%;
-  background: rgba(255, 138, 146, .25);
+
+  background:
+    rgba(255,138,146,.25);
 }
 
 .panel-right {
   right: 8%;
   width: 25%;
-  background: rgba(128, 0, 36, .25);
+
+  background:
+    rgba(128,0,36,.25);
 }
 
 .balloon-qb {
@@ -964,16 +1131,60 @@ button:disabled {
   top: 42%;
   left: 50%;
 
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%);
 
-  color: #fff;
+  color: white;
+
   font-size: 36px;
   font-weight: 1000;
+
   letter-spacing: -.08em;
 
   text-shadow:
-    0 2px 6px rgba(88, 0, 30, .65);
+    0 2px 6px rgba(88,0,30,.65);
 }
+
+
+/* ======================================================
+   EXTRA VUURGLOED OP DE BALLON
+
+   De gloed wordt sterker wanneer
+   de ballon de danger-klasse krijgt.
+====================================================== */
+
+.timer-balloon-envelope::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  z-index: 3;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 100%,
+      rgba(255,228,87,.9),
+      rgba(255,112,25,.45) 35%,
+      transparent 72%
+    );
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transition: opacity .3s ease;
+}
+
+.timer-balloon.danger
+.timer-balloon-envelope::before {
+  opacity: .85;
+}
+
+
+/* ======================================================
+   TOUWEN EN MAND
+====================================================== */
 
 .balloon-strings {
   position: absolute;
@@ -1012,6 +1223,7 @@ button:disabled {
   width: 40px;
   height: 25px;
 
+  border: 3px solid #72401f;
   border-radius: 4px 4px 9px 9px;
 
   background:
@@ -1020,11 +1232,21 @@ button:disabled {
       #a06939 0 6px,
       #754422 6px 12px
     );
-
-  border: 3px solid #72401f;
 }
 
-/* Vlam die steeds groter wordt */
+
+/* ======================================================
+   GROEIENDE VLAM
+
+   De vlam heeft:
+   - buitenste oranje vlam
+   - gele binnenste vlam
+   - pulserende beweging
+   - toenemende gloed
+
+   De vlam groeit van klein
+   naar groot gedurende 12 seconden.
+====================================================== */
 
 .balloon-flame {
   position: absolute;
@@ -1035,19 +1257,26 @@ button:disabled {
   width: 40px;
   height: 65px;
 
+  z-index: 6;
+
   transform:
     translateX(-50%)
     scale(var(--flame-scale, .12));
 
   transform-origin: center top;
 
-  opacity: var(--flame-opacity, .2);
+  opacity:
+    var(--flame-opacity, .2);
+
+  filter:
+    drop-shadow(
+      0 0 8px rgba(255,128,26,.7)
+    );
 
   transition:
-    transform .18s linear,
-    opacity .18s linear;
+    transform .13s linear,
+    opacity .13s linear;
 
-  z-index: 5;
   pointer-events: none;
 }
 
@@ -1056,7 +1285,9 @@ button:disabled {
   position: absolute;
 
   left: 50%;
-  transform: translateX(-50%);
+
+  transform:
+    translateX(-50%);
 
   border-radius:
     45% 45% 55% 55% /
@@ -1065,15 +1296,16 @@ button:disabled {
 
 .flame-outer {
   top: 0;
+
   width: 38px;
   height: 65px;
 
   background:
     linear-gradient(
       180deg,
-      #ff4d21,
-      #ff9a19,
-      #ffdc39
+      #ff3d18 0%,
+      #ff8c17 48%,
+      #ffe13c 100%
     );
 
   clip-path:
@@ -1086,6 +1318,9 @@ button:disabled {
       0 75%,
       15% 46%
     );
+
+  animation:
+    flameFlicker .35s ease-in-out infinite alternate;
 }
 
 .flame-inner {
@@ -1096,99 +1331,298 @@ button:disabled {
 
   background:
     linear-gradient(
-      #fff1a7,
-      #ffe251
+      #fff9be,
+      #ffe34e
     );
+
+  animation:
+    innerFlameFlicker .25s ease-in-out infinite alternate;
 }
+
+
+/* ======================================================
+   VLAMBEWEGING
+====================================================== */
+
+@keyframes flameFlicker {
+  from {
+    transform:
+      translateX(-50%)
+      rotate(-4deg)
+      scaleX(.9);
+  }
+
+  to {
+    transform:
+      translateX(-50%)
+      rotate(5deg)
+      scaleX(1.08);
+  }
+}
+
+@keyframes innerFlameFlicker {
+  from {
+    transform:
+      translateX(-50%)
+      rotate(3deg)
+      scale(.88);
+  }
+
+  to {
+    transform:
+      translateX(-50%)
+      rotate(-3deg)
+      scale(1.08);
+  }
+}
+
+
+/* ======================================================
+   RUSTIG ZWEVEN
+====================================================== */
+
+@keyframes balloonFloat {
+  0%, 100% {
+    transform:
+      translateY(0)
+      rotate(-2deg);
+  }
+
+  50% {
+    transform:
+      translateY(-7px)
+      rotate(2deg);
+  }
+}
+
+
+/* ======================================================
+   GEVAAR: NOG MAAR 4 SECONDEN
+
+   De ballon:
+   - krijgt een oranje gloed
+   - begint licht te trillen
+   - krijgt een grotere schaduw
+====================================================== */
 
 .timer-balloon.danger {
   filter:
-    drop-shadow(0 0 17px rgba(255, 95, 31, .6));
+    drop-shadow(
+      0 0 14px rgba(255,92,27,.7)
+    );
+
+  animation:
+    balloonDangerShake .23s ease-in-out infinite alternate;
 }
+
+.timer-balloon.danger
+.timer-balloon-envelope {
+  box-shadow:
+    inset 0 -25px 26px
+      rgba(255,173,39,.52),
+
+    0 0 25px
+      rgba(255,115,40,.35);
+}
+
+@keyframes balloonDangerShake {
+  from {
+    transform:
+      translateY(-2px)
+      rotate(-3deg);
+  }
+
+  to {
+    transform:
+      translateY(2px)
+      rotate(3deg);
+  }
+}
+
+
+/* ======================================================
+   BALLON BRANDT: TIJD VERSTREKEN
+
+   De bestaande duel.js voegt
+   kort de klasse "burning" toe.
+
+   We maken de animatie heftiger:
+   - grote vlam
+   - ballon schudt
+   - gloed
+   - korte flits
+====================================================== */
 
 .timer-balloon.burning {
+  z-index: 20;
+
   animation:
-    balloonBurn .95s ease-in-out;
+    balloonBurn .95s ease-in-out !important;
+
+  filter:
+    drop-shadow(
+      0 0 27px rgba(255,91,26,.9)
+    );
 }
 
-.timer-balloon.burning .balloon-flame {
+.timer-balloon.burning
+.timer-balloon-flame,
+
+.timer-balloon.burning
+.balloon-flame {
   opacity: 1 !important;
+
   transform:
-    translateX(-50%) scale(2.6) !important;
+    translateX(-50%)
+    scale(2.8) !important;
 }
+
+.timer-balloon.burning
+.timer-balloon-envelope {
+  animation:
+    envelopeBurn .95s ease-out forwards;
+}
+
+.timer-balloon.burning
+.timer-balloon-envelope::before {
+  opacity: 1;
+}
+
+
+/* ======================================================
+   BRANDANIMATIE
+====================================================== */
+
+@keyframes balloonBurn {
+  0% {
+    transform:
+      translateY(0)
+      rotate(0)
+      scale(1);
+  }
+
+  20% {
+    transform:
+      translateY(-7px)
+      rotate(-8deg)
+      scale(1.08);
+  }
+
+  45% {
+    transform:
+      translateY(2px)
+      rotate(9deg)
+      scale(1.12);
+  }
+
+  70% {
+    transform:
+      translateY(-5px)
+      rotate(-7deg)
+      scale(1.06);
+  }
+
+  100% {
+    transform:
+      translateY(0)
+      rotate(0)
+      scale(1);
+  }
+}
+
+@keyframes envelopeBurn {
+  0% {
+    filter: brightness(1);
+  }
+
+  30% {
+    filter:
+      brightness(1.5)
+      saturate(1.7);
+  }
+
+  55% {
+    filter:
+      brightness(2.1)
+      saturate(2);
+  }
+
+  100% {
+    filter: brightness(1);
+  }
+}
+
+
+/* ======================================================
+   VUURUITBARSTING / FLITS
+====================================================== */
 
 .balloon-burst {
   position: absolute;
 
-  top: 40px;
+  top: 38px;
   left: 50%;
 
   opacity: 0;
 
   font-size: 58px;
 
-  transform: translateX(-50%);
+  transform:
+    translateX(-50%);
 
   pointer-events: none;
+
+  z-index: 25;
 }
 
-.timer-balloon.burning .balloon-burst {
+.timer-balloon.burning
+.balloon-burst {
   animation:
     balloonBurst 1s ease-out forwards;
-}
-
-.center-caption {
-  margin-top: 5px;
-
-  color: #df3b60;
-  font-size: 10px;
-  font-weight: 1000;
-  letter-spacing: .12em;
-}
-
-@keyframes balloonFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-9px);
-  }
-}
-
-@keyframes balloonBurn {
-  0% {
-    transform: rotate(0) scale(1);
-  }
-
-  30% {
-    transform: rotate(-8deg) scale(1.08);
-  }
-
-  60% {
-    transform: rotate(8deg) scale(1.08);
-  }
-
-  100% {
-    transform: rotate(0) scale(1);
-  }
 }
 
 @keyframes balloonBurst {
   0% {
     opacity: 0;
-    transform: translateX(-50%) scale(.2);
+
+    transform:
+      translateX(-50%)
+      scale(.2);
   }
 
-  40% {
+  25% {
     opacity: 1;
-    transform: translateX(-50%) scale(1.3);
+
+    transform:
+      translateX(-50%)
+      scale(.95);
+  }
+
+  55% {
+    opacity: 1;
+
+    transform:
+      translateX(-50%)
+      scale(1.45);
   }
 
   100% {
     opacity: 0;
-    transform: translateX(-50%) scale(1.8);
+
+    transform:
+      translateX(-50%)
+      scale(1.8);
   }
+}
+
+.center-caption {
+  margin-top: 1px;
+
+  color: #df3b60;
+
+  font-size: 9px;
+  font-weight: 1000;
+  letter-spacing: .1em;
 }
 
 
@@ -1202,16 +1636,17 @@ button:disabled {
 
 .start-duel-button {
   max-width: 360px;
-  margin: 0 auto 22px;
+
+  margin: 0 auto 17px;
 }
 
 
 /* ======================================================
-   VRAAG
+   SPELSCHERM
 ====================================================== */
 
 .game-section {
-  margin-top: 15px;
+  margin-top: 8px;
 }
 
 .question-header {
@@ -1219,34 +1654,40 @@ button:disabled {
   justify-content: space-between;
   align-items: center;
 
-  margin-bottom: 14px;
+  margin-bottom: 9px;
 }
 
 .round-badge {
-  padding: 10px 16px;
+  padding: 8px 13px;
 
   border-radius: 50px;
-  background: #e8f3ff;
 
+  background: #e8f3ff;
   color: #2867b2;
-  font-size: 12px;
+
+  font-size: 11px;
   font-weight: 1000;
 }
+
+
+/* ======================================================
+   TIMER
+====================================================== */
 
 .timer-badge {
   display: grid;
   place-items: center;
 
-  width: 68px;
-  height: 68px;
+  width: 52px;
+  height: 52px;
 
-  border: 5px solid #a6d6ff;
+  border: 4px solid #a6d6ff;
   border-radius: 50%;
 
-  background: #fff;
+  background: white;
   color: #245caa;
 
-  font-size: 29px;
+  font-size: 23px;
   font-weight: 1000;
 }
 
@@ -1268,21 +1709,28 @@ button:disabled {
   }
 }
 
+
+/* ======================================================
+   COMPACTE VRAAGKAART
+====================================================== */
+
 .question-panel {
-  padding: 25px;
+  padding: 15px 20px;
 
   border: 2px solid #e0edfc;
-  border-radius: 20px;
+  border-radius: 17px;
 
-  background: #fff;
+  background: white;
+
   text-align: center;
 }
 
 .question-category {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 
   color: #3981d1;
-  font-size: 11px;
+
+  font-size: 10px;
   font-weight: 1000;
   letter-spacing: .08em;
 }
@@ -1291,16 +1739,18 @@ button:disabled {
   margin: 0;
 
   color: #193d6d;
-  font-size: clamp(22px, 3.5vw, 32px);
+
+  font-size: clamp(19px, 2.4vw, 26px);
   font-weight: 1000;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 .question-description {
-  margin: 14px 0 0;
+  margin: 7px 0 0;
 
   color: #7d91ac;
-  font-size: 12px;
+
+  font-size: 11px;
 }
 
 
@@ -1310,19 +1760,22 @@ button:disabled {
 
 .answer-lanes {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
 
-  margin-top: 17px;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-top: 12px;
 }
 
 .answer-lane {
   min-width: 0;
 
-  padding: 16px;
+  padding: 11px 12px;
 
   border: 3px solid transparent;
-  border-radius: 19px;
+  border-radius: 15px;
 
   transition:
     border-color .2s ease,
@@ -1349,30 +1802,32 @@ button:disabled {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
 
-  gap: 8px;
-  margin-bottom: 11px;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  margin-bottom: 8px;
 }
 
 .answer-lane-header strong {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 1000;
 }
 
 .turn-status {
-  padding: 6px 9px;
+  padding: 5px 8px;
 
   border-radius: 50px;
 
   background: #dde6f0;
   color: #647d9d;
 
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 1000;
 }
 
-.answer-lane.active .turn-status {
+.answer-lane.active
+.turn-status {
   background: #ddfaed;
   color: #17945a;
 }
@@ -1381,20 +1836,22 @@ button:disabled {
   position: relative;
 }
 
-.answer-input-shell .duel-input {
-  padding-right: 58px;
+.answer-input-shell
+.duel-input {
+  padding: 11px 55px 11px 12px;
 
   background: white;
-  font-size: 15px;
+
+  font-size: 14px;
 }
 
-.answer-input-shell .duel-input:disabled {
-  background: rgba(255,255,255,.65);
+.answer-input-shell
+.duel-input:disabled {
+  background:
+    rgba(255,255,255,.7);
+
   color: #536b8b;
 }
-
-/* De invoer van de tegenstander
-   blijft leesbaar, maar niet bewerkbaar. */
 
 .typing-indicator {
   position: absolute;
@@ -1402,27 +1859,40 @@ button:disabled {
   right: 10px;
   top: 50%;
 
-  transform: translateY(-50%);
+  transform:
+    translateY(-50%);
 
   color: #f25170;
+
   font-size: 9px;
   font-weight: 1000;
   letter-spacing: .05em;
 }
 
-.turn-message {
-  margin: 17px 0 12px;
-  padding: 13px;
 
-  border-radius: 14px;
+/* ======================================================
+   BEURTMELDING
+====================================================== */
+
+.turn-message {
+  margin: 11px 0 9px;
+  padding: 10px;
+
+  border-radius: 12px;
 
   background: #f1f7ff;
   color: #2869bb;
 
   text-align: center;
-  font-size: 14px;
+
+  font-size: 12px;
   font-weight: 1000;
 }
+
+
+/* ======================================================
+   ANTWOORD INDIENEN
+====================================================== */
 
 .answer-submit-area {
   max-width: 350px;
@@ -1430,17 +1900,21 @@ button:disabled {
 }
 
 .answer-submit-button {
-  padding: 16px;
+  padding: 12px 16px;
+
+  font-size: 12px;
 }
 
 .answer-feedback {
-  min-height: 27px;
-  margin: 15px 0;
+  min-height: 18px;
+
+  margin: 9px 0;
 
   text-align: center;
 
   color: #466c95;
-  font-size: 13px;
+
+  font-size: 12px;
   font-weight: 900;
 }
 
@@ -1458,10 +1932,11 @@ button:disabled {
 ====================================================== */
 
 .used-panel {
-  margin-top: 20px;
-  padding: 20px;
+  margin-top: 11px;
+  padding: 12px 15px;
 
-  border-radius: 20px;
+  border-radius: 15px;
+
   background: #f3f8ff;
 }
 
@@ -1469,59 +1944,64 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+
+  gap: 10px;
 }
 
 .used-heading h3 {
   margin: 0;
 
   color: #2d598b;
-  font-size: 15px;
+
+  font-size: 13px;
   font-weight: 1000;
 }
 
 .used-heading > span {
   color: #6583a4;
-  font-size: 12px;
+
+  font-size: 11px;
   font-weight: 900;
 }
 
 .used-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 9px;
+  gap: 6px;
 
-  margin-top: 15px;
+  margin-top: 9px;
 
   color: #7890ae;
-  font-size: 13px;
+
+  font-size: 12px;
 }
 
 .used-answer {
-  padding: 8px 12px;
+  padding: 6px 9px;
 
   border-radius: 50px;
 
   background: white;
   color: #416c9d;
 
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
 }
 
 .last-event {
-  margin-top: 17px;
-  padding: 15px;
+  margin-top: 10px;
+  padding: 10px 13px;
 
-  border-radius: 14px;
+  border-radius: 12px;
 
   background: #fff7e6;
   color: #8c6617;
 
   text-align: center;
-  font-size: 13px;
+
+  font-size: 12px;
   font-weight: 800;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 
@@ -1530,36 +2010,38 @@ button:disabled {
 ====================================================== */
 
 .winner-section {
-  padding: 35px 20px;
+  padding: 28px 20px;
 
   text-align: center;
 
-  border-radius: 24px;
+  border-radius: 20px;
   background: #fff8e9;
 }
 
 .winner-icon {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 
-  font-size: 70px;
+  font-size: 65px;
 
   animation:
     winnerBounce 1.5s ease-in-out infinite;
 }
 
 .winner-section h2 {
-  margin: 0 0 13px;
+  margin: 0 0 12px;
 
   color: #b87b11;
-  font-size: clamp(26px, 4vw, 40px);
+
+  font-size: clamp(24px, 4vw, 36px);
   font-weight: 1000;
 }
 
 .winner-section p {
-  margin: 0 0 25px;
+  margin: 0 0 20px;
 
   color: #8b744b;
-  font-size: 14px;
+
+  font-size: 13px;
   line-height: 1.7;
 }
 
@@ -1574,15 +2056,16 @@ button:disabled {
   }
 
   50% {
-    transform: translateY(-12px);
+    transform: translateY(-10px);
   }
 }
 
 .duel-footer-note {
-  margin: 22px 0 0;
+  margin: 15px 0 0;
 
   color: #8299b6;
-  font-size: 11px;
+
+  font-size: 10px;
   font-weight: 800;
 
   text-align: center;
@@ -1590,10 +2073,501 @@ button:disabled {
 
 
 /* ======================================================
-   MOBIEL EN KLEINERE SCHERMEN
+   BELANGRIJKSTE VERBETERING:
+   COMPACT SPEELSCHERM
+
+   Zodra het duel bezig is, heeft
+   #game-section geen hidden-attribuut.
+
+   De onderstaande CSS herkent dat
+   en maakt ALLEEN DAN de layout
+   veel compacter.
+
+   De startlobby blijft dus normaal.
+====================================================== */
+
+body:has(
+  #game-section:not([hidden])
+)
+.duel-page {
+  padding-top: 8px;
+  padding-bottom: 15px;
+}
+
+
+/* Grote titel verdwijnt tijdens spel */
+
+body:has(
+  #game-section:not([hidden])
+)
+.duel-heading {
+  display: none;
+}
+
+
+/* De Firebase-melding is tijdens
+   het duel niet meer nodig */
+
+body:has(
+  #game-section:not([hidden])
+)
+#connection-status {
+  display: none;
+}
+
+
+/* Roomcode blijft bereikbaar,
+   maar neemt minder ruimte in */
+
+body:has(
+  #game-section:not([hidden])
+)
+.room-topline {
+  padding: 6px 12px;
+  margin-bottom: 8px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.topline-label {
+  display: none;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+#room-code {
+  font-size: 15px;
+  letter-spacing: 2px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.copy-code {
+  padding: 6px 10px;
+  font-size: 10px;
+}
+
+
+/* Compacte room */
+
+body:has(
+  #game-section:not([hidden])
+)
+.duel-room {
+  padding: 10px 13px;
+}
+
+
+/* Compacte arena */
+
+body:has(
+  #game-section:not([hidden])
+)
+.duel-arena {
+  grid-template-columns:
+    minmax(0, 1fr)
+    100px
+    minmax(0, 1fr);
+
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+
+/* Compacte spelerskaarten */
+
+body:has(
+  #game-section:not([hidden])
+)
+.fighter {
+  padding: 7px 10px;
+
+  border-width: 2px;
+  border-radius: 15px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.fighter-label {
+  margin-bottom: 1px;
+  font-size: 9px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.fighter-avatar {
+  width: 60px;
+  height: 60px;
+
+  margin-bottom: 2px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.fighter-name {
+  min-height: 20px;
+
+  font-size: 17px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.fighter-hearts {
+  margin: 3px 0;
+
+  font-size: 18px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.fighter-score {
+  font-size: 10px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.fighter-score strong {
+  font-size: 16px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.life-progress-title {
+  margin-top: 5px;
+
+  font-size: 8px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.life-progress-track {
+  height: 9px;
+  margin-top: 4px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.life-progress-label {
+  margin-top: 2px;
+
+  font-size: 9px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.fighter-status {
+  display: none;
+}
+
+
+/* Compacte QB-ballon */
+
+body:has(
+  #game-section:not([hidden])
+)
+.versus-badge {
+  width: 36px;
+  height: 36px;
+
+  margin-bottom: 0;
+
+  font-size: 16px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.timer-balloon {
+  scale: .72;
+
+  margin: -20px 0 -21px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.center-caption {
+  font-size: 8px;
+}
+
+
+/* Statusmelding verbergen:
+   de beurtmelding staat namelijk
+   al duidelijk boven de invoervakken */
+
+body:has(
+  #game-section:not([hidden])
+)
+#room-status {
+  display: none;
+}
+
+
+/* Compactere vraag en knoppen */
+
+body:has(
+  #game-section:not([hidden])
+)
+.game-section {
+  margin-top: 0;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.question-header {
+  margin-bottom: 5px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.timer-badge {
+  width: 41px;
+  height: 41px;
+
+  border-width: 3px;
+
+  font-size: 19px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.question-panel {
+  padding: 10px 13px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.question-panel h2 {
+  font-size: clamp(17px, 2vw, 22px);
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.question-description {
+  display: none;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.answer-lanes {
+  margin-top: 8px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.answer-lane {
+  padding: 8px 10px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.turn-message {
+  margin: 7px 0;
+  padding: 7px;
+
+  font-size: 11px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.answer-submit-button {
+  padding: 10px 14px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.answer-feedback {
+  margin: 5px 0;
+  min-height: 15px;
+}
+
+
+/* Gebruikte antwoorden houden we
+   compact en apart scrollbaar */
+
+body:has(
+  #game-section:not([hidden])
+)
+.used-panel {
+  margin-top: 8px;
+  padding: 8px 12px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.used-list {
+  max-height: 48px;
+  overflow-y: auto;
+
+  margin-top: 6px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.last-event {
+  margin-top: 6px;
+  padding: 7px;
+
+  font-size: 11px;
+}
+
+body:has(
+  #game-section:not([hidden])
+)
+.duel-footer-note {
+  display: none;
+}
+
+
+/* ======================================================
+   KLEINE SCHERMHOOGTE
+
+   Bijvoorbeeld een Chromebook
+   met beperkte verticale ruimte.
+
+   Alles wordt nog iets compacter
+   zodra het scherm lager is dan
+   760 pixels.
+====================================================== */
+
+@media (max-height: 760px) {
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .duel-header {
+    min-height: 28px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .duel-logo {
+    font-size: 19px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .header-mode {
+    padding: 5px 10px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .duel-arena {
+    margin-bottom: 4px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .fighter-avatar {
+    width: 49px;
+    height: 49px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .fighter-name {
+    font-size: 15px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .fighter-hearts {
+    font-size: 16px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .timer-balloon {
+    scale: .62;
+    margin: -28px 0 -30px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .versus-badge {
+    width: 32px;
+    height: 32px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .question-panel {
+    padding: 8px 11px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .answer-lanes {
+    margin-top: 6px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .answer-lane {
+    padding: 6px 8px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .answer-input-shell
+  .duel-input {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .last-event {
+    display: none;
+  }
+}
+
+
+/* ======================================================
+   TABLET
 ====================================================== */
 
 @media (max-width: 780px) {
+
   .avatar-picker {
     grid-template-columns:
       repeat(3, minmax(0, 1fr));
@@ -1602,33 +2576,60 @@ button:disabled {
   .duel-arena {
     grid-template-columns:
       minmax(0, 1fr)
-      104px
+      92px
       minmax(0, 1fr);
 
     gap: 8px;
   }
 
   .fighter {
-    padding: 15px 8px;
+    padding: 11px 8px;
   }
 
-  .timer-balloon {
-    transform: scale(.8);
+  .fighter-avatar {
+    width: 76px;
+    height: 76px;
   }
 
-  .arena-center {
-    overflow: visible;
+  .fighter-name {
+    font-size: 17px;
+  }
+
+  .fighter-hearts {
+    font-size: 19px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .duel-arena {
+    grid-template-columns:
+      minmax(0, 1fr)
+      76px
+      minmax(0, 1fr);
+
+    gap: 5px;
   }
 }
 
+
+/* ======================================================
+   TELEFOON
+====================================================== */
+
 @media (max-width: 560px) {
+
   .duel-page {
-    width: 96%;
-    padding-top: 13px;
+    width: 97%;
+    padding-top: 10px;
   }
 
   .duel-heading {
-    padding: 24px 0;
+    padding: 20px 0;
+  }
+
+  .duel-heading h1 {
+    font-size: 31px;
   }
 
   .lobby-actions {
@@ -1636,17 +2637,17 @@ button:disabled {
   }
 
   .duel-room {
-    padding: 12px;
+    padding: 10px;
   }
 
   .room-topline {
-    padding: 12px;
+    padding: 9px;
   }
 
   .duel-arena {
     grid-template-columns:
       minmax(0, 1fr)
-      75px
+      70px
       minmax(0, 1fr);
 
     gap: 5px;
@@ -1656,22 +2657,22 @@ button:disabled {
     font-size: 9px;
   }
 
-  .fighter-name {
-    font-size: 15px;
+  .fighter-avatar {
+    width: 65px;
+    height: 65px;
   }
 
-  .fighter-avatar {
-    width: 75px;
-    height: 75px;
+  .fighter-name {
+    font-size: 14px;
   }
 
   .fighter-hearts {
-    font-size: 16px;
+    font-size: 15px;
     letter-spacing: 0;
   }
 
   .fighter-score strong {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .life-progress-title {
@@ -1683,9 +2684,10 @@ button:disabled {
   }
 
   .versus-badge {
-    width: 44px;
-    height: 44px;
-    font-size: 19px;
+    width: 38px;
+    height: 38px;
+
+    font-size: 17px;
   }
 
   .timer-balloon {
@@ -1698,50 +2700,130 @@ button:disabled {
   }
 
   .answer-lanes {
-    gap: 8px;
+    gap: 7px;
   }
 
   .answer-lane {
-    padding: 10px 8px;
+    padding: 8px 7px;
   }
 
   .answer-lane-header strong {
-    font-size: 11px;
+    font-size: 10px;
   }
 
-  .answer-input-shell .duel-input {
-    padding: 12px 7px;
+  .answer-input-shell
+  .duel-input {
+    padding: 10px 7px;
+
     font-size: 12px;
   }
 
   .typing-indicator {
     position: static;
+
     display: block;
+
     transform: none;
 
-    margin-top: 6px;
+    margin-top: 5px;
+
     text-align: right;
   }
 
   .question-panel {
-    padding: 20px 12px;
+    padding: 12px 10px;
+  }
+
+  .question-panel h2 {
+    font-size: 19px;
   }
 
   .header-mode {
     display: none;
   }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .duel-arena {
+    grid-template-columns:
+      minmax(0, 1fr)
+      63px
+      minmax(0, 1fr);
+
+    gap: 3px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .fighter {
+    padding: 7px 5px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .fighter-avatar {
+    width: 47px;
+    height: 47px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .fighter-name {
+    font-size: 13px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .fighter-hearts {
+    font-size: 14px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .timer-balloon {
+    scale: .46;
+    margin: -40px 0;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .versus-badge {
+    width: 29px;
+    height: 29px;
+    font-size: 13px;
+  }
+
+  body:has(
+    #game-section:not([hidden])
+  )
+  .answer-lane {
+    padding: 6px 5px;
+  }
 }
 
 
 /* ======================================================
-   TOEGANKELIJKHEID
+   BEWEGING VERMINDEREN
+
+   Voor gebruikers die in hun
+   apparaatinstellingen minder
+   animaties hebben gekozen.
 ====================================================== */
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
     animation-duration: .01ms !important;
     transition-duration: .01ms !important;
   }
+
 }
