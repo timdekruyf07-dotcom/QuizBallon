@@ -1,0 +1,17 @@
+{
+  "name": "QuizBallon - Denk zeldzaam, vlieg hoog!",
+  "short_name": "QuizBallon",
+  "description": "Een Nederlands kennisspel waarin zeldzame antwoorden je luchtballon steeds hoger laten vliegen.",
+  "lang": "nl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#70c8ff",
+  "theme_color": "#70c8ff",
+  "orientation": "portrait-primary",
+  "categories": [
+    "games",
+    "entertainment",
+    "education"
+  ]
+}
