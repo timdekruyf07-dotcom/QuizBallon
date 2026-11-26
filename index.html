@@ -16,10 +16,10 @@
 
   <meta
     name="description"
-    content="Speel QuizBallon! Geef zeldzame antwoorden, verdien punten en vlieg met je luchtballon van de aarde naar de planeten."
+    content="Speel iedere dag de QuizBallon Daily Challenge! Geef zeldzame antwoorden en vlieg zo hoog mogelijk."
   >
 
-  <title>QuizBallon 🎈 | Hoe hoog kom jij?</title>
+  <title>QuizBallon 🎈 | Daily Challenge</title>
 
   <link rel="stylesheet" href="style.css">
 
@@ -34,9 +34,7 @@
 
   <div class="app" id="app">
 
-    <!-- ===================================
-         ACHTERGROND EN WERELD
-    ==================================== -->
+    <!-- ACHTERGROND -->
 
     <div class="world" id="world">
 
@@ -62,19 +60,25 @@
         <div class="hill hill-three"></div>
       </div>
 
+
       <!-- LUCHTBALLON -->
 
-      <div class="balloon-container" id="balloon-container">
+      <div
+        class="balloon-container"
+        id="balloon-container"
+      >
 
         <div class="balloon-shadow"></div>
 
         <div class="balloon" id="balloon">
 
           <div class="balloon-top">
+
             <div class="balloon-stripe stripe-one"></div>
             <div class="balloon-stripe stripe-two"></div>
             <div class="balloon-stripe stripe-three"></div>
             <div class="balloon-stripe stripe-four"></div>
+
           </div>
 
           <div class="balloon-ropes">
@@ -94,31 +98,40 @@
 
       </div>
 
-      <div class="flight-particles" id="flight-particles"></div>
+      <div
+        class="flight-particles"
+        id="flight-particles"
+      ></div>
 
     </div>
 
 
-    <!-- ===================================
-         HEADER
-    ==================================== -->
+    <!-- HEADER -->
 
     <header class="site-header">
 
       <a
         href="index.html"
         class="logo"
-        aria-label="QuizBallon - Homepage"
+        aria-label="QuizBallon homepage"
       >
         <span class="logo-icon">🎈</span>
-        <span>Quiz<span class="logo-accent">Ballon</span></span>
+
+        <span>
+          Quiz<span class="logo-accent">Ballon</span>
+        </span>
       </a>
 
       <div class="header-right">
 
         <div class="record-badge">
+
           <span>🏆 RECORD</span>
-          <strong id="header-record">0 km</strong>
+
+          <strong id="header-record">
+            0 km
+          </strong>
+
         </div>
 
       </div>
@@ -126,70 +139,161 @@
     </header>
 
 
-    <!-- ===================================
-         STARTSCHERM
-    ==================================== -->
+    <!-- STARTSCHERM -->
 
-    <main class="screen start-screen active" id="start-screen">
+    <main
+      class="screen start-screen active"
+      id="start-screen"
+    >
 
       <div class="start-content">
 
         <div class="eyebrow">
+
           <span class="eyebrow-dot"></span>
-          HET NEDERLANDSE ZELDZAAMHEIDSSPEL
+
+          DE DAGELIJKSE NEDERLANDSE KENNISQUIZ
+
         </div>
 
         <h1>
+
           DENK SLIM.<br>
+
           ANTWOORD ZELDZAAM.<br>
+
           <span>VLIEG HOGER.</span>
+
         </h1>
 
         <p class="start-description">
-          Geef een correct antwoord dat zo weinig mogelijk
-          mensen zouden bedenken. Hoe zeldzamer je antwoord,
+
+          Iedere dag krijg je 10 vragen.
+
+          Bedenk antwoorden waar andere spelers
+          niet meteen aan denken.
+
+          Hoe zeldzamer je antwoord,
           hoe hoger jouw luchtballon vliegt!
+
         </p>
+
+
+        <!-- DAILY CHALLENGE KAART -->
+
+        <section
+          class="daily-card"
+          id="daily-card"
+          aria-label="Dagelijkse uitdaging"
+        >
+
+          <div class="daily-card-top">
+
+            <span class="daily-label">
+              📅 DAILY CHALLENGE
+            </span>
+
+            <span
+              class="daily-status"
+              id="daily-status"
+            >
+              BESCHIKBAAR
+            </span>
+
+          </div>
+
+          <h2 id="daily-date">
+            Uitdaging van vandaag
+          </h2>
+
+          <p id="daily-description">
+
+            Vandaag staan er 10 vragen
+            voor je klaar.
+
+          </p>
+
+          <div class="daily-countdown-row">
+
+            <span>⏰ Nieuwe uitdaging over</span>
+
+            <strong
+              id="daily-countdown"
+              aria-live="off"
+            >
+              00:00:00
+            </strong>
+
+          </div>
+
+        </section>
+
+
+        <!-- SPELONDERDELEN -->
 
         <div class="start-features">
 
           <div class="feature">
+
             <span>🧠</span>
+
             <div>
+
               <strong>10 vragen</strong>
-              <small>Per vlucht</small>
+
+              <small>Iedere dag</small>
+
             </div>
+
           </div>
 
           <div class="feature">
+
             <span>⏱️</span>
+
             <div>
+
               <strong>25 seconden</strong>
+
               <small>Per vraag</small>
+
             </div>
+
           </div>
 
           <div class="feature">
+
             <span>🚀</span>
+
             <div>
-              <strong>Vlieg de ruimte in</strong>
-              <small>Ontdek nieuwe werelden</small>
+
+              <strong>Raketantwoord</strong>
+
+              <small>100 punten</small>
+
             </div>
+
           </div>
 
         </div>
+
 
         <button
           class="primary-button start-button"
           id="start-button"
           type="button"
         >
-          START JE VLUCHT
+
+          START DAILY CHALLENGE
+
           <span>↗</span>
+
         </button>
 
         <div class="start-small">
-          GRATIS SPELEN · GEEN ACCOUNT NODIG
+
+          GRATIS SPELEN · DAGELIJKS NIEUWE UITDAGING
+
         </div>
 
       </div>
@@ -197,52 +301,74 @@
     </main>
 
 
-    <!-- ===================================
-         SPELSCHERM
-    ==================================== -->
+    <!-- SPELSCHERM -->
 
-    <main class="screen game-screen" id="game-screen">
+    <main
+      class="screen game-screen"
+      id="game-screen"
+    >
 
       <div class="game-layout">
 
-        <!-- BOVENSTE STATISTIEKEN -->
+
+        <!-- SCORE -->
 
         <div class="game-stats">
 
           <div class="stat-box">
+
             <span>VRAAG</span>
+
             <strong>
               <span id="question-number">1</span>/10
             </strong>
+
           </div>
 
           <div class="stat-box">
+
             <span>HOOGTE</span>
-            <strong id="height-display">0 km</strong>
+
+            <strong id="height-display">
+              0 km
+            </strong>
+
           </div>
 
           <div class="stat-box">
+
             <span>PUNTEN</span>
-            <strong id="score-display">0</strong>
+
+            <strong id="score-display">
+              0
+            </strong>
+
           </div>
 
         </div>
 
 
-        <!-- VOORTGANGSBALK -->
+        <!-- VOORTGANG -->
 
         <div class="progress-section">
 
           <div class="progress-header">
+
             <span>JOUW VLUCHT</span>
-            <span id="zone-name">De aarde 🌍</span>
+
+            <span id="zone-name">
+              De aarde 🌍
+            </span>
+
           </div>
 
           <div class="progress-track">
+
             <div
               class="progress-fill"
               id="progress-fill"
             ></div>
+
           </div>
 
         </div>
@@ -250,45 +376,83 @@
 
         <!-- VRAAGKAART -->
 
-        <section class="question-card" id="question-card">
+        <section
+          class="question-card"
+          id="question-card"
+        >
 
           <div class="question-top">
 
-            <div class="question-category" id="question-category">
+            <div
+              class="question-category"
+              id="question-category"
+            >
+
               🌍 ALGEMENE KENNIS
+
             </div>
 
-            <div class="timer" id="timer">
+            <div
+              class="timer"
+              id="timer"
+            >
+
               <span>⏱</span>
-              <strong id="timer-display">25</strong>
+
+              <strong id="timer-display">
+                25
+              </strong>
+
               <small>SEC</small>
+
             </div>
 
           </div>
+
+
+          <!-- VRAAG -->
 
           <div class="question-content">
 
             <div class="question-label">
+
               GEEF EEN ZELDZAAM ANTWOORD
+
             </div>
 
             <h2 id="question-text">
+
               Hier verschijnt je vraag.
+
             </h2>
 
-            <p class="question-hint" id="question-hint">
-              Hoe minder voor de hand liggend, hoe beter.
+            <p
+              class="question-hint"
+              id="question-hint"
+            >
+
+              Hoe minder voor de hand liggend,
+              hoe beter.
+
             </p>
 
           </div>
 
-          <form id="answer-form" autocomplete="off">
+
+          <!-- ANTWOORDVELD -->
+
+          <form
+            id="answer-form"
+            autocomplete="off"
+          >
 
             <label
               class="input-label"
               for="answer-input"
             >
+
               JOUW ANTWOORD
+
             </label>
 
             <input
@@ -307,11 +471,17 @@
               class="primary-button answer-button"
               id="answer-button"
             >
+
               CONTROLEER ANTWOORD
+
               <span>→</span>
+
             </button>
 
           </form>
+
+
+          <!-- RESULTAAT -->
 
           <div
             class="answer-result"
@@ -320,20 +490,34 @@
             hidden
           >
 
-            <div class="result-icon" id="result-icon">
+            <div
+              class="result-icon"
+              id="result-icon"
+            >
+
               ⭐
+
             </div>
 
             <h3 id="result-title">
+
               Goed antwoord!
+
             </h3>
 
             <p id="result-description">
+
               Je luchtballon stijgt!
+
             </p>
 
-            <div class="result-points" id="result-points">
+            <div
+              class="result-points"
+              id="result-points"
+            >
+
               +50 PUNTEN
+
             </div>
 
             <button
@@ -341,8 +525,11 @@
               class="primary-button next-button"
               id="next-button"
             >
+
               VOLGENDE VRAAG
+
               <span>→</span>
+
             </button>
 
           </div>
@@ -350,12 +537,15 @@
         </section>
 
 
-        <!-- ONDERSTE SPELINFORMATIE -->
+        <!-- ONDERKANT -->
 
         <div class="game-bottom">
 
           <div class="flight-tip">
-            💡 Een onverwacht correct antwoord levert vaak meer punten op.
+
+            💡 Een verrassend correct antwoord
+            levert meestal meer punten op.
+
           </div>
 
           <button
@@ -363,7 +553,9 @@
             class="text-button"
             type="button"
           >
+
             Stop vlucht
+
           </button>
 
         </div>
@@ -373,11 +565,12 @@
     </main>
 
 
-    <!-- ===================================
-         EINDSCHERM
-    ==================================== -->
+    <!-- EINDSCHERM -->
 
-    <main class="screen end-screen" id="end-screen">
+    <main
+      class="screen end-screen"
+      id="end-screen"
+    >
 
       <div class="end-card">
 
@@ -386,48 +579,104 @@
         </div>
 
         <div class="end-eyebrow">
-          MISSIE VOLTOOID
+
+          DAILY CHALLENGE VOLTOOID
+
         </div>
 
         <h2>
+
           WAT EEN<br>
+
           <span>VLUCHT!</span>
+
         </h2>
 
-        <p class="end-description" id="end-description">
-          Je hebt je vlucht voltooid!
+        <p
+          class="end-description"
+          id="end-description"
+        >
+
+          Je hebt de dagelijkse
+          uitdaging voltooid!
+
         </p>
+
+
+        <!-- EINDSTATISTIEKEN -->
 
         <div class="end-stats">
 
           <div class="end-stat">
+
             <span>TOTALE HOOGTE</span>
-            <strong id="end-height">0 km</strong>
+
+            <strong id="end-height">
+              0 km
+            </strong>
+
           </div>
 
           <div class="end-stat">
+
             <span>TOTALE PUNTEN</span>
-            <strong id="end-score">0</strong>
+
+            <strong id="end-score">
+              0
+            </strong>
+
           </div>
 
           <div class="end-stat">
+
             <span>GOEDE ANTWOORDEN</span>
-            <strong id="end-correct">0/10</strong>
+
+            <strong id="end-correct">
+              0/10
+            </strong>
+
           </div>
 
         </div>
 
-        <div class="end-record" id="end-record">
+
+        <!-- RECORD -->
+
+        <div
+          class="end-record"
+          id="end-record"
+        >
+
           🎈 Goed gevlogen!
+
         </div>
+
+
+        <!-- DAILY MELDING -->
+
+        <div
+          class="daily-end-message"
+          id="daily-end-message"
+        >
+
+          📅 Kom morgen terug
+          voor 10 nieuwe vragen!
+
+        </div>
+
+
+        <!-- BESTAANDE KNOPPEN -->
 
         <button
           class="primary-button restart-button"
           id="restart-button"
           type="button"
         >
-          OPNIEUW SPELEN
+
+          MORGEN WEER SPELEN
+
           <span>↗</span>
+
         </button>
 
         <button
@@ -435,7 +684,9 @@
           id="home-button"
           type="button"
         >
+
           TERUG NAAR BEGIN
+
         </button>
 
       </div>
@@ -443,24 +694,31 @@
     </main>
 
 
-    <!-- ===================================
-         FOOTER
-    ==================================== -->
+    <!-- FOOTER -->
 
     <footer class="site-footer">
+
       <span>🎈 QUIZBALLON</span>
-      <span>DENK ZELDZAAM. VLIEG HOOG.</span>
+
+      <span>
+        ELKE DAG EEN NIEUWE VLUCHT
+      </span>
+
     </footer>
 
   </div>
 
 
-  <!-- =====================================
-       JAVASCRIPT
-  ====================================== -->
+  <!-- JAVASCRIPT -->
 
+  <!-- 1. VRAGENBANK -->
   <script src="vragen.js"></script>
+
+  <!-- 2. BESTAANDE SPELLOGICA -->
   <script src="script.js"></script>
+
+  <!-- 3. NIEUWE DAILY CHALLENGE -->
+  <script src="daily.js"></script>
 
 </body>
 </html>
