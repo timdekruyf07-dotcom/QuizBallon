@@ -17,7 +17,7 @@
 
   <meta
     name="description"
-    content="Speel iedere dag QuizBallon! Geef zeldzame antwoorden, vlieg hoger en bekijk na afloop alle antwoorden."
+    content="Speel iedere dag QuizBallon! Beantwoord vragen, verdien punten en vlieg met je luchtballon door de ruimte."
   >
 
   <title>QuizBallon 🎈 | Dagelijkse uitdaging</title>
@@ -30,6 +30,9 @@
 
   <!-- ANTWOORDENOVERZICHT -->
   <link rel="stylesheet" href="resultaten.css">
+
+  <!-- NIEUW: RUIMTEREIS -->
+  <link rel="stylesheet" href="ruimtereis.css">
 
   <!-- WEBAPP -->
   <link
@@ -265,8 +268,11 @@
             <span>🧠</span>
 
             <div>
+
               <strong>10 vragen</strong>
+
               <small>Iedere dag</small>
+
             </div>
 
           </div>
@@ -276,8 +282,11 @@
             <span>⏱️</span>
 
             <div>
+
               <strong>25 seconden</strong>
+
               <small>Per vraag</small>
+
             </div>
 
           </div>
@@ -287,8 +296,11 @@
             <span>🚀</span>
 
             <div>
+
               <strong>Raketantwoord</strong>
+
               <small>100 punten</small>
+
             </div>
 
           </div>
@@ -297,7 +309,7 @@
 
 
         <!-- ===================================
-             STARTKNOP RECHTS
+             STARTKNOP
         ==================================== -->
 
         <button
@@ -319,9 +331,7 @@
         </div>
 
 
-        <!-- ===================================
-             ANTWOORDEN NA AFLOOP
-        ==================================== -->
+        <!-- ANTWOORDEN NA AFLOOP -->
 
         <div
           id="results-home-slot"
@@ -768,8 +778,7 @@
 
   <!-- =====================================
        JAVASCRIPT
-
-       DEZE VOLGORDE IS BELANGRIJK!
+       DE VOLGORDE IS BELANGRIJK!
   ====================================== -->
 
   <!-- 1. BASISVRAGEN -->
@@ -784,10 +793,10 @@
   <!-- 4. GESCHIEDENIS -->
   <script src="geschiedenis.js"></script>
 
-  <!-- 5. EERSTE 13 EXTRA VRAGEN -->
+  <!-- 5. EXTRA VRAGEN -->
   <script src="vragen-uitbreiding.js"></script>
 
-  <!-- 6. NIEUW: 100 EXTRA VRAGEN -->
+  <!-- 6. 100 EXTRA VRAAGVARIANTEN -->
   <script src="vragen-100.js"></script>
 
   <!-- 7. DAGELIJKSE UITDAGING -->
@@ -795,6 +804,9 @@
 
   <!-- 8. ANTWOORDENOVERZICHT -->
   <script src="resultaten.js"></script>
+
+  <!-- 9. NIEUW: RUIMTEREIS -->
+  <script src="ruimtereis.js"></script>
 
 </body>
 </html>
