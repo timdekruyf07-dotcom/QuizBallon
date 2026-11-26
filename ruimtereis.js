@@ -1,54 +1,125 @@
 /* =====================================================
-   QUIZBALLON - RUIMTEREIS
-   VERSIE 1
+   QUIZBALLON - RUIMTEREIS V2
 
-   - LEEST DE HOOGTE VAN DE LUCHTBALLON
-   - LAAT PLANETEN SNELLER VERSCHIJNEN
-   - VERANDERT DE ACHTERGRONDKLEUREN
-   - VOEGT STERREN TOE
-   - TOONT DE MELKWEG EN EEN RUIMTENEVEL
-   - WERKT TOT 2000 KM
+   NIEUW:
+   - PLANETEN KOMEN VAN BOVEN
+   - PLANETEN BEWEGEN NAAR BENEDEN
+   - DE VOLGENDE PLANEET VOLGT AUTOMATISCH
+   - VLOEIENDE OVERGANGEN
+   - STERRENHEMEL EN MELKWEG
+   - REIS TOT 2000 KM
 
-   Dit is een fantasieruimtereis.
-   De spelhoogtes zijn geen echte
-   astronomische afstanden.
-
-   LAAD DIT BESTAND NA script.js,
-   daily.js EN resultaten.js.
+   De afstanden zijn fantasieafstanden
+   speciaal voor QuizBallon.
 ===================================================== */
 
 (function () {
   "use strict";
 
-  const world = document.getElementById("world");
+  const world =
+    document.getElementById("world");
 
   const heightDisplay =
     document.getElementById("height-display");
 
-  const gameScreen =
-    document.getElementById("game-screen");
-
-  if (!world || !heightDisplay || !gameScreen) {
+  if (!world || !heightDisplay) {
     console.error(
       "QuizBallon Ruimtereis: vereiste elementen ontbreken."
     );
     return;
   }
 
-  /*
-   * Voorkom dubbele ruimtelagen.
-   */
-
-  if (document.getElementById("qb-space-layer")) {
+  if (
+    document.getElementById("qb-space-layer")
+  ) {
     return;
   }
 
-
   /* ========================================
-     HELPFUNCTIES
+     INSTELLINGEN
+
+     De milestone geeft aan bij welke
+     hoogte het object ongeveer in het
+     midden van de reis zichtbaar is.
+
+     Door de verticale snelheid schuift
+     elk object omlaag als de hoogte stijgt.
   ======================================== */
 
-  function createElement(tag, className, parent) {
+  const MAX_HEIGHT = 2000;
+
+  const SCROLL_SPEED = 1.65;
+
+  const OBJECTS = [
+    {
+      name: "maan",
+      className: "qb-moon",
+      milestone: 210,
+      x: "75%"
+    },
+    {
+      name: "mars",
+      className: "qb-mars",
+      milestone: 460,
+      x: "70%"
+    },
+    {
+      name: "zon",
+      className: "qb-sun",
+      milestone: 700,
+      x: "77%"
+    },
+    {
+      name: "melkweg",
+      className: "qb-galaxy",
+      milestone: 1080,
+      x: "55%"
+    },
+    {
+      name: "jupiter",
+      className: "qb-jupiter",
+      milestone: 1390,
+      x: "74%"
+    },
+    {
+      name: "saturnus",
+      className: "qb-saturn",
+      milestone: 1660,
+      x: "74%"
+    },
+    {
+      name: "nevel",
+      className: "qb-nebula",
+      milestone: 1940,
+      x: "55%"
+    }
+  ];
+
+  /* ========================================
+     HULPFUNCTIES
+  ======================================== */
+
+  function clamp(value, minimum, maximum) {
+    return Math.max(
+      minimum,
+      Math.min(maximum, value)
+    );
+  }
+
+  function mix(a, b, amount) {
+    return a + (b - a) * amount;
+  }
+
+  function smoothstep(value) {
+    const t = clamp(value, 0, 1);
+    return t * t * (3 - 2 * t);
+  }
+
+  function create(
+    tag,
+    className,
+    parent
+  ) {
     const element = document.createElement(tag);
 
     element.className = className;
@@ -60,29 +131,11 @@
     return element;
   }
 
-  function clamp(value, minimum, maximum) {
-    return Math.max(
-      minimum,
-      Math.min(maximum, value)
-    );
-  }
-
-  function smoothstep(value) {
-    const t = clamp(value, 0, 1);
-
-    return t * t * (3 - 2 * t);
-  }
-
-  function interpolate(start, end, amount) {
-    return start + (end - start) * amount;
-  }
-
-
   /* ========================================
-     RUIMTELAAG MAKEN
+     RUIMTELAAG
   ======================================== */
 
-  const layer = createElement(
+  const layer = create(
     "div",
     "qb-space-layer",
     world
@@ -92,53 +145,46 @@
 
   layer.setAttribute("aria-hidden", "true");
 
-
   /* ========================================
      AARDGLOED
   ======================================== */
 
-  createElement(
+  create(
     "div",
     "qb-earth-glow",
     layer
   );
 
-
   /* ========================================
      STERRENVELD
   ======================================== */
 
-  const starfield = createElement(
+  const starfield = create(
     "div",
     "qb-starfield",
     layer
   );
 
+  /*
+   * Vaste willekeurige sterren,
+   * zodat het beeld niet iedere
+   * keer anders verspringt.
+   */
 
-  /* ========================================
-     VASTE RANDOMFUNCTIE
-
-     De sterren staan op iedere
-     pagina op dezelfde plekken.
-  ======================================== */
-
-  let randomSeed = 123456789;
+  let randomSeed = 789456123;
 
   function random() {
     randomSeed =
-      (Math.imul(randomSeed, 1664525) +
-        1013904223) >>> 0;
+      (
+        Math.imul(randomSeed, 1664525) +
+        1013904223
+      ) >>> 0;
 
     return randomSeed / 4294967296;
   }
 
-
-  /* ========================================
-     STERREN GENEREREN
-  ======================================== */
-
-  for (let i = 0; i < 95; i++) {
-    const star = createElement(
+  for (let i = 0; i < 130; i++) {
+    const star = create(
       "span",
       "qb-star",
       starfield
@@ -150,351 +196,157 @@
     star.style.top =
       (random() * 100).toFixed(2) + "%";
 
-    const size = interpolate(
-      1,
-      3.8,
-      random()
+    star.style.setProperty(
+      "--star-size",
+      (1 + random() * 2.8).toFixed(2) + "px"
     );
 
     star.style.setProperty(
-      "--qb-star-size",
-      size.toFixed(2) + "px"
+      "--star-opacity",
+      (.4 + random() * .6).toFixed(2)
     );
 
     star.style.setProperty(
-      "--qb-star-brightness",
-      (0.4 + random() * 0.6).toFixed(2)
-    );
-
-    star.style.setProperty(
-      "--qb-star-duration",
+      "--star-speed",
       (2.5 + random() * 4).toFixed(2) + "s"
     );
 
-    star.style.setProperty(
-      "--qb-star-delay",
-      (-random() * 7).toFixed(2) + "s"
-    );
+    star.style.animationDelay =
+      (-random() * 8).toFixed(2) + "s";
   }
 
-
   /* ========================================
-     MELKWEG
+     PLANETEN MAKEN
   ======================================== */
 
-  const galaxy = createElement(
-    "div",
-    "qb-galaxy",
-    layer
-  );
+  const travellingObjects = [];
 
-
-  /* ========================================
-     KLEURRIJKE RUIMTENEVEL
-  ======================================== */
-
-  const nebula = createElement(
-    "div",
-    "qb-nebula",
-    layer
-  );
-
-
-  /* ========================================
-     MAAN
-  ======================================== */
-
-  const moon = createElement(
-    "div",
-    "qb-space-object qb-moon",
-    layer
-  );
-
-  ["one", "two", "three", "four"].forEach(
-    function (name) {
-      createElement(
-        "span",
-        "qb-moon-crater " + name,
-        moon
-      );
-    }
-  );
-
-
-  /* ========================================
-     MARS
-  ======================================== */
-
-  const mars = createElement(
-    "div",
-    "qb-space-object qb-mars",
-    layer
-  );
-
-
-  /* ========================================
-     ZON
-  ======================================== */
-
-  const sun = createElement(
-    "div",
-    "qb-space-object qb-sun",
-    layer
-  );
-
-
-  /* ========================================
-     JUPITER
-  ======================================== */
-
-  const jupiter = createElement(
-    "div",
-    "qb-space-object qb-jupiter",
-    layer
-  );
-
-
-  /* ========================================
-     SATURNUS
-  ======================================== */
-
-  const saturn = createElement(
-    "div",
-    "qb-space-object qb-saturn-wrap",
-    layer
-  );
-
-  createElement(
-    "div",
-    "qb-saturn-ring",
-    saturn
-  );
-
-  createElement(
-    "div",
-    "qb-saturn-planet",
-    saturn
-  );
-
-
-  /* ========================================
-     WANNEER ZIJN DE OBJECTEN ZICHTBAAR?
-
-     start: begint te verschijnen
-     full: volledig zichtbaar
-     fade: begint te verdwijnen
-     end: volledig verdwenen
-
-     Objecten overlappen soms kort,
-     zodat de overgang vloeiender is.
-  ======================================== */
-
-  const objects = [
-    {
-      element: moon,
-      start: 95,
-      full: 175,
-      fade: 320,
-      end: 425
-    },
-    {
-      element: mars,
-      start: 285,
-      full: 365,
-      fade: 510,
-      end: 630
-    },
-    {
-      element: sun,
-      start: 485,
-      full: 580,
-      fade: 755,
-      end: 900
-    },
-    {
-      element: jupiter,
-      start: 1200,
-      full: 1330,
-      fade: 1540,
-      end: 1675
-    },
-    {
-      element: saturn,
-      start: 1490,
-      full: 1600,
-      fade: 1800,
-      end: 1940
-    }
-  ];
-
-
-  /* ========================================
-     ZICHTBAARHEID BEREKENEN
-  ======================================== */
-
-  function getVisibility(height, config) {
-    if (
-      height <= config.start ||
-      height >= config.end
-    ) {
-      return 0;
-    }
-
-    if (height < config.full) {
-      return smoothstep(
-        (height - config.start) /
-        (config.full - config.start)
-      );
-    }
-
-    if (height <= config.fade) {
-      return 1;
-    }
-
-    return 1 - smoothstep(
-      (height - config.fade) /
-      (config.end - config.fade)
+  OBJECTS.forEach(function (config) {
+    const element = create(
+      "div",
+      "qb-travelling-object " + config.className,
+      layer
     );
-  }
 
+    element.style.setProperty(
+      "--object-x",
+      config.x
+    );
 
-  /* ========================================
-     PLANETEN BIJWERKEN
-  ======================================== */
+    if (config.name === "maan") {
+      ["one", "two", "three", "four"].forEach(
+        function (name) {
+          create(
+            "span",
+            "qb-moon-crater " + name,
+            element
+          );
+        }
+      );
+    }
 
-  function updatePlanets(height) {
-    objects.forEach(function (config) {
-      const visibility =
-        getVisibility(height, config);
-
-      config.element.style.opacity =
-        visibility.toFixed(3);
-
-      /*
-       * De planeet lijkt iets dichterbij
-       * te komen terwijl je stijgt.
-       */
-
-      const progress = clamp(
-        (height - config.start) /
-          (config.end - config.start),
-        0,
-        1
+    if (config.name === "saturnus") {
+      create(
+        "div",
+        "qb-saturn-ring",
+        element
       );
 
-      config.element.style.setProperty(
-        "--qb-object-scale",
-        (0.70 + progress * 0.42).toFixed(3)
+      create(
+        "div",
+        "qb-saturn-planet",
+        element
       );
+    }
 
-      config.element.style.setProperty(
-        "--qb-object-y",
-        (-progress * 24).toFixed(1) + "px"
-      );
+    travellingObjects.push({
+      ...config,
+      element
     });
-  }
-
+  });
 
   /* ========================================
-     KLEUREN VOOR DE HEMEL
+     HEMELKLEUREN
 
-     Iedere regel heeft:
-     [hoogte, bovenkleur, onderkleur]
-
-     Tussen deze punten worden kleuren
-     geleidelijk berekend.
+     De lucht wordt geleidelijk donker.
   ======================================== */
 
-  const skyColors = [
+  const skyStages = [
     {
       height: 0,
-      top: [80, 175, 248],
-      bottom: [179, 226, 255]
+      top: [91, 187, 255],
+      bottom: [198, 235, 255]
     },
     {
       height: 80,
-      top: [45, 122, 207],
-      bottom: [118, 185, 241]
+      top: [43, 120, 206],
+      bottom: [118, 188, 247]
     },
     {
       height: 180,
-      top: [23, 56, 121],
-      bottom: [73, 118, 190]
+      top: [21, 52, 126],
+      bottom: [69, 113, 197]
     },
     {
-      height: 320,
-      top: [12, 27, 73],
-      bottom: [40, 65, 123]
+      height: 350,
+      top: [12, 27, 77],
+      bottom: [31, 65, 131]
     },
     {
-      height: 520,
-      top: [8, 15, 49],
-      bottom: [30, 43, 96]
+      height: 550,
+      top: [7, 17, 53],
+      bottom: [21, 40, 100]
     },
     {
-      height: 760,
-      top: [5, 10, 34],
-      bottom: [14, 25, 67]
+      height: 850,
+      top: [5, 11, 35],
+      bottom: [13, 26, 73]
     },
     {
-      height: 1050,
-      top: [6, 8, 30],
-      bottom: [17, 18, 59]
+      height: 1150,
+      top: [8, 9, 36],
+      bottom: [23, 19, 68]
     },
     {
-      height: 1450,
-      top: [4, 7, 23],
-      bottom: [19, 20, 52]
+      height: 1500,
+      top: [5, 8, 28],
+      bottom: [22, 23, 58]
     },
     {
       height: 1800,
-      top: [5, 5, 22],
-      bottom: [23, 11, 55]
+      top: [7, 6, 28],
+      bottom: [35, 18, 68]
     },
     {
       height: 2000,
-      top: [6, 5, 24],
-      bottom: [40, 13, 69]
+      top: [10, 5, 35],
+      bottom: [53, 18, 79]
     }
   ];
 
-
-  /* ========================================
-     RGB KLEUREN MENGEN
-  ======================================== */
-
-  function mixColor(first, second, progress) {
-    return first.map(function (value, index) {
+  function mixColor(start, end, amount) {
+    return start.map(function (value, index) {
       return Math.round(
-        interpolate(
-          value,
-          second[index],
-          progress
-        )
+        mix(value, end[index], amount)
       );
     });
   }
 
-  function toRgb(values) {
+  function rgb(values) {
     return "rgb(" + values.join(",") + ")";
   }
 
+  function getSky(height) {
+    let first = skyStages[0];
+    let second = skyStages[skyStages.length - 1];
 
-  /* ========================================
-     HEMELKLEUR BEREKENEN
-  ======================================== */
-
-  function getSkyGradient(height) {
-    let first = skyColors[0];
-    let second = skyColors[skyColors.length - 1];
-
-    for (let i = 0; i < skyColors.length - 1; i++) {
+    for (let i = 0; i < skyStages.length - 1; i++) {
       if (
-        height >= skyColors[i].height &&
-        height <= skyColors[i + 1].height
+        height >= skyStages[i].height &&
+        height <= skyStages[i + 1].height
       ) {
-        first = skyColors[i];
-        second = skyColors[i + 1];
+        first = skyStages[i];
+        second = skyStages[i + 1];
         break;
       }
     }
@@ -525,35 +377,163 @@
 
     return (
       "linear-gradient(180deg, " +
-      toRgb(top) +
+      rgb(top) +
       " 0%, " +
-      toRgb(bottom) +
+      rgb(bottom) +
       " 100%)"
     );
   }
 
+  /* ========================================
+     HOOGTE UITLEZEN
+
+     Zowel "500 km" als "1.500 km"
+     wordt correct gelezen.
+  ======================================== */
+
+  function getHeight() {
+    const text =
+      heightDisplay.textContent || "0";
+
+    const digits =
+      text.replace(/[^\d]/g, "");
+
+    return clamp(
+      Number(digits) || 0,
+      0,
+      MAX_HEIGHT
+    );
+  }
 
   /* ========================================
-     HOOFDUPDATE
+     POSITIE VAN EEN OBJECT
 
-     Wordt uitgevoerd zodra de hoogte
-     van de luchtballon verandert.
+     Dit is het belangrijkste deel.
+
+     Bij een lagere hoogte staat een
+     object verder BOVEN het scherm.
+
+     Wanneer de speler stijgt, neemt
+     de Y-positie toe.
+
+     Het object schuift dus
+     NAAR BENEDEN.
+
+     Daarna volgt automatisch het
+     volgende object van boven.
+  ======================================== */
+
+  function getObjectPosition(
+    height,
+    milestone,
+    viewportHeight
+  ) {
+    const centerY = viewportHeight * .35;
+
+    return (
+      centerY +
+      (height - milestone) * SCROLL_SPEED
+    );
+  }
+
+  /* ========================================
+     ZICHTBAARHEID
+
+     Objecten worden alleen getoond
+     wanneer ze in of dicht bij het
+     scherm zijn.
+
+     Ze verschijnen niet plotseling
+     midden in beeld.
+  ======================================== */
+
+  function getObjectOpacity(
+    position,
+    objectHeight,
+    viewportHeight
+  ) {
+    /*
+     * Een object is buiten beeld als
+     * het te ver boven of onder het
+     * scherm staat.
+     */
+
+    const topBoundary = -objectHeight - 80;
+    const bottomBoundary = viewportHeight + 80;
+
+    const fadeInEnd = -objectHeight * .15;
+    const fadeOutStart = viewportHeight - 50;
+
+    if (
+      position <= topBoundary ||
+      position >= bottomBoundary
+    ) {
+      return 0;
+    }
+
+    if (position < fadeInEnd) {
+      return smoothstep(
+        (position - topBoundary) /
+        (fadeInEnd - topBoundary)
+      );
+    }
+
+    if (position > fadeOutStart) {
+      return 1 - smoothstep(
+        (position - fadeOutStart) /
+        (bottomBoundary - fadeOutStart)
+      );
+    }
+
+    return 1;
+  }
+
+  /* ========================================
+     ALLE OBJECTEN VERPLAATSEN
+  ======================================== */
+
+  function updateObjects(height) {
+    const viewportHeight =
+      Math.max(
+        window.innerHeight,
+        world.clientHeight || 0
+      );
+
+    travellingObjects.forEach(function (object) {
+      const position = getObjectPosition(
+        height,
+        object.milestone,
+        viewportHeight
+      );
+
+      const objectHeight =
+        object.element.getBoundingClientRect().height ||
+        200;
+
+      const opacity = getObjectOpacity(
+        position,
+        objectHeight,
+        viewportHeight
+      );
+
+      object.element.style.transform =
+        "translate3d(-50%, " +
+        position.toFixed(1) +
+        "px, 0)";
+
+      object.element.style.opacity =
+        opacity.toFixed(3);
+    });
+  }
+
+  /* ========================================
+     COMPLETE RUIMTEREIS BIJWERKEN
   ======================================== */
 
   let lastHeight = -1;
 
-  function updateSpaceJourney(force) {
-    const raw = heightDisplay.textContent || "0";
-
-    /*
-     * "1.200 km" -> 1200
-     */
-
-    const height = clamp(
-      Number(raw.replace(/[^\d]/g, "")) || 0,
-      0,
-      2000
-    );
+  function updateSpace(force = false) {
+    const height = getHeight();
 
     if (!force && height === lastHeight) {
       return;
@@ -567,108 +547,86 @@
 
     world.style.setProperty(
       "--qb-sky-background",
-      getSkyGradient(height)
+      getSky(height)
     );
 
     /*
-     * Aardgloed wordt kleiner
-     * naarmate je hoger vliegt.
+     * De aardgloed verdwijnt.
      */
 
     world.style.setProperty(
       "--qb-earth-opacity",
       (
-        1 - smoothstep(height / 650)
+        1 - smoothstep(height / 630)
       ).toFixed(3)
     );
 
     /*
-     * De eerste sterren verschijnen
-     * al relatief vroeg.
+     * Wolken verdwijnen wanneer
+     * de ruimte dichterbij komt.
      */
 
-    const starOpacity = smoothstep(
-      (height - 45) / 320
+    world.style.setProperty(
+      "--qb-cloud-opacity",
+      (
+        1 - smoothstep((height - 50) / 270)
+      ).toFixed(3)
     );
+
+    /*
+     * Sterren verschijnen al vroeg.
+     */
 
     world.style.setProperty(
       "--qb-stars-opacity",
-      starOpacity.toFixed(3)
+      smoothstep(
+        (height - 45) / 320
+      ).toFixed(3)
     );
 
     /*
-     * Planeten.
+     * Het sterrenveld schuift ook
+     * een beetje mee.
      */
 
-    updatePlanets(height);
+    starfield.style.transform =
+      "translate3d(0, " +
+      (height * .12).toFixed(1) +
+      "px, 0)";
 
     /*
-     * De Melkweg komt later
-     * in de reis in beeld.
+     * Planeten, Melkweg en nevel.
      */
 
-    const galaxyVisibility = getVisibility(
-      height,
-      {
-        start: 820,
-        full: 1040,
-        fade: 1340,
-        end: 1570
-      }
-    );
-
-    galaxy.style.opacity =
-      galaxyVisibility.toFixed(3);
-
-    galaxy.style.transform =
-      "rotate(-25deg) scale(" +
-      (
-        0.85 +
-        smoothstep(
-          (height - 820) / 750
-        ) * 0.25
-      ).toFixed(3) +
-      ")";
-
-    /*
-     * De nevel verschijnt
-     * helemaal aan het einde.
-     */
-
-    const nebulaVisibility = smoothstep(
-      (height - 1680) / 270
-    );
-
-    nebula.style.opacity =
-      nebulaVisibility.toFixed(3);
+    updateObjects(height);
   }
 
-
   /* ========================================
-     HOOGTEMETER OBSERVEREN
-
-     De bestaande script.js past de
-     hoogtetekst aan als je punten krijgt.
-
-     Wij reageren daarop zonder de
-     bestaande spelcode te wijzigen.
+     HOOGTEVERANDERINGEN OBSERVEREN
   ======================================== */
 
-  const heightObserver = new MutationObserver(
+  const observer = new MutationObserver(
     function () {
-      updateSpaceJourney(false);
+      updateSpace();
     }
   );
 
-  heightObserver.observe(
-    heightDisplay,
-    {
-      childList: true,
-      characterData: true,
-      subtree: true
+  observer.observe(heightDisplay, {
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
+
+  /* ========================================
+     SCHERMGROOTTE VERANDERT
+  ======================================== */
+
+  window.addEventListener(
+    "resize",
+    function () {
+      updateSpace(true);
     }
   );
-
 
   /* ========================================
      OPSTARTEN
@@ -676,10 +634,17 @@
 
   world.classList.add("qb-space-on");
 
-  updateSpaceJourney(true);
+  /*
+   * Eerst de laag opbouwen.
+   * Daarna de objecten positioneren.
+   */
+
+  requestAnimationFrame(function () {
+    updateSpace(true);
+  });
 
   console.log(
-    "🌌 QuizBallon Ruimtereis geladen!"
+    "🌌 QuizBallon Ruimtereis V2 geladen!"
   );
 
 })();
