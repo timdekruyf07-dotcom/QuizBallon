@@ -1,28 +1,25 @@
 /* =====================================================
    QUIZBALLON
-   RESULTATENOVERZICHT - VERSIE 1
+   RESULTATENOVERZICHT - VERSIE 2
 
-   NIEUWE FUNCTIES:
-   - ANTWOORDEN BEKIJKEN NA DE DAILY CHALLENGE
-   - 10 UITKLAPBARE VRAGEN
-   - ALLE BEKENDE GELDIGE ANTWOORDEN
-   - ZOEKFUNCTIE PER VRAAG
-   - SORTEREN VAN HOOG NAAR LAAG
-   - RAKETANTWOORD MARKEREN
-   - EIGEN ANTWOORD EN SCORE TONEN
+   VERBETERD:
+   - EIGEN ANTWOORDEN BETROUWBAAR OPSLAAN
+   - PUNTEN PER VRAAG ONTHOUDEN
+   - OPSLAAN VOORDAT DE VOLGENDE VRAAG START
    - RESULTATEN BEWAREN NA VERNIEUWEN
+   - OOK TIME-OUTS REGISTREREN
+   - ANTWOORDEN NA AFLOOP BEKIJKEN
 
-   COMPATIBEL MET:
-   - script.js
-   - vragen.js
-   - antwoorduitbreiding.js
-   - geschiedenis.js
-   - daily.js
+   BEHOUDEN:
+   - UITKLAPBARE VRAGEN
+   - ZOEKFUNCTIE
+   - SCORES VAN HOOG NAAR LAAG
+   - RAKETANTWOORDEN
+   - DAILY CHALLENGE
+   - ALLE BESTAANDE VRAGEN
 
-   BELANGRIJK:
-   ANTWOORDEN WORDEN PAS ZICHTBAAR
-   NADAT DE DAGELIJKSE UITDAGING
-   VOLTOOID IS.
+   ANDERE BESTANDEN HOEVEN NIET
+   AANGEPAST TE WORDEN.
 ===================================================== */
 
 (function () {
@@ -39,11 +36,13 @@
     "quizballon-daily-result-v1";
 
   const REVIEW_STORAGE_PREFIX =
-    "quizballon-review-v1-";
+    "quizballon-review-v2-";
+
+  const QUESTIONS_PER_GAME = 10;
 
 
   /* ========================================
-     ELEMENTEN
+     HTML-ELEMENTEN
   ======================================== */
 
   function byId(id) {
@@ -53,6 +52,8 @@
   const elements = {
 
     startButton: byId("start-button"),
+
+    nextButton: byId("next-button"),
 
     startScreen: byId("start-screen"),
 
@@ -72,33 +73,28 @@
 
     questionNumber: byId("question-number"),
 
-    resultPoints: byId("result-points")
+    resultPoints: byId("result-points"),
+
+    resultDescription: byId("result-description")
 
   };
 
 
   /* ========================================
-     STATUS
-
-     Hier slaan we tijdens het spel
-     de antwoorden van de speler op.
+     SPELSTATUS
   ======================================== */
 
   let roundAnswers = [];
+
+  let gameStarted = false;
 
   let completedThisSession = false;
 
   let lastRecordedQuestion = 0;
 
-  let homePanelOpen = false;
-
-  let endPanelOpen = false;
-
 
   /* ========================================
      NEDERLANDSE DATUM
-
-     Dezelfde tijdzone als daily.js.
   ======================================== */
 
   function getTodayKey() {
@@ -120,11 +116,7 @@
 
 
   /* ========================================
-     NORMALISEREN
-
-     Zo kun je zoeken zonder rekening
-     te houden met hoofdletters,
-     accenten of streepjes.
+     ANTWOORDEN NORMALISEREN
   ======================================== */
 
   function normalize(value) {
@@ -143,18 +135,10 @@
 
 
   /* ========================================
-     VEILIG TEKST TOEVOEGEN
-
-     We gebruiken textContent.
-     Daardoor wordt ingevoerde tekst
-     niet uitgevoerd als HTML.
+     HTML-ELEMENT MAKEN
   ======================================== */
 
-  function makeElement(
-    tag,
-    className,
-    text
-  ) {
+  function makeElement(tag, className, text) {
 
     const element = document.createElement(tag);
 
@@ -172,13 +156,7 @@
 
 
   /* ========================================
-     HUIDIGE VRAGENBANK OPHALEN
-
-     daily.js heeft de lijst teruggebracht
-     tot de 10 vragen van vandaag.
-
-     Dat is precies de lijst die
-     we voor het overzicht nodig hebben.
+     VRAGEN VAN VANDAAG OPHALEN
   ======================================== */
 
   function getDailyQuestions() {
@@ -186,17 +164,15 @@
     const questions =
       window.QUIZBALLON_EXPANDED_QUESTIONS;
 
-    if (!Array.isArray(questions)) {
-      return [];
-    }
-
-    return questions;
+    return Array.isArray(questions)
+      ? questions
+      : [];
 
   }
 
 
   /* ========================================
-     DAGRESULTAAT LEZEN
+     DAILY CHALLENGE STATUS
   ======================================== */
 
   function getDailyCompletion() {
@@ -231,14 +207,6 @@
   }
 
 
-  /* ========================================
-     IS DE DAILY CHALLENGE AF?
-
-     Zolang iemand speelt of nog niet
-     heeft gespeeld, mag het antwoorden-
-     overzicht niet verschijnen.
-  ======================================== */
-
   function isChallengeCompleted() {
 
     return Boolean(
@@ -250,13 +218,74 @@
 
 
   /* ========================================
-     OPSLAGLOCATIE VAN VANDAAG
+     OPSLAGLOCATIE
   ======================================== */
 
   function getReviewStorageKey() {
 
     return REVIEW_STORAGE_PREFIX +
       getTodayKey();
+
+  }
+
+
+  /* ========================================
+     ANTWOORDEN OPSLAAN
+
+     BELANGRIJKE VERBETERING:
+
+     We slaan voortaan IEDERE vraag
+     meteen op zodra de speler klaar is.
+
+     Daardoor kunnen antwoorden niet
+     zomaar verdwijnen wanneer de
+     volgende vraag wordt geopend.
+  ======================================== */
+
+  function saveRoundAnswers() {
+
+    const data = {
+
+      date: getTodayKey(),
+
+      version: 2,
+
+      answers: roundAnswers.map(
+        function (item) {
+
+          return {
+
+            number: item.number,
+
+            question: item.question,
+
+            answer: item.answer,
+
+            points: item.points,
+
+            correct: item.correct
+
+          };
+
+        }
+      )
+
+    };
+
+    try {
+
+      localStorage.setItem(
+        getReviewStorageKey(),
+        JSON.stringify(data)
+      );
+
+    } catch (error) {
+
+      console.warn(
+        "QuizBallon: antwoorden konden niet worden opgeslagen."
+      );
+
+    }
 
   }
 
@@ -284,9 +313,7 @@
         data.date !== getTodayKey() ||
         !Array.isArray(data.answers)
       ) {
-
         return null;
-
       }
 
       return data.answers;
@@ -301,91 +328,48 @@
 
 
   /* ========================================
-     ANTWOORDEN OPSLAAN
-
-     We bewaren:
-     - Nummer van de vraag
-     - De vraag zelf
-     - Het antwoord van de speler
-     - Het behaalde aantal punten
-
-     De geldige antwoorden hoeven niet
-     dubbel te worden opgeslagen.
-     Die staan al in de vragenbank.
+     REGISTREREN DAT EEN NIEUW
+     SPEL WORDT GESTART
   ======================================== */
 
-  function saveRoundAnswers() {
+  function registerGameStart() {
 
-    const data = {
-
-      date: getTodayKey(),
-
-      answers: roundAnswers.map(
-        function (answer) {
-
-          return {
-            number: answer.number,
-            question: answer.question,
-            answer: answer.answer,
-            points: answer.points,
-            correct: answer.correct
-          };
-
-        }
-      )
-
-    };
-
-    try {
-
-      localStorage.setItem(
-        getReviewStorageKey(),
-        JSON.stringify(data)
-      );
-
-    } catch (error) {
-
-      console.warn(
-        "QuizBallon: antwoorden konden niet worden bewaard."
-      );
-
-    }
-
-  }
-
-
-  /* ========================================
-     NIEUWE VLUCHT REGISTREREN
-
-     Zodra de speler daadwerkelijk
-     een nieuwe Daily Challenge start,
-     beginnen we opnieuw met bijhouden.
-  ======================================== */
-
-  function registerStart() {
+    /*
+     * Een voltooide Daily Challenge
+     * wordt niet opnieuw gestart.
+     */
 
     if (isChallengeCompleted()) {
       return;
     }
 
+    gameStarted = true;
+
+    completedThisSession = false;
+
     roundAnswers = [];
 
     lastRecordedQuestion = 0;
 
-    homePanelOpen = false;
-    endPanelOpen = false;
+    /*
+     * Eventuele oude, onvoltooide
+     * gegevens vervangen we door
+     * de nieuwe speelsessie.
+     */
+
+    saveRoundAnswers();
 
   }
 
 
   /* ========================================
-     BEHAALDE PUNTEN UITLEZEN
+     PUNTEN VAN HET RESULTAAT LEZEN
   ======================================== */
 
   function getDisplayedPoints() {
 
     const text =
-      elements.resultPoints.textContent;
+      elements.resultPoints.textContent.trim();
 
     const number = Number(
       text.replace(/[^\d]/g, "")
@@ -399,19 +383,25 @@
 
 
   /* ========================================
-     RESULTAAT VAN EEN VRAAG BIJHOUDEN
+     EIGEN ANTWOORD REGISTREREN
 
-     We wachten tot script.js het
-     resultaat van een vraag laat zien.
+     We lezen:
+     - Vraagnummer
+     - Vraagtekst
+     - Ingevuld antwoord
+     - Behaalde punten
+     - Goed / fout
 
-     Daardoor werkt dit ook bij:
-     - Suggesties
-     - Normale antwoorden
-     - Typefouten
-     - Tijd die opraakt
+     Het antwoord wordt opgeslagen
+     terwijl het nog in het invoerveld
+     aanwezig is.
   ======================================== */
 
   function captureQuestionResult() {
+
+    if (!gameStarted) {
+      return;
+    }
 
     if (
       !elements.gameScreen.classList.contains(
@@ -432,14 +422,14 @@
     if (
       !Number.isInteger(number) ||
       number < 1 ||
-      number > 10
+      number > QUESTIONS_PER_GAME
     ) {
       return;
     }
 
     /*
      * Dezelfde vraag niet twee
-     * keer opslaan.
+     * keer registreren.
      */
 
     if (number === lastRecordedQuestion) {
@@ -449,24 +439,18 @@
     const question =
       elements.questionText.textContent.trim();
 
-    const points = getDisplayedPoints();
+    const answer =
+      elements.answerInput.value.trim();
+
+    const points =
+      getDisplayedPoints();
 
     const correct =
       elements.answerResult.classList.contains(
         "correct"
       );
 
-    /*
-     * Bij tijd op of geen goedgekeurd
-     * antwoord tonen we geen geldig
-     * antwoord voor de speler.
-     */
-
-    const answer = correct
-      ? elements.answerInput.value.trim()
-      : "";
-
-    roundAnswers.push({
+    const result = {
 
       number: number,
 
@@ -478,9 +462,64 @@
 
       correct: correct
 
-    });
+    };
+
+    /*
+     * Als een vraag al bestaat,
+     * vervangen we de gegevens.
+     */
+
+    const existingIndex =
+      roundAnswers.findIndex(
+        function (item) {
+
+          return item.number === number;
+
+        }
+      );
+
+    if (existingIndex >= 0) {
+
+      roundAnswers[existingIndex] = result;
+
+    } else {
+
+      roundAnswers.push(result);
+
+    }
 
     lastRecordedQuestion = number;
+
+    /*
+     * Meteen opslaan.
+     *
+     * We wachten dus niet meer
+     * tot het eindscherm.
+     */
+
+    saveRoundAnswers();
+
+    console.log(
+      "🎈 Antwoord opgeslagen:",
+      result
+    );
+
+  }
+
+
+  /* ========================================
+     EXTRA VEILIGHEID:
+
+     ANTWOORD OPSLAAN WANNEER
+     DE SPELER OP VOLGENDE KLIKT
+
+     Dit gebeurt voordat script.js
+     de volgende vraag opent.
+  ======================================== */
+
+  function captureBeforeNextQuestion() {
+
+    captureQuestionResult();
 
   }
 
@@ -488,8 +527,11 @@
   /* ========================================
      RESULTAATKAART OBSERVEREN
 
-     script.js verandert het attribuut
-     hidden zodra een vraag afgelopen is.
+     Zodra de resultaatkaart verschijnt,
+     proberen we het antwoord op te slaan.
+
+     We gebruiken daarnaast de knop
+     'Volgende vraag' als extra controle.
   ======================================== */
 
   function observeQuestionResults() {
@@ -517,16 +559,12 @@
 
 
   /* ========================================
-     DE VRAGEN IN SPEELVOLGORDE
+     ANTWOORDEN VAN DE SPELER
+     KOPPELEN AAN DE VRAGEN
 
-     Als de speler vandaag met deze
-     versie heeft gespeeld, kennen
-     we de echte speelvolgorde.
-
-     Als de speler al vóór deze
-     uitbreiding klaar was, tonen
-     we de 10 vragen van vandaag
-     zonder persoonlijke antwoorden.
+     We zoeken op de exacte vraagtekst,
+     zodat de volgorde ook klopt
+     wanneer vragen geschud worden.
   ======================================== */
 
   function getReviewQuestions() {
@@ -534,11 +572,18 @@
     const available =
       getDailyQuestions();
 
-    let recorded = loadSavedAnswers();
+    let recorded =
+      loadSavedAnswers();
+
+    /*
+     * Als lokale opslag niet werkt,
+     * kunnen we de antwoorden van
+     * deze speelsessie nog gebruiken.
+     */
 
     if (
-      !recorded &&
-      completedThisSession
+      (!recorded || recorded.length === 0) &&
+      roundAnswers.length > 0
     ) {
 
       recorded = roundAnswers;
@@ -546,93 +591,89 @@
     }
 
     if (
-      Array.isArray(recorded) &&
-      recorded.length > 0
+      !Array.isArray(recorded) ||
+      recorded.length === 0
     ) {
 
-      const ordered = [...recorded].sort(
-        function (a, b) {
+      return available.map(
+        function (question) {
 
-          return a.number - b.number;
+          return {
+            question: question,
+            player: null
+          };
 
         }
       );
 
-      const used = new Set();
-
-      const result = [];
-
-      ordered.forEach(function (item) {
-
-        const question = available.find(
-          function (candidate) {
-
-            return (
-              candidate.question === item.question
-            );
-
-          }
-        );
-
-        if (!question) {
-          return;
-        }
-
-        if (used.has(question.question)) {
-          return;
-        }
-
-        used.add(question.question);
-
-        result.push({
-
-          question: question,
-
-          player: item
-
-        });
-
-      });
-
-      /*
-       * Mocht een vraag niet zijn
-       * opgenomen, voeg hem alsnog
-       * toe zonder persoonlijke score.
-       */
-
-      available.forEach(function (question) {
-
-        if (used.has(question.question)) {
-          return;
-        }
-
-        result.push({
-
-          question: question,
-
-          player: null
-
-        });
-
-      });
-
-      return result;
-
     }
 
-    return available.map(
-      function (question) {
+    const ordered = [...recorded].sort(
+      function (a, b) {
 
-        return {
-
-          question: question,
-
-          player: null
-
-        };
+        return a.number - b.number;
 
       }
     );
+
+    const result = [];
+
+    const usedQuestions = new Set();
+
+    ordered.forEach(function (item) {
+
+      const question = available.find(
+        function (candidate) {
+
+          return (
+            candidate.question === item.question
+          );
+
+        }
+      );
+
+      if (!question) {
+        return;
+      }
+
+      if (usedQuestions.has(question.question)) {
+        return;
+      }
+
+      usedQuestions.add(question.question);
+
+      result.push({
+
+        question: question,
+
+        player: item
+
+      });
+
+    });
+
+    /*
+     * Mochten er vragen ontbreken,
+     * dan tonen we die alsnog.
+     */
+
+    available.forEach(function (question) {
+
+      if (usedQuestions.has(question.question)) {
+        return;
+      }
+
+      result.push({
+
+        question: question,
+
+        player: null
+
+      });
+
+    });
+
+    return result;
 
   }
 
@@ -640,9 +681,7 @@
   /* ========================================
      ANTWOORDEN SORTEREN
 
-     Het raketantwoord bovenaan.
-     Daarna van hoogste score
-     naar laagste score.
+     Hoogste punten eerst.
   ======================================== */
 
   function getSortedAnswers(question) {
@@ -674,7 +713,17 @@
 
 
   /* ========================================
-     SCORE VAN DE SPELER MAKEN
+     EIGEN ANTWOORD TONEN
+
+     NIEUW:
+     Het daadwerkelijke ingevulde
+     antwoord wordt getoond.
+
+     Bijvoorbeeld:
+     Zeeleeuw          +55 punten
+
+     Bij tijd op:
+     Geen antwoord     +0 punten
   ======================================== */
 
   function makeYourAnswer(player) {
@@ -700,22 +749,43 @@
       "results-your-row"
     );
 
+    let answerText = "Niet beschikbaar";
+
+    let pointsText = "—";
+
+    if (player) {
+
+      pointsText =
+        "+" + player.points + " punten";
+
+      if (isCorrect) {
+
+        answerText =
+          player.answer || "Goed antwoord";
+
+      } else if (player.answer) {
+
+        answerText =
+          player.answer + " (niet goedgekeurd)";
+
+      } else {
+
+        answerText = "Geen antwoord";
+
+      }
+
+    }
+
     const answerName = makeElement(
       "span",
       "results-your-name",
-      isCorrect
-        ? player.answer
-        : player
-          ? "Geen geldig antwoord"
-          : "Niet beschikbaar"
+      answerText
     );
 
     const points = makeElement(
       "strong",
       "results-your-score",
-      player
-        ? "+" + player.points + " punten"
-        : "—"
+      pointsText
     );
 
     row.append(
@@ -734,19 +804,16 @@
 
 
   /* ========================================
-     ÉÉN ANTWOORDRIJ MAKEN
+     ANTWOORDRIJ MAKEN
   ======================================== */
 
-  function makeAnswerRow(
-    answer,
-    player
-  ) {
+  function makeAnswerRow(answer, player) {
 
     const isRocket =
       answer.isRocket === true ||
       Number(answer.points) === 100;
 
-    const isYourAnswer =
+    const isYourAnswer = Boolean(
       player &&
       player.correct &&
       (
@@ -761,7 +828,8 @@
 
           }
         )
-      );
+      )
+    );
 
     const row = makeElement(
       "div",
@@ -795,15 +863,7 @@
 
 
   /* ========================================
-     ZOEKRESULTATEN TONEN
-
-     Er wordt gezocht in:
-     - Hoofdnaam
-     - Alternatieve namen
-
-     Voorbeeld:
-     Zoeken naar "golden labrador"
-     kan "Goldador" vinden.
+     ANTWOORDEN DOORZOEKEN
   ======================================== */
 
   function updateAnswerList(
@@ -814,9 +874,8 @@
     countElement
   ) {
 
-    const search = normalize(
-      searchInput.value
-    );
+    const search =
+      normalize(searchInput.value);
 
     const answers =
       getSortedAnswers(question);
@@ -860,7 +919,7 @@
         makeElement(
           "p",
           "results-no-matches",
-          "🔍 Geen antwoorden gevonden. Probeer een andere zoekterm."
+          "🔍 Geen antwoorden gevonden."
         )
       );
 
@@ -890,13 +949,10 @@
 
 
   /* ========================================
-     UITKLAPBARE VRAAG MAKEN
+     UITKLAPBARE VRAAG
   ======================================== */
 
-  function makeQuestionAccordion(
-    entry,
-    number
-  ) {
+  function makeQuestionAccordion(entry, number) {
 
     const question = entry.question;
 
@@ -962,6 +1018,11 @@
       "results-question-body"
     );
 
+    /*
+     * HIER KOMT HET EIGEN ANTWOORD
+     * MET DE BIJBEHORENDE PUNTEN.
+     */
+
     body.appendChild(
       makeYourAnswer(player)
     );
@@ -978,7 +1039,9 @@
     );
 
     const inputId =
-      "results-search-" + number + "-" +
+      "results-search-" +
+      number +
+      "-" +
       Math.random().toString(36).slice(2, 8);
 
     searchInput.id = inputId;
@@ -986,7 +1049,7 @@
     searchInput.type = "search";
 
     searchInput.placeholder =
-      "Bijvoorbeeld: zeeleeuw";
+      "Zoek een antwoord...";
 
     searchInput.autocomplete = "off";
 
@@ -1025,9 +1088,8 @@
     );
 
     /*
-     * Bouw de antwoordlijst pas
-     * wanneer de speler de
-     * vraag daadwerkelijk opent.
+     * Pas antwoorden tonen als
+     * de vraag wordt uitgeklapt.
      */
 
     let loaded = false;
@@ -1053,11 +1115,6 @@
       }
     );
 
-    /*
-     * Filter de antwoorden terwijl
-     * de speler typt.
-     */
-
     searchInput.addEventListener(
       "input",
       function () {
@@ -1079,7 +1136,7 @@
 
 
   /* ========================================
-     COMPLEET OVERZICHT MAKEN
+     COMPLEET OVERZICHT
   ======================================== */
 
   function createResultsPanel() {
@@ -1097,7 +1154,7 @@
     const eyebrow = makeElement(
       "span",
       "results-panel-eyebrow",
-      "🏆 JOUW DAILY CHALLENGE"
+      "🏆 JOUW DAGELIJKSE VLUCHT"
     );
 
     const title = makeElement(
@@ -1109,9 +1166,10 @@
     const description = makeElement(
       "p",
       "",
-      "Klap een vraag open om alle bekende geldige antwoorden te bekijken. " +
-      "De hoogste scores staan bovenaan. " +
-      "Gebruik de zoekfunctie om een specifiek antwoord te vinden."
+      "Bekijk jouw antwoorden en punten. " +
+      "Klap een vraag open om alle bekende " +
+      "geldige antwoorden te bekijken, " +
+      "van hoog naar laag."
     );
 
     heading.append(
@@ -1152,8 +1210,6 @@
 
   /* ========================================
      KNOP OP STARTSCHERM
-
-     Alleen zichtbaar na voltooiing.
   ======================================== */
 
   function updateHomeResults() {
@@ -1168,28 +1224,18 @@
 
       elements.homeSlot.replaceChildren();
 
-      homePanelOpen = false;
-
       return;
 
     }
 
     elements.homeSlot.hidden = false;
 
-    /*
-     * Als de knop al bestaat,
-     * hoeven we hem niet
-     * opnieuw te maken.
-     */
-
     if (
       elements.homeSlot.querySelector(
         ".results-home-button"
       )
     ) {
-
       return;
-
     }
 
     const button = makeElement(
@@ -1234,14 +1280,12 @@
 
           existingPanel.remove();
 
-          homePanelOpen = false;
+          arrow.textContent = "↓";
 
           button.setAttribute(
             "aria-expanded",
             "false"
           );
-
-          arrow.textContent = "↓";
 
           return;
 
@@ -1251,19 +1295,16 @@
           return;
         }
 
-        const panel =
-          createResultsPanel();
+        const panel = createResultsPanel();
 
         elements.homeSlot.appendChild(panel);
 
-        homePanelOpen = true;
+        arrow.textContent = "↑";
 
         button.setAttribute(
           "aria-expanded",
           "true"
         );
-
-        arrow.textContent = "↑";
 
         panel.scrollIntoView({
           behavior: "smooth",
@@ -1280,9 +1321,6 @@
 
   /* ========================================
      KNOP OP EINDSCHERM
-
-     Hier verschijnt:
-     BEKIJK ALLE ANTWOORDEN
   ======================================== */
 
   function updateEndResults() {
@@ -1297,8 +1335,6 @@
 
       elements.endSlot.replaceChildren();
 
-      endPanelOpen = false;
-
       return;
 
     }
@@ -1310,9 +1346,7 @@
         ".results-toggle-button"
       )
     ) {
-
       return;
-
     }
 
     const button = makeElement(
@@ -1357,8 +1391,6 @@
 
           existingPanel.remove();
 
-          endPanelOpen = false;
-
           arrow.textContent = "↓";
 
           button.setAttribute(
@@ -1374,12 +1406,9 @@
           return;
         }
 
-        const panel =
-          createResultsPanel();
+        const panel = createResultsPanel();
 
         elements.endSlot.appendChild(panel);
-
-        endPanelOpen = true;
 
         arrow.textContent = "↑";
 
@@ -1402,16 +1431,14 @@
 
 
   /* ========================================
-     SPEL VOLTOOID
+     SPEL IS VOLTOOID
 
-     Zodra het eindscherm verschijnt:
-     - Dagresultaat controleren
-     - Antwoorden opslaan
-     - Antwoordenknop tonen
+     Controleer of alle tien
+     antwoorden zijn opgeslagen.
 
-     We gebruiken een korte uitgestelde
-     controle zodat daily.js eerst het
-     dagresultaat kan opslaan.
+     De Daily Challenge blijft
+     verantwoordelijk voor de
+     officiële dagscore.
   ======================================== */
 
   function handleEndScreenVisible() {
@@ -1424,6 +1451,14 @@
       return;
     }
 
+    /*
+     * Extra zekerheid:
+     * probeer de laatste vraag
+     * nog vast te leggen.
+     */
+
+    captureQuestionResult();
+
     setTimeout(
       function () {
 
@@ -1435,32 +1470,26 @@
           return;
         }
 
-        const dailyComplete =
+        const completion =
           getDailyCompletion();
 
-        if (!dailyComplete) {
+        if (!completion) {
           return;
         }
 
-        /*
-         * Dit was een nieuwe speelsessie
-         * die we hebben bijgehouden.
-         */
-
-        if (
-          roundAnswers.length === 10 &&
-          !completedThisSession
-        ) {
+        if (gameStarted) {
 
           completedThisSession = true;
 
           saveRoundAnswers();
 
+          gameStarted = false;
+
         }
 
-        updateEndResults();
-
         updateHomeResults();
+
+        updateEndResults();
 
       },
       0
@@ -1497,10 +1526,6 @@
 
   /* ========================================
      STARTSCHERM OBSERVEREN
-
-     Als de speler na het spel
-     teruggaat naar de homepage,
-     blijft de antwoordenknop zichtbaar.
   ======================================== */
 
   function observeStartScreen() {
@@ -1534,64 +1559,52 @@
 
 
   /* ========================================
-     UITDAGING VAN NIEUWE DAG
-
-     De bestaande daily.js vernieuwt
-     de pagina zodra het een nieuwe
-     Nederlandse kalenderdag is.
-
-     Daardoor verdwijnen de antwoorden
-     van de vorige dag uit het huidige
-     dagelijkse overzicht.
-
-     De data van vandaag wordt apart
-     opgeslagen met de datum als sleutel.
-  ======================================== */
-
-  function initializeDay() {
-
-    completedThisSession = false;
-
-    roundAnswers = [];
-
-    lastRecordedQuestion = 0;
-
-    updateHomeResults();
-
-    updateEndResults();
-
-  }
-
-
-  /* ========================================
      EVENEMENTEN
   ======================================== */
 
   function initializeEvents() {
 
+    /*
+     * Nieuwe vlucht registreren.
+     */
+
     elements.startButton.addEventListener(
       "click",
-      registerStart,
+      registerGameStart,
       true
     );
 
     /*
-     * Als de speler de vraag opnieuw
-     * probeert na een ongeldig antwoord,
-     * slaan we pas iets op nadat
-     * de vraag daadwerkelijk klaar is.
+     * Antwoord opslaan zodra
+     * de resultaatkaart verschijnt.
      */
 
     observeQuestionResults();
+
+    /*
+     * Extra controle voordat de
+     * speler naar de volgende
+     * vraag gaat.
+     *
+     * capture: true zorgt ervoor
+     * dat dit vóór de normale
+     * spelcode gebeurt.
+     */
+
+    elements.nextButton.addEventListener(
+      "click",
+      captureBeforeNextQuestion,
+      true
+    );
 
     observeEndScreen();
 
     observeStartScreen();
 
     /*
-     * Als het tabblad opnieuw zichtbaar
-     * wordt, controleren we opnieuw of
-     * de dag is voltooid.
+     * Als de speler terugkomt
+     * naar het tabblad:
+     * controleer de resultaten.
      */
 
     document.addEventListener(
@@ -1623,23 +1636,34 @@
     if (
       !elements.homeSlot ||
       !elements.endSlot ||
-      !elements.answerResult
+      !elements.answerResult ||
+      !elements.nextButton
     ) {
 
       console.error(
-        "QuizBallon: de HTML voor het antwoordenoverzicht ontbreekt."
+        "QuizBallon: vereiste HTML-elementen ontbreken."
       );
 
       return;
 
     }
 
-    initializeDay();
+    roundAnswers = [];
+
+    gameStarted = false;
+
+    completedThisSession = false;
+
+    lastRecordedQuestion = 0;
 
     initializeEvents();
 
+    updateHomeResults();
+
+    updateEndResults();
+
     console.log(
-      "🏆 QuizBallon antwoordenoverzicht geladen!"
+      "🏆 QuizBallon resultaten versie 2 geladen!"
     );
 
   }
