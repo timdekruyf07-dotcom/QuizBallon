@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#70c8ff"
+  >
+
+  <meta
+    name="description"
+    content="Speel QuizBallon! Geef zeldzame antwoorden, verdien punten en vlieg met je luchtballon van de aarde naar de planeten."
+  >
+
+  <title>QuizBallon 🎈 | Hoe hoog kom jij?</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link
+    rel="manifest"
+    href="manifest.webmanifest"
+  >
+
+</head>
+
+<body>
+
+  <div class="app" id="app">
+
+    <!-- ===================================
+         ACHTERGROND EN WERELD
+    ==================================== -->
+
+    <div class="world" id="world">
+
+      <div class="world-gradient"></div>
+
+      <div class="sun"></div>
+
+      <div class="stars" id="stars"></div>
+
+      <div class="cloud cloud-one"></div>
+      <div class="cloud cloud-two"></div>
+      <div class="cloud cloud-three"></div>
+      <div class="cloud cloud-four"></div>
+      <div class="cloud cloud-five"></div>
+
+      <div class="planet moon" id="moon"></div>
+      <div class="planet mars" id="mars"></div>
+      <div class="planet jupiter" id="jupiter"></div>
+
+      <div class="ground" id="ground">
+        <div class="hill hill-one"></div>
+        <div class="hill hill-two"></div>
+        <div class="hill hill-three"></div>
+      </div>
+
+      <!-- LUCHTBALLON -->
+
+      <div class="balloon-container" id="balloon-container">
+
+        <div class="balloon-shadow"></div>
+
+        <div class="balloon" id="balloon">
+
+          <div class="balloon-top">
+            <div class="balloon-stripe stripe-one"></div>
+            <div class="balloon-stripe stripe-two"></div>
+            <div class="balloon-stripe stripe-three"></div>
+            <div class="balloon-stripe stripe-four"></div>
+          </div>
+
+          <div class="balloon-ropes">
+            <span></span>
+            <span></span>
+          </div>
+
+          <div class="balloon-basket">
+            <span>QB</span>
+          </div>
+
+        </div>
+
+        <div class="balloon-name">
+          QUIZBALLON
+        </div>
+
+      </div>
+
+      <div class="flight-particles" id="flight-particles"></div>
+
+    </div>
+
+
+    <!-- ===================================
+         HEADER
+    ==================================== -->
+
+    <header class="site-header">
+
+      <a
+        href="index.html"
+        class="logo"
+        aria-label="QuizBallon - Homepage"
+      >
+        <span class="logo-icon">🎈</span>
+        <span>Quiz<span class="logo-accent">Ballon</span></span>
+      </a>
+
+      <div class="header-right">
+
+        <div class="record-badge">
+          <span>🏆 RECORD</span>
+          <strong id="header-record">0 km</strong>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- ===================================
+         STARTSCHERM
+    ==================================== -->
+
+    <main class="screen start-screen active" id="start-screen">
+
+      <div class="start-content">
+
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          HET NEDERLANDSE ZELDZAAMHEIDSSPEL
+        </div>
+
+        <h1>
+          DENK SLIM.<br>
+          ANTWOORD ZELDZAAM.<br>
+          <span>VLIEG HOGER.</span>
+        </h1>
+
+        <p class="start-description">
+          Geef een correct antwoord dat zo weinig mogelijk
+          mensen zouden bedenken. Hoe zeldzamer je antwoord,
+          hoe hoger jouw luchtballon vliegt!
+        </p>
+
+        <div class="start-features">
+
+          <div class="feature">
+            <span>🧠</span>
+            <div>
+              <strong>10 vragen</strong>
+              <small>Per vlucht</small>
+            </div>
+          </div>
+
+          <div class="feature">
+            <span>⏱️</span>
+            <div>
+              <strong>25 seconden</strong>
+              <small>Per vraag</small>
+            </div>
+          </div>
+
+          <div class="feature">
+            <span>🚀</span>
+            <div>
+              <strong>Vlieg de ruimte in</strong>
+              <small>Ontdek nieuwe werelden</small>
+            </div>
+          </div>
+
+        </div>
+
+        <button
+          class="primary-button start-button"
+          id="start-button"
+          type="button"
+        >
+          START JE VLUCHT
+          <span>↗</span>
+        </button>
+
+        <div class="start-small">
+          GRATIS SPELEN · GEEN ACCOUNT NODIG
+        </div>
+
+      </div>
+
+    </main>
+
+
+    <!-- ===================================
+         SPELSCHERM
+    ==================================== -->
+
+    <main class="screen game-screen" id="game-screen">
+
+      <div class="game-layout">
+
+        <!-- BOVENSTE STATISTIEKEN -->
+
+        <div class="game-stats">
+
+          <div class="stat-box">
+            <span>VRAAG</span>
+            <strong>
+              <span id="question-number">1</span>/10
+            </strong>
+          </div>
+
+          <div class="stat-box">
+            <span>HOOGTE</span>
+            <strong id="height-display">0 km</strong>
+          </div>
+
+          <div class="stat-box">
+            <span>PUNTEN</span>
+            <strong id="score-display">0</strong>
+          </div>
+
+        </div>
+
+
+        <!-- VOORTGANGSBALK -->
+
+        <div class="progress-section">
+
+          <div class="progress-header">
+            <span>JOUW VLUCHT</span>
+            <span id="zone-name">De aarde 🌍</span>
+          </div>
+
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              id="progress-fill"
+            ></div>
+          </div>
+
+        </div>
+
+
+        <!-- VRAAGKAART -->
+
+        <section class="question-card" id="question-card">
+
+          <div class="question-top">
+
+            <div class="question-category" id="question-category">
+              🌍 ALGEMENE KENNIS
+            </div>
+
+            <div class="timer" id="timer">
+              <span>⏱</span>
+              <strong id="timer-display">25</strong>
+              <small>SEC</small>
+            </div>
+
+          </div>
+
+          <div class="question-content">
+
+            <div class="question-label">
+              GEEF EEN ZELDZAAM ANTWOORD
+            </div>
+
+            <h2 id="question-text">
+              Hier verschijnt je vraag.
+            </h2>
+
+            <p class="question-hint" id="question-hint">
+              Hoe minder voor de hand liggend, hoe beter.
+            </p>
+
+          </div>
+
+          <form id="answer-form" autocomplete="off">
+
+            <label
+              class="input-label"
+              for="answer-input"
+            >
+              JOUW ANTWOORD
+            </label>
+
+            <input
+              type="text"
+              id="answer-input"
+              name="answer"
+              placeholder="Typ hier je antwoord..."
+              maxlength="100"
+              autocomplete="off"
+              spellcheck="false"
+              required
+            >
+
+            <button
+              type="submit"
+              class="primary-button answer-button"
+              id="answer-button"
+            >
+              CONTROLEER ANTWOORD
+              <span>→</span>
+            </button>
+
+          </form>
+
+          <div
+            class="answer-result"
+            id="answer-result"
+            aria-live="polite"
+            hidden
+          >
+
+            <div class="result-icon" id="result-icon">
+              ⭐
+            </div>
+
+            <h3 id="result-title">
+              Goed antwoord!
+            </h3>
+
+            <p id="result-description">
+              Je luchtballon stijgt!
+            </p>
+
+            <div class="result-points" id="result-points">
+              +50 PUNTEN
+            </div>
+
+            <button
+              type="button"
+              class="primary-button next-button"
+              id="next-button"
+            >
+              VOLGENDE VRAAG
+              <span>→</span>
+            </button>
+
+          </div>
+
+        </section>
+
+
+        <!-- ONDERSTE SPELINFORMATIE -->
+
+        <div class="game-bottom">
+
+          <div class="flight-tip">
+            💡 Een onverwacht correct antwoord levert vaak meer punten op.
+          </div>
+
+          <button
+            id="quit-button"
+            class="text-button"
+            type="button"
+          >
+            Stop vlucht
+          </button>
+
+        </div>
+
+      </div>
+
+    </main>
+
+
+    <!-- ===================================
+         EINDSCHERM
+    ==================================== -->
+
+    <main class="screen end-screen" id="end-screen">
+
+      <div class="end-card">
+
+        <div class="end-icon">
+          🏆
+        </div>
+
+        <div class="end-eyebrow">
+          MISSIE VOLTOOID
+        </div>
+
+        <h2>
+          WAT EEN<br>
+          <span>VLUCHT!</span>
+        </h2>
+
+        <p class="end-description" id="end-description">
+          Je hebt je vlucht voltooid!
+        </p>
+
+        <div class="end-stats">
+
+          <div class="end-stat">
+            <span>TOTALE HOOGTE</span>
+            <strong id="end-height">0 km</strong>
+          </div>
+
+          <div class="end-stat">
+            <span>TOTALE PUNTEN</span>
+            <strong id="end-score">0</strong>
+          </div>
+
+          <div class="end-stat">
+            <span>GOEDE ANTWOORDEN</span>
+            <strong id="end-correct">0/10</strong>
+          </div>
+
+        </div>
+
+        <div class="end-record" id="end-record">
+          🎈 Goed gevlogen!
+        </div>
+
+        <button
+          class="primary-button restart-button"
+          id="restart-button"
+          type="button"
+        >
+          OPNIEUW SPELEN
+          <span>↗</span>
+        </button>
+
+        <button
+          class="secondary-button"
+          id="home-button"
+          type="button"
+        >
+          TERUG NAAR BEGIN
+        </button>
+
+      </div>
+
+    </main>
+
+
+    <!-- ===================================
+         FOOTER
+    ==================================== -->
+
+    <footer class="site-footer">
+      <span>🎈 QUIZBALLON</span>
+      <span>DENK ZELDZAAM. VLIEG HOOG.</span>
+    </footer>
+
+  </div>
+
+
+  <!-- =====================================
+       JAVASCRIPT
+  ====================================== -->
+
+  <script src="vragen.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
