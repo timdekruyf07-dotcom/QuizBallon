@@ -1,0 +1,663 @@
+/* ==================================================
+   QUIZBALLON - RUIMTEREIS
+   VERSIE 1
+
+   VISUELE ELEMENTEN:
+   - MAAN MET KRATERS
+   - MARS
+   - ZON
+   - MELKWEG
+   - JUPITER
+   - SATURNUS
+   - KLEURRIJKE RUIMTENEVEL
+   - BEWEGENDE STERREN
+
+   Alle objecten zijn decoratief.
+   Ze blokkeren geen knoppen of invoervelden.
+================================================== */
+
+
+/* ================================================
+   WERELD EN ACHTERGROND
+================================================ */
+
+.world.qb-space-on {
+  isolation: isolate;
+}
+
+.world.qb-space-on .world-gradient {
+  background: var(
+    --qb-sky-background,
+    linear-gradient(
+      180deg,
+      #63baff,
+      #b6e5ff
+    )
+  ) !important;
+
+  transition: background 1.4s ease;
+}
+
+/*
+ * De oude zon en bestaande planeten
+ * worden vervangen door de nieuwe
+ * geanimeerde ruimteobjecten.
+ */
+
+.world.qb-space-on > .sun,
+.world.qb-space-on > .planet {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/*
+ * Bestaande ballon blijft vóór
+ * de nieuwe ruimteachtergrond.
+ */
+
+.world.qb-space-on .balloon-container {
+  z-index: 7;
+}
+
+
+/* ================================================
+   RUIMTELAAG
+================================================ */
+
+.qb-space-layer {
+  position: absolute;
+  inset: 0;
+
+  overflow: hidden;
+
+  z-index: 2;
+
+  pointer-events: none;
+
+  user-select: none;
+}
+
+
+/* ================================================
+   AARDGLOED
+
+   Dicht bij de aarde blijft aan de
+   onderkant een zachte blauwe gloed.
+================================================ */
+
+.qb-earth-glow {
+  position: absolute;
+
+  left: -20%;
+  right: -20%;
+  bottom: -34%;
+
+  height: 70%;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(128, 218, 255, .75) 0%,
+    rgba(57, 153, 244, .30) 38%,
+    transparent 74%
+  );
+
+  opacity: var(--qb-earth-opacity, 1);
+
+  filter: blur(35px);
+
+  transition: opacity 1.8s ease;
+}
+
+
+/* ================================================
+   STERRENVELD
+================================================ */
+
+.qb-starfield {
+  position: absolute;
+  inset: 0;
+
+  opacity: var(--qb-stars-opacity, 0);
+
+  transition: opacity 2s ease;
+}
+
+.qb-star {
+  position: absolute;
+
+  display: block;
+
+  width: var(--qb-star-size, 2px);
+  height: var(--qb-star-size, 2px);
+
+  border-radius: 50%;
+
+  background: #fff;
+
+  box-shadow:
+    0 0 5px rgba(255, 255, 255, .8),
+    0 0 12px rgba(169, 208, 255, .5);
+
+  opacity: var(--qb-star-brightness, .8);
+
+  animation:
+    qbStarTwinkle
+    var(--qb-star-duration, 4s)
+    ease-in-out
+    infinite alternate;
+
+  animation-delay:
+    var(--qb-star-delay, 0s);
+}
+
+@keyframes qbStarTwinkle {
+  0% {
+    opacity: .35;
+    transform: scale(.75);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+
+/* ================================================
+   GEZAMENLIJKE OBJECTSTIJL
+================================================ */
+
+.qb-space-object {
+  position: absolute;
+
+  display: block;
+
+  width: var(--qb-object-size, 160px);
+  height: var(--qb-object-size, 160px);
+
+  opacity: 0;
+
+  border-radius: 50%;
+
+  transform:
+    translate3d(
+      0,
+      var(--qb-object-y, 0px),
+      0
+    )
+    scale(var(--qb-object-scale, .85));
+
+  transition:
+    opacity 1.6s ease,
+    transform 2s ease;
+
+  will-change: opacity, transform;
+}
+
+
+/* ================================================
+   DE MAAN
+================================================ */
+
+.qb-moon {
+  --qb-object-size: clamp(125px, 17vw, 260px);
+
+  top: 16%;
+  right: 12%;
+
+  background: radial-gradient(
+    circle at 29% 27%,
+    #ffffff 0%,
+    #edf1f8 20%,
+    #c3ccdc 52%,
+    #8797b0 82%,
+    #5b6d88 100%
+  );
+
+  box-shadow:
+    inset -19px -16px 31px
+      rgba(32, 46, 75, .35),
+    0 0 44px
+      rgba(224, 235, 255, .25);
+}
+
+.qb-moon-crater {
+  position: absolute;
+
+  border-radius: 50%;
+
+  background: rgba(91, 109, 136, .25);
+
+  box-shadow:
+    inset 4px 5px 7px
+      rgba(54, 68, 96, .3),
+    2px 2px 5px
+      rgba(255, 255, 255, .5);
+}
+
+.qb-moon-crater.one {
+  width: 23%;
+  height: 23%;
+
+  top: 19%;
+  left: 23%;
+}
+
+.qb-moon-crater.two {
+  width: 15%;
+  height: 15%;
+
+  top: 56%;
+  left: 57%;
+}
+
+.qb-moon-crater.three {
+  width: 11%;
+  height: 11%;
+
+  top: 48%;
+  left: 16%;
+}
+
+.qb-moon-crater.four {
+  width: 8%;
+  height: 8%;
+
+  top: 27%;
+  left: 67%;
+}
+
+
+/* ================================================
+   MARS
+================================================ */
+
+.qb-mars {
+  --qb-object-size: clamp(135px, 18vw, 270px);
+
+  top: 16%;
+  right: 11%;
+
+  background:
+    radial-gradient(
+      ellipse at 57% 47%,
+      rgba(102, 39, 27, .45) 0%,
+      transparent 37%
+    ),
+    radial-gradient(
+      ellipse at 32% 65%,
+      rgba(255, 190, 119, .5) 0%,
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 30% 25%,
+      #ffbc82 0%,
+      #e9784e 30%,
+      #c24f38 68%,
+      #6d2830 100%
+    );
+
+  box-shadow:
+    inset -22px -17px 30px
+      rgba(67, 23, 24, .45),
+    0 0 55px
+      rgba(255, 112, 78, .23);
+}
+
+.qb-mars::after {
+  content: "";
+
+  position: absolute;
+
+  left: 19%;
+  top: 47%;
+
+  width: 66%;
+  height: 17%;
+
+  border-radius: 50%;
+
+  background:
+    rgba(104, 49, 37, .22);
+
+  transform: rotate(-18deg);
+}
+
+
+/* ================================================
+   DE ZON
+================================================ */
+
+.qb-sun {
+  --qb-object-size: clamp(150px, 20vw, 300px);
+
+  top: 12%;
+  right: 10%;
+
+  background: radial-gradient(
+    circle at 35% 31%,
+    #fffef2 0%,
+    #fff2a1 23%,
+    #ffc846 48%,
+    #ff8c2f 77%,
+    #eb642b 100%
+  );
+
+  box-shadow:
+    0 0 40px
+      rgba(255, 224, 117, .85),
+    0 0 95px
+      rgba(255, 175, 71, .55),
+    0 0 175px
+      rgba(255, 150, 43, .23);
+}
+
+.qb-sun::before {
+  content: "";
+
+  position: absolute;
+
+  inset: -23%;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(255, 218, 128, .35),
+    rgba(255, 148, 51, .12) 48%,
+    transparent 73%
+  );
+
+  animation:
+    qbSunPulse 5s
+    ease-in-out
+    infinite alternate;
+}
+
+@keyframes qbSunPulse {
+  from {
+    transform: scale(.94);
+    opacity: .65;
+  }
+
+  to {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+
+/* ================================================
+   JUPITER
+================================================ */
+
+.qb-jupiter {
+  --qb-object-size: clamp(160px, 22vw, 320px);
+
+  top: 12%;
+  right: 9%;
+
+  overflow: hidden;
+
+  background: linear-gradient(
+    180deg,
+    #e8cfb4 0%,
+    #c88d66 10%,
+    #ead5b6 19%,
+    #b97859 27%,
+    #e8ba8d 38%,
+    #f4dfc4 48%,
+    #bd866d 56%,
+    #e1b58c 69%,
+    #a46a52 78%,
+    #d8b69b 91%,
+    #ac806e 100%
+  );
+
+  box-shadow:
+    inset -26px -21px 38px
+      rgba(88, 52, 48, .48),
+    0 0 50px
+      rgba(234, 187, 141, .25);
+}
+
+.qb-jupiter::after {
+  content: "";
+
+  position: absolute;
+
+  width: 30%;
+  height: 15%;
+
+  left: 55%;
+  top: 61%;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    ellipse,
+    #b35e4e,
+    #dc957e 63%,
+    transparent 73%
+  );
+
+  transform: rotate(-13deg);
+}
+
+
+/* ================================================
+   SATURNUS
+================================================ */
+
+.qb-saturn-wrap {
+  --qb-object-size: clamp(200px, 27vw, 390px);
+
+  top: 10%;
+  right: 6%;
+
+  overflow: visible;
+
+  border-radius: 0;
+}
+
+.qb-saturn-planet {
+  position: absolute;
+
+  width: 66%;
+  height: 66%;
+
+  top: 17%;
+  left: 17%;
+
+  border-radius: 50%;
+
+  background: linear-gradient(
+    180deg,
+    #fbebbf 0%,
+    #d9b786 23%,
+    #eee0b4 36%,
+    #bda07e 53%,
+    #e7d0a6 70%,
+    #a18b72 100%
+  );
+
+  box-shadow:
+    inset -24px -16px 35px
+      rgba(73, 63, 57, .36),
+    0 0 40px
+      rgba(238, 210, 165, .16);
+}
+
+.qb-saturn-ring {
+  position: absolute;
+
+  left: -4%;
+  top: 34%;
+
+  width: 108%;
+  height: 35%;
+
+  border: clamp(10px, 1.5vw, 19px)
+    solid rgba(226, 205, 166, .9);
+
+  border-left-color:
+    rgba(174, 151, 129, .75);
+
+  border-right-color:
+    rgba(244, 224, 189, .95);
+
+  border-radius: 50%;
+
+  transform: rotate(-22deg);
+
+  box-shadow:
+    0 0 16px rgba(227, 201, 164, .22);
+}
+
+
+/* ================================================
+   MELKWEG
+
+   Een brede lichtband met
+   sterren en paarse / blauwe gloed.
+================================================ */
+
+.qb-galaxy {
+  position: absolute;
+
+  width: 125%;
+  height: 52%;
+
+  left: -12%;
+  top: 16%;
+
+  border-radius: 50%;
+
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      ellipse at 53% 55%,
+      rgba(255, 239, 209, .55),
+      transparent 22%
+    ),
+    radial-gradient(
+      ellipse at 48% 55%,
+      rgba(197, 138, 255, .48),
+      transparent 43%
+    ),
+    radial-gradient(
+      ellipse at 68% 47%,
+      rgba(108, 167, 255, .52),
+      transparent 48%
+    ),
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(181, 135, 255, .15),
+      rgba(235, 225, 255, .26),
+      rgba(75, 120, 246, .14),
+      transparent
+    );
+
+  filter: blur(11px);
+
+  transform:
+    rotate(-25deg)
+    scale(.85);
+
+  transition:
+    opacity 2s ease,
+    transform 2.5s ease;
+
+  pointer-events: none;
+}
+
+
+/* ================================================
+   NEVEL IN DE DIEPE RUIMTE
+================================================ */
+
+.qb-nebula {
+  position: absolute;
+
+  inset: -15%;
+
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      ellipse at 26% 43%,
+      rgba(168, 61, 242, .38) 0%,
+      transparent 41%
+    ),
+    radial-gradient(
+      ellipse at 73% 39%,
+      rgba(49, 153, 255, .34) 0%,
+      transparent 43%
+    ),
+    radial-gradient(
+      ellipse at 47% 73%,
+      rgba(255, 85, 151, .20) 0%,
+      transparent 36%
+    );
+
+  filter: blur(22px);
+
+  transition: opacity 2s ease;
+
+  pointer-events: none;
+}
+
+
+/* ================================================
+   MOBIEL
+
+   Planeten niet overmatig groot.
+================================================ */
+
+@media (max-width: 760px) {
+
+  .qb-moon,
+  .qb-mars,
+  .qb-sun,
+  .qb-jupiter {
+    right: -5%;
+    top: 14%;
+  }
+
+  .qb-saturn-wrap {
+    right: -12%;
+    top: 14%;
+  }
+
+  .qb-galaxy {
+    width: 150%;
+    left: -25%;
+  }
+
+}
+
+
+/* ================================================
+   VERMINDERDE ANIMATIES
+================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .qb-star,
+  .qb-sun::before {
+    animation: none;
+  }
+
+  .qb-space-object,
+  .qb-galaxy,
+  .qb-nebula,
+  .qb-earth-glow,
+  .qb-starfield {
+    transition: none;
+  }
+
+}
