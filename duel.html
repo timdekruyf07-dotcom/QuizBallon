@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta name="theme-color" content="#141b36">
+
+  <title>QuizBallon Duel ⚔️</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      font-family: Arial, sans-serif;
+      color: white;
+
+      background:
+        radial-gradient(
+          circle at 80% 10%,
+          #374a91,
+          transparent 35%
+        ),
+        linear-gradient(
+          160deg,
+          #131a35,
+          #202d58,
+          #111629
+        );
+    }
+
+    .page {
+      width: min(94%, 680px);
+      margin: 0 auto;
+      padding: 24px 0 70px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 60px;
+    }
+
+    .brand {
+      font-size: 24px;
+      font-weight: 900;
+      color: white;
+      text-decoration: none;
+    }
+
+    .brand span {
+      color: #ff6575;
+    }
+
+    .back {
+      color: #cdd8ff;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 34px;
+    }
+
+    .hero-icon {
+      font-size: 66px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(36px, 7vw, 58px);
+      letter-spacing: -2px;
+      margin: 0 0 12px;
+    }
+
+    .accent {
+      color: #ff6575;
+    }
+
+    .subtitle {
+      max-width: 470px;
+      margin: 0 auto;
+      color: #c1cbea;
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .panel {
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 24px;
+      padding: 28px;
+      margin-bottom: 20px;
+
+      box-shadow:
+        0 22px 60px rgba(0,0,0,.16);
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 23px;
+    }
+
+    .panel p {
+      color: #c1cbea;
+      line-height: 1.65;
+      margin: 0 0 22px;
+      font-size: 14px;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .button {
+      width: 100%;
+      padding: 16px 20px;
+
+      border: 0;
+      border-radius: 14px;
+
+      background: #fa435f;
+      color: white;
+
+      font-size: 15px;
+      font-weight: 900;
+
+      transition:
+        transform .2s ease,
+        background .2s ease;
+    }
+
+    .button:hover:not(:disabled) {
+      background: #ff6179;
+      transform: translateY(-2px);
+    }
+
+    .button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .button.secondary {
+      background: #384b89;
+    }
+
+    .button.secondary:hover:not(:disabled) {
+      background: #4a60a5;
+    }
+
+    .join-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      min-width: 0;
+      flex: 1;
+      padding: 15px;
+
+      border: 2px solid rgba(255,255,255,.15);
+      border-radius: 14px;
+
+      background: rgba(0,0,0,.19);
+      color: white;
+
+      font: inherit;
+      font-size: 22px;
+      font-weight: 900;
+
+      text-align: center;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #ff6575;
+    }
+
+    .join-row button {
+      width: auto;
+      min-width: 140px;
+    }
+
+    .room-code {
+      display: block;
+
+      margin: 16px 0 20px;
+      padding: 20px;
+
+      border: 2px dashed #ff7186;
+      border-radius: 15px;
+
+      background: rgba(250,67,95,.12);
+
+      color: #ffb5c0;
+      font-size: clamp(31px, 8vw, 52px);
+
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: 8px;
+    }
+
+    .players {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+
+      margin: 24px 0;
+    }
+
+    .player {
+      padding: 20px 10px;
+
+      border-radius: 16px;
+      background: rgba(255,255,255,.08);
+
+      text-align: center;
+    }
+
+    .player strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .player .hearts {
+      font-size: 25px;
+    }
+
+    .player small {
+      display: block;
+      margin-top: 10px;
+      color: #b7c5e9;
+    }
+
+    .status {
+      margin: 0 0 20px;
+      padding: 14px 18px;
+
+      border-radius: 13px;
+
+      background: rgba(255,255,255,.08);
+      color: #dce5ff;
+
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .status.error {
+      background: rgba(255,60,85,.15);
+      color: #ffb4c0;
+    }
+
+    .status.success {
+      background: rgba(41,210,143,.14);
+      color: #a4ffdb;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #a3b1db;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 500px) {
+      .topbar {
+        margin-bottom: 40px;
+      }
+
+      .panel {
+        padding: 21px;
+      }
+
+      .join-row {
+        flex-direction: column;
+      }
+
+      .join-row button {
+        width: 100%;
+      }
+
+      .players {
+        gap: 8px;
+      }
+
+      .room-code {
+        letter-spacing: 4px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div class="page">
+
+    <header class="topbar">
+      <a href="index.html" class="brand">
+        🎈 Quiz<span>Ballon</span>
+      </a>
+
+      <a href="index.html" class="back">
+        ← Terug
+      </a>
+    </header>
+
+    <section class="hero">
+      <div class="hero-icon">⚔️</div>
+
+      <h1>
+        QUIZBALLON <span class="accent">DUEL</span>
+      </h1>
+
+      <p class="subtitle">
+        Daag een vriend uit! Maak een room,
+        deel de code en speel straks live
+        tegen elkaar.
+      </p>
+    </section>
+
+    <div
+      class="status"
+      id="connection-status"
+      role="status"
+      aria-live="polite"
+    >
+      🔄 Verbinden met Firebase...
+    </div>
+
+    <!-- STARTLOBBY -->
+
+    <div id="lobby-start">
+
+      <section class="panel">
+        <h2>🏠 Maak een room</h2>
+
+        <p>
+          Maak een privéroom en ontvang een
+          willekeurige code van 6 tekens.
+        </p>
+
+        <button
+          class="button"
+          id="create-button"
+          type="button"
+          disabled
+        >
+          ROOM AANMAKEN
+        </button>
+      </section>
+
+      <section class="panel">
+        <h2>🔑 Deelnemen met een code</h2>
+
+        <p>
+          Heeft je vriend al een room?
+          Vul hier de code in.
+        </p>
+
+        <div class="join-row">
+          <input
+            id="room-input"
+            type="text"
+            maxlength="6"
+            placeholder="ABC123"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Roomcode"
+          >
+
+          <button
+            class="button secondary"
+            id="join-button"
+            type="button"
+            disabled
+          >
+            DEELNEMEN
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ACTIEVE ROOM -->
+
+    <section
+      class="panel"
+      id="room-panel"
+      hidden
+    >
+
+      <h2>🎈 Jouw duelroom</h2>
+
+      <p>
+        Deel deze code met je vriend.
+        Zodra die deelneemt, verschijnen
+        jullie allebei in de lobby.
+      </p>
+
+      <strong
+        class="room-code"
+        id="room-code"
+      >
+        ------
+      </strong>
+
+      <button
+        class="button secondary"
+        id="copy-button"
+        type="button"
+      >
+        📋 CODE KOPIËREN
+      </button>
+
+      <div class="players">
+
+        <div class="player">
+          <strong>🔴 SPELER 1</strong>
+
+          <div class="hearts">❤️❤️</div>
+
+          <small id="host-status">
+            Verbinden...
+          </small>
+        </div>
+
+        <div class="player">
+          <strong>🔵 SPELER 2</strong>
+
+          <div class="hearts">❤️❤️</div>
+
+          <small id="guest-status">
+            Wachten op speler...
+          </small>
+        </div>
+
+      </div>
+
+      <div
+        class="status"
+        id="room-status"
+        role="status"
+        aria-live="polite"
+      >
+        Wachten op een tweede speler...
+      </div>
+
+      <p class="note">
+        Dit is de eerste testversie van
+        QuizBallon Duel. De echte
+        antwoordbeurten komen hierna.
+      </p>
+
+    </section>
+
+  </div>
+
+  <script type="module">
+
+    /* =====================================
+       FIREBASE SDK
+
+       Werkt direct op GitHub Pages.
+       Geen npm nodig.
+    ===================================== */
+
+    import {
+      initializeApp
+    } from
+      "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+    import {
+      getAuth,
+      signInAnonymously
+    } from
+      "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    import {
+      getDatabase,
+      ref,
+      set,
+      onValue,
+      serverTimestamp
+    } from
+      "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+
+    /* =====================================
+       JOUW FIREBASE-CONFIGURATIE
+    ===================================== */
+
+    const firebaseConfig = {
+      apiKey:
+        "AIzaSyB7eejfy_9B3ibVguN6AORzP8BRe5XG43g",
+
+      authDomain:
+        "quizballon.firebaseapp.com",
+
+      databaseURL:
+        "https://quizballon-default-rtdb.europe-west1.firebasedatabase.app/",
+
+      projectId:
+        "quizballon",
+
+      storageBucket:
+        "quizballon.firebasestorage.app",
+
+      messagingSenderId:
+        "883055960100",
+
+      appId:
+        "1:883055960100:web:98a48a205954471d6fb8b1"
+    };
+
+
+    /* =====================================
+       FIREBASE OPSTARTEN
+    ===================================== */
+
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+
+    const database = getDatabase(app);
+
+
+    /* =====================================
+       HTML-ELEMENTEN
+    ===================================== */
+
+    const byId = id =>
+      document.getElementById(id);
+
+    const connectionStatus =
+      byId("connection-status");
+
+    const lobbyStart =
+      byId("lobby-start");
+
+    const roomPanel =
+      byId("room-panel");
+
+    const createButton =
+      byId("create-button");
+
+    const joinButton =
+      byId("join-button");
+
+    const roomInput =
+      byId("room-input");
+
+    const roomCodeDisplay =
+      byId("room-code");
+
+    const copyButton =
+      byId("copy-button");
+
+    const roomStatus =
+      byId("room-status");
+
+    const hostStatus =
+      byId("host-status");
+
+    const guestStatus =
+      byId("guest-status");
+
+
+    /* =====================================
+       SPELSTATUS
+    ===================================== */
+
+    let currentUser = null;
+
+    let currentRoomCode = null;
+
+    let stopListening = null;
+
+    let busy = false;
+
+
+    /* =====================================
+       STATUSBERICHTEN
+    ===================================== */
+
+    function showConnectionStatus(
+      message,
+      type = ""
+    ) {
+      connectionStatus.textContent = message;
+
+      connectionStatus.className =
+        "status " + type;
+    }
+
+    function showRoomStatus(
+      message,
+      type = ""
+    ) {
+      roomStatus.textContent = message;
+
+      roomStatus.className =
+        "status " + type;
+    }
+
+
+    /* =====================================
+       KNOPPEN IN- EN UITSCHAKELEN
+    ===================================== */
+
+    function updateButtons() {
+      const ready =
+        Boolean(currentUser) && !busy;
+
+      createButton.disabled = !ready;
+
+      joinButton.disabled = !ready;
+    }
+
+
+    /* =====================================
+       ROOMCODE GENEREREN
+
+       6 tekens uit letters en cijfers.
+
+       We gebruiken crypto.getRandomValues
+       voor willekeurige codes.
+    ===================================== */
+
+    const ALPHABET =
+      "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    function generateRoomCode() {
+      const bytes = new Uint8Array(6);
+
+      crypto.getRandomValues(bytes);
+
+      let code = "";
+
+      for (const byte of bytes) {
+        code += ALPHABET[
+          byte % ALPHABET.length
+        ];
+      }
+
+      return code;
+    }
+
+
+    /* =====================================
+       ROOMCODE OPSCHONEN
+    ===================================== */
+
+    function cleanRoomCode(value) {
+      return String(value || "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .slice(0, 6);
+    }
+
+
+    /* =====================================
+       ROOM WEERGEVEN
+    ===================================== */
+
+    function showRoom(code) {
+      currentRoomCode = code;
+
+      lobbyStart.hidden = true;
+
+      roomPanel.hidden = false;
+
+      roomCodeDisplay.textContent = code;
+
+      showRoomStatus(
+        "⏳ Verbinding met de room wordt gemaakt..."
+      );
+    }
+
+
+    /* =====================================
+       LIVE ROOM VOLGEN
+
+       Firebase stuurt wijzigingen
+       automatisch naar beide spelers.
+    ===================================== */
+
+    function listenToRoom(code) {
+      if (stopListening) {
+        stopListening();
+      }
+
+      const roomReference = ref(
+        database,
+        "duelRooms/" + code
+      );
+
+      stopListening = onValue(
+        roomReference,
+
+        snapshot => {
+          if (!snapshot.exists()) {
+            showRoomStatus(
+              "❌ Deze room bestaat niet meer.",
+              "error"
+            );
+
+            return;
+          }
+
+          const room = snapshot.val();
+
+          const isHost =
+            room.hostUid === currentUser.uid;
+
+          const isGuest =
+            room.guestUid === currentUser.uid;
+
+          if (!isHost && !isGuest) {
+            showRoomStatus(
+              "❌ Je hebt geen toegang tot deze room.",
+              "error"
+            );
+
+            return;
+          }
+
+          hostStatus.textContent =
+            isHost
+              ? "Jij bent speler 1"
+              : "Speler 1 verbonden";
+
+          if (room.guestUid) {
+            guestStatus.textContent =
+              isGuest
+                ? "Jij bent speler 2"
+                : "Speler 2 verbonden";
+
+            showRoomStatus(
+              "✅ Beide spelers zijn verbonden! " +
+              "De multiplayerlobby werkt.",
+              "success"
+            );
+          } else {
+            guestStatus.textContent =
+              "Wachten op speler...";
+
+            showRoomStatus(
+              "⏳ Deel de code met je vriend. " +
+              "We wachten op speler 2."
+            );
+          }
+        },
+
+        error => {
+          console.error(error);
+
+          showRoomStatus(
+            "❌ De room kon niet worden gelezen. " +
+            "Controleer je Firebase Rules.",
+            "error"
+          );
+        }
+      );
+    }
+
+
+    /* =====================================
+       ROOM AANMAKEN
+
+       Als een code al bestaat,
+       weigert Firebase het schrijven.
+
+       We proberen dan een nieuwe code.
+    ===================================== */
+
+    async function createRoom() {
+      if (!currentUser || busy) {
+        return;
+      }
+
+      busy = true;
+      updateButtons();
+
+      showConnectionStatus(
+        "🏠 Room aanmaken..."
+      );
+
+      try {
+        for (let attempt = 0; attempt < 5; attempt++) {
+          const code = generateRoomCode();
+
+          const roomReference = ref(
+            database,
+            "duelRooms/" + code
+          );
+
+          const roomData = {
+            hostUid: currentUser.uid,
+            guestUid: "",
+            createdAt: serverTimestamp()
+          };
+
+          try {
+            await set(
+              roomReference,
+              roomData
+            );
+
+            showRoom(code);
+
+            listenToRoom(code);
+
+            showConnectionStatus(
+              "✅ Room aangemaakt!",
+              "success"
+            );
+
+            return;
+
+          } catch (error) {
+            if (error.code !== "PERMISSION_DENIED" &&
+                error.code !== "permission-denied") {
+              throw error;
+            }
+
+            /*
+             * Een bestaande code of
+             * geweigerde schrijfactie.
+             *
+             * Bij een configuratiefout
+             * helpt opnieuw proberen
+             * niet; na vijf pogingen
+             * tonen we de fout.
+             */
+
+            if (attempt === 4) {
+              throw error;
+            }
+          }
+        }
+
+      } catch (error) {
+        console.error(error);
+
+        showConnectionStatus(
+          "❌ Room aanmaken mislukt. " +
+          "Controleer Firebase Authentication " +
+          "en de gepubliceerde Rules.",
+          "error"
+        );
+
+      } finally {
+        busy = false;
+        updateButtons();
+      }
+    }
+
+
+    /* =====================================
+       DEELNEMEN AAN EEN ROOM
+
+       De database accepteert alleen
+       een tweede speler wanneer het
+       gastslot nog leeg is.
+
+       De speler hoeft de room niet
+       vooraf te kunnen uitlezen.
+    ===================================== */
+
+    async function joinRoom() {
+      if (!currentUser || busy) {
+        return;
+      }
+
+      const code = cleanRoomCode(
+        roomInput.value
+      );
+
+      if (code.length !== 6) {
+        showConnectionStatus(
+          "❌ Vul een code van 6 tekens in.",
+          "error"
+        );
+
+        return;
+      }
+
+      busy = true;
+      updateButtons();
+
+      showConnectionStatus(
+        "🔄 Deelnemen aan room " +
+        code +
+        "..."
+      );
+
+      try {
+        const guestReference = ref(
+          database,
+          "duelRooms/" + code + "/guestUid"
+        );
+
+        await set(
+          guestReference,
+          currentUser.uid
+        );
+
+        showRoom(code);
+
+        listenToRoom(code);
+
+        showConnectionStatus(
+          "✅ Je bent lid van de room!",
+          "success"
+        );
+
+      } catch (error) {
+        console.error(error);
+
+        showConnectionStatus(
+          "❌ Deelnemen mislukt. " +
+          "Controleer de code. " +
+          "De room kan ook al vol zijn.",
+          "error"
+        );
+
+      } finally {
+        busy = false;
+        updateButtons();
+      }
+    }
+
+
+    /* =====================================
+       ROOMCODE KOPIËREN
+    ===================================== */
+
+    async function copyRoomCode() {
+      if (!currentRoomCode) {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(
+          currentRoomCode
+        );
+
+        copyButton.textContent =
+          "✅ CODE GEKOPIEERD";
+
+        setTimeout(() => {
+          copyButton.textContent =
+            "📋 CODE KOPIËREN";
+        }, 2000);
+
+      } catch (error) {
+        showRoomStatus(
+          "Kopiëren is niet gelukt. " +
+          "Selecteer de code hierboven."
+        );
+      }
+    }
+
+
+    /* =====================================
+       INVOERVELD
+    ===================================== */
+
+    roomInput.addEventListener(
+      "input",
+      () => {
+        roomInput.value =
+          cleanRoomCode(roomInput.value);
+      }
+    );
+
+
+    /* =====================================
+       KNOPPEN
+    ===================================== */
+
+    createButton.addEventListener(
+      "click",
+      createRoom
+    );
+
+    joinButton.addEventListener(
+      "click",
+      joinRoom
+    );
+
+    copyButton.addEventListener(
+      "click",
+      copyRoomCode
+    );
+
+    roomInput.addEventListener(
+      "keydown",
+      event => {
+        if (event.key === "Enter") {
+          joinRoom();
+        }
+      }
+    );
+
+
+    /* =====================================
+       ANONIEM INLOGGEN
+
+       Geen account of wachtwoord nodig.
+
+       Firebase hergebruikt waar
+       mogelijk de bestaande
+       anonieme gebruiker.
+    ===================================== */
+
+    async function initialize() {
+      try {
+        const result =
+          await signInAnonymously(auth);
+
+        currentUser = result.user;
+
+        showConnectionStatus(
+          "✅ Verbonden met Firebase! " +
+          "Je kunt een room maken of deelnemen.",
+          "success"
+        );
+
+        updateButtons();
+
+        console.log(
+          "🎈 QuizBallon Duel verbonden!"
+        );
+
+      } catch (error) {
+        console.error(error);
+
+        showConnectionStatus(
+          "❌ Firebase-inloggen is mislukt. " +
+          "Controleer of Anonymous " +
+          "Authentication is ingeschakeld.",
+          "error"
+        );
+      }
+    }
+
+    initialize();
+
+  </script>
+
+</body>
+</html>
