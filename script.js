@@ -2,13 +2,19 @@
    QUIZBALLON
    COMPLETE SPELLOGICA
 
+   NIEUWE FUNCTIES:
+   - ONBEPERKT OPNIEUW PROBEREN
+   - TIMER LOOPT DOOR BIJ FOUT ANTWOORD
+   - SLIMME TYPO-SUGGESTIES
+   - SUGGESTIES BIJ ONVOLLEDIGE NAMEN
+   - KLIKBARE ANTWOORDSUGGESTIES
+
+   BESTAANDE FUNCTIES:
    - 10 VRAGEN PER POTJE
    - 25 SECONDEN PER VRAAG
-   - ANTWOORDCONTROLE
    - ZELDZAAMHEIDSPUNTEN
    - STIJGENDE LUCHTBALLON
-   - VERSCHILLENDE LUCHTZONES
-   - PLANETEN
+   - LUCHTZONES EN PLANETEN
    - PERSOONLIJK RECORD
 ========================================== */
 
@@ -21,14 +27,8 @@
   ======================================== */
 
   const QUESTIONS_PER_GAME = 10;
-  const SECONDS_PER_QUESTION = 25;
 
-  /*
-   * Iedere punt levert 2 spelkilometers op.
-   *
-   * Dit zijn fantasieafstanden.
-   * Ze zijn niet astronomisch correct.
-   */
+  const SECONDS_PER_QUESTION = 25;
 
   const KM_PER_POINT = 2;
 
@@ -36,6 +36,8 @@
     QUESTIONS_PER_GAME * 100 * KM_PER_POINT;
 
   const RECORD_KEY = "quizballon-record-v1";
+
+  const MAX_SUGGESTIONS = 3;
 
 
   /* ========================================
@@ -48,6 +50,7 @@
 
   let totalScore = 0;
   let totalHeight = 0;
+
   let correctAnswers = 0;
 
   let secondsLeft = SECONDS_PER_QUESTION;
@@ -126,36 +129,60 @@
 
 
   /* ========================================
-     HULPFUNCTIES
+     EXTRA ELEMENTEN VOOR SUGGESTIES
+
+     Deze worden automatisch aangemaakt.
+     Je hoeft index.html niet te veranderen.
+  ======================================== */
+
+  let feedbackElement = null;
+  let feedbackText = null;
+  let suggestionsElement = null;
+
+
+  /* ========================================
+     BASISFUNCTIES
   ======================================== */
 
   function formatNumber(number) {
+
     return new Intl.NumberFormat("nl-NL").format(number);
+
   }
+
 
   function formatHeight(height) {
+
     return formatNumber(Math.round(height)) + " km";
+
   }
+
 
   function randomNumber(max) {
+
     return Math.floor(Math.random() * max);
+
   }
 
+
   function prefersReducedMotion() {
+
     return window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
+
   }
 
 
   /* ========================================
      ANTWOORDEN NORMALISEREN
 
-     Bijvoorbeeld:
+     Voorbeelden:
 
-     "Kākāpō" wordt "kakapo"
-     "Zuid-Afrika" wordt "zuid afrika"
-     "  FLAMINGO " wordt "flamingo"
+     Kākāpō       -> kakapo
+     FLAMINGO     -> flamingo
+     Zuid-Afrika  -> zuid afrika
+     "  Toekan "  -> toekan
   ======================================== */
 
   function normalizeAnswer(value) {
@@ -203,7 +230,7 @@
 
 
   /* ========================================
-     SPELSCHERM TONEN
+     SCHERM TONEN
   ======================================== */
 
   function showScreen(screenName) {
@@ -240,7 +267,7 @@
 
     window.scrollTo({
       top: 0,
-      behavior: "instant"
+      behavior: "auto"
     });
 
   }
@@ -300,12 +327,7 @@
 
     } catch (error) {
 
-      /*
-       * Sommige browsers blokkeren
-       * localStorage.
-       *
-       * Het spel blijft gewoon werken.
-       */
+      // Het spel blijft werken zonder localStorage.
 
     }
 
@@ -330,8 +352,6 @@
 
   /* ========================================
      LUCHTZONES
-
-     De hoogtes zijn onderdeel van het spel.
   ======================================== */
 
   const ZONES = [
@@ -382,7 +402,7 @@
 
 
   /* ========================================
-     HUIDIGE ZONE BEPALEN
+     HUIDIGE ZONE
   ======================================== */
 
   function getCurrentZone(height) {
@@ -424,10 +444,7 @@
 
 
   /* ========================================
-     BALLONPOSITIE
-
-     De ballon blijft goed zichtbaar,
-     terwijl de omgeving verandert.
+     LUCHTBALLONPOSITIE
   ======================================== */
 
   function updateBalloonPosition() {
@@ -458,7 +475,7 @@
 
 
   /* ========================================
-     PUNTEN EN HOOGTE TONEN
+     STATISTIEKEN
   ======================================== */
 
   function updateStats() {
@@ -562,6 +579,576 @@
 
 
   /* ========================================
+     SLIMME SUGGESTIES - CSS
+
+     Wordt automatisch aan de pagina
+     toegevoegd door JavaScript.
+  ======================================== */
+
+  function addSuggestionStyles() {
+
+    if (byId("quizballon-suggestion-styles")) {
+      return;
+    }
+
+    const style = document.createElement("style");
+
+    style.id = "quizballon-suggestion-styles";
+
+    style.textContent = `
+
+      /* ===================================
+         FOUT ANTWOORD MELDING
+      =================================== */
+
+      .qb-feedback {
+        margin-top: 16px;
+        padding: 18px;
+
+        border: 1px solid #ffccbb;
+        border-radius: 14px;
+
+        background: #fff3ef;
+        color: #803c2e;
+      }
+
+      .qb-feedback-text {
+        margin: 0;
+
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.7;
+      }
+
+
+      /* ===================================
+         SUGGESTIES
+      =================================== */
+
+      .qb-suggestions {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+
+        margin-top: 15px;
+      }
+
+      .qb-suggestions-title {
+        margin: 0 0 3px;
+
+        color: #4a5876;
+
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1.5;
+      }
+
+      .qb-suggestion-button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+
+        width: 100%;
+        min-height: 46px;
+
+        padding: 11px 14px;
+
+        border: 1px solid #c5d5ff;
+        border-radius: 10px;
+
+        background: #ffffff;
+        color: #315ce0;
+
+        font-size: 13px;
+        font-weight: 800;
+        text-align: left;
+
+        cursor: pointer;
+
+        transition:
+          background .2s ease,
+          border-color .2s ease;
+      }
+
+      .qb-suggestion-button:hover {
+        background: #edf2ff;
+        border-color: #7e9ef3;
+      }
+
+      .qb-suggestion-button:focus-visible {
+        outline: 3px solid #ffce52;
+        outline-offset: 3px;
+      }
+
+      .qb-suggestion-arrow {
+        flex-shrink: 0;
+        font-size: 18px;
+      }
+
+
+      /* ===================================
+         MOBIEL
+      =================================== */
+
+      @media (max-width: 480px) {
+
+        .qb-feedback {
+          padding: 15px;
+        }
+
+        .qb-suggestion-button {
+          min-height: 48px;
+        }
+
+      }
+
+    `;
+
+    document.head.appendChild(style);
+
+  }
+
+
+  /* ========================================
+     MELDINGEN AANMAKEN
+  ======================================== */
+
+  function createFeedbackElements() {
+
+    addSuggestionStyles();
+
+    feedbackElement = document.createElement("div");
+
+    feedbackElement.className = "qb-feedback";
+
+    feedbackElement.id = "qb-feedback";
+
+    feedbackElement.hidden = true;
+
+    feedbackElement.setAttribute(
+      "role",
+      "status"
+    );
+
+    feedbackText = document.createElement("p");
+
+    feedbackText.className = "qb-feedback-text";
+
+    suggestionsElement = document.createElement("div");
+
+    suggestionsElement.className = "qb-suggestions";
+
+    feedbackElement.appendChild(feedbackText);
+
+    feedbackElement.appendChild(suggestionsElement);
+
+    elements.answerForm.insertAdjacentElement(
+      "afterend",
+      feedbackElement
+    );
+
+  }
+
+
+  /* ========================================
+     MELDING VERBERGEN
+  ======================================== */
+
+  function hideFeedback() {
+
+    if (!feedbackElement) {
+      return;
+    }
+
+    feedbackElement.hidden = true;
+
+    feedbackText.textContent = "";
+
+    suggestionsElement.replaceChildren();
+
+  }
+
+
+  /* ========================================
+     LETTERVERSCHIL BEREKENEN
+
+     Voorbeeld:
+
+     flamingp -> flamingo
+     Verschil: 1
+
+     We gebruiken Levenshtein-afstand.
+
+     Daardoor herkennen we:
+     - 1 verkeerde letter
+     - 1 ontbrekende letter
+     - 1 extra letter
+  ======================================== */
+
+  function levenshteinDistance(first, second) {
+
+    if (first === second) {
+      return 0;
+    }
+
+    if (!first.length) {
+      return second.length;
+    }
+
+    if (!second.length) {
+      return first.length;
+    }
+
+    const previous = [];
+
+    for (let j = 0; j <= second.length; j++) {
+
+      previous[j] = j;
+
+    }
+
+    for (let i = 1; i <= first.length; i++) {
+
+      const current = [i];
+
+      for (let j = 1; j <= second.length; j++) {
+
+        const cost =
+          first[i - 1] === second[j - 1]
+            ? 0
+            : 1;
+
+        current[j] = Math.min(
+
+          current[j - 1] + 1,
+
+          previous[j] + 1,
+
+          previous[j - 1] + cost
+
+        );
+
+      }
+
+      for (let j = 0; j <= second.length; j++) {
+
+        previous[j] = current[j];
+
+      }
+
+    }
+
+    return previous[second.length];
+
+  }
+
+
+  /* ========================================
+     ONVOLLEDIGE NAAM HERKENNEN
+
+     Voorbeeld:
+
+     neushoorn
+     neushoornvogel
+
+     Omdat 'neushoorn' het begin vormt
+     van 'neushoornvogel', kan het spel
+     die vogel als suggestie geven.
+
+     Om niet te snel antwoorden weg
+     te geven, geldt dit alleen vanaf
+     minimaal vijf letters.
+  ======================================== */
+
+  function getSuggestionDistance(input, candidate) {
+
+    if (input === candidate) {
+      return -1;
+    }
+
+    const difference =
+      Math.abs(input.length - candidate.length);
+
+    /*
+     * Eén letter verschil:
+     * typefout, extra letter of
+     * ontbrekende letter.
+     */
+
+    if (
+      input.length >= 4 &&
+      difference <= 1
+    ) {
+
+      const distance = levenshteinDistance(
+        input,
+        candidate
+      );
+
+      if (distance === 1) {
+
+        return 1;
+
+      }
+
+    }
+
+    /*
+     * Begin van een langer woord.
+     *
+     * Bijvoorbeeld:
+     * neushoorn -> neushoornvogel
+     */
+
+    if (
+      input.length >= 5 &&
+      candidate.startsWith(input) &&
+      input.length >= candidate.length * .6
+    ) {
+
+      return 2;
+
+    }
+
+    return -1;
+
+  }
+
+
+  /* ========================================
+     SUGGESTIES ZOEKEN
+
+     We doorzoeken alleen de antwoorden
+     die geldig zijn bij de huidige vraag.
+
+     Maximaal 3 suggesties.
+  ======================================== */
+
+  function findSuggestions(question, userAnswer) {
+
+    const input = normalizeAnswer(userAnswer);
+
+    if (input.length < 4) {
+      return [];
+    }
+
+    const suggestions = [];
+
+    const seenAnswers = new Set();
+
+    question.answers.forEach(function (item) {
+
+      const possibleNames = [
+        item.answer,
+        ...(item.aliases || [])
+      ];
+
+      let bestMatch = Infinity;
+
+      possibleNames.forEach(function (name) {
+
+        const candidate = normalizeAnswer(name);
+
+        const match = getSuggestionDistance(
+          input,
+          candidate
+        );
+
+        if (
+          match >= 0 &&
+          match < bestMatch
+        ) {
+
+          bestMatch = match;
+
+        }
+
+      });
+
+      if (bestMatch === Infinity) {
+        return;
+      }
+
+      const key = normalizeAnswer(item.answer);
+
+      if (seenAnswers.has(key)) {
+        return;
+      }
+
+      seenAnswers.add(key);
+
+      suggestions.push({
+
+        answer: item.answer,
+
+        matchScore: bestMatch,
+
+        points: item.points
+
+      });
+
+    });
+
+    /*
+     * Eerst typefouten.
+     * Daarna onvolledige namen.
+     */
+
+    suggestions.sort(function (a, b) {
+
+      if (a.matchScore !== b.matchScore) {
+
+        return a.matchScore - b.matchScore;
+
+      }
+
+      return a.answer.localeCompare(
+        b.answer,
+        "nl"
+      );
+
+    });
+
+    return suggestions.slice(
+      0,
+      MAX_SUGGESTIONS
+    );
+
+  }
+
+
+  /* ========================================
+     SUGGESTIES TONEN
+  ======================================== */
+
+  function showSuggestions(suggestions) {
+
+    suggestionsElement.replaceChildren();
+
+    if (!suggestions.length) {
+      return;
+    }
+
+    const title = document.createElement("p");
+
+    title.className = "qb-suggestions-title";
+
+    title.textContent =
+      "💡 Bedoelde je misschien:";
+
+    suggestionsElement.appendChild(title);
+
+    suggestions.forEach(function (suggestion) {
+
+      const button = document.createElement("button");
+
+      button.type = "button";
+
+      button.className = "qb-suggestion-button";
+
+      button.setAttribute(
+        "aria-label",
+        "Probeer " + suggestion.answer
+      );
+
+      const name = document.createElement("span");
+
+      name.textContent = suggestion.answer;
+
+      const arrow = document.createElement("span");
+
+      arrow.className = "qb-suggestion-arrow";
+
+      arrow.textContent = "→";
+
+      button.append(name, arrow);
+
+      /*
+       * Klik op een suggestie.
+       *
+       * Het antwoord wordt ingevuld
+       * én direct gecontroleerd.
+       */
+
+      button.addEventListener("click", function () {
+
+        if (!gameActive || answerLocked) {
+          return;
+        }
+
+        if (Date.now() >= timerDeadline) {
+
+          handleTimeUp();
+          return;
+
+        }
+
+        elements.answerInput.value =
+          suggestion.answer;
+
+        hideFeedback();
+
+        processAnswer();
+
+      });
+
+      suggestionsElement.appendChild(button);
+
+    });
+
+  }
+
+
+  /* ========================================
+     FOUT ANTWOORD MELDEN
+
+     BELANGRIJK:
+
+     - De vraag stopt NIET.
+     - De timer stopt NIET.
+     - Het antwoordveld blijft open.
+     - De speler mag opnieuw proberen.
+  ======================================== */
+
+  function showIncorrectFeedback(userAnswer) {
+
+    if (!feedbackElement) {
+      return;
+    }
+
+    const question =
+      questions[currentQuestionIndex];
+
+    const suggestions = findSuggestions(
+      question,
+      userAnswer
+    );
+
+    feedbackElement.hidden = false;
+
+    if (suggestions.length > 0) {
+
+      feedbackText.textContent =
+        "Dit antwoord is nog niet goedgekeurd. " +
+        "Misschien heb je een andere naam bedoeld. " +
+        "Je mag opnieuw proberen zolang de tijd loopt!";
+
+    } else {
+
+      feedbackText.textContent =
+        "❌ Dit antwoord wordt niet herkend. " +
+        "Probeer gerust iets anders! " +
+        "De timer loopt gewoon door.";
+
+    }
+
+    showSuggestions(suggestions);
+
+  }
+
+
+  /* ========================================
      TIMER STOPPEN
   ======================================== */
 
@@ -594,7 +1181,10 @@
       "danger"
     );
 
-    if (secondsLeft <= 10 && secondsLeft > 5) {
+    if (
+      secondsLeft <= 10 &&
+      secondsLeft > 5
+    ) {
 
       elements.timer.classList.add(
         "warning"
@@ -615,10 +1205,6 @@
 
   /* ========================================
      TIMER STARTEN
-
-     Met een echte eindtijd, zodat de timer
-     ook correct blijft als je tabblad
-     even op de achtergrond staat.
   ======================================== */
 
   function startTimer() {
@@ -628,7 +1214,8 @@
     secondsLeft = SECONDS_PER_QUESTION;
 
     timerDeadline =
-      Date.now() + SECONDS_PER_QUESTION * 1000;
+      Date.now() +
+      SECONDS_PER_QUESTION * 1000;
 
     updateTimerDisplay();
 
@@ -663,6 +1250,16 @@
 
   /* ========================================
      ANTWOORD CONTROLEREN
+
+     Exacte schrijfwijze is niet nodig.
+
+     Hoofdletters, accenten en kleine
+     schrijfverschillen zoals streepjes
+     worden automatisch genegeerd.
+
+     Echte typefouten worden niet zomaar
+     goedgekeurd; daarvoor geven we
+     suggesties.
   ======================================== */
 
   function checkAnswer(question, userAnswer) {
@@ -671,9 +1268,7 @@
       normalizeAnswer(userAnswer);
 
     if (!normalizedInput) {
-
       return null;
-
     }
 
     for (const item of question.answers) {
@@ -693,9 +1288,7 @@
       );
 
       if (found) {
-
         return item;
-
       }
 
     }
@@ -706,7 +1299,7 @@
 
 
   /* ========================================
-     START VAN EEN NIEUW SPEL
+     NIEUW SPEL STARTEN
   ======================================== */
 
   function startGame() {
@@ -727,6 +1320,14 @@
 
     stopTimer();
 
+    if (risingTimeout !== null) {
+
+      clearTimeout(risingTimeout);
+
+      risingTimeout = null;
+
+    }
+
     questions = shuffleArray(
       window.QUIZ_QUESTIONS
     ).slice(0, QUESTIONS_PER_GAME);
@@ -735,6 +1336,7 @@
 
     totalScore = 0;
     totalHeight = 0;
+
     correctAnswers = 0;
 
     answerLocked = false;
@@ -742,11 +1344,11 @@
 
     elements.progressFill.style.width = "0%";
 
-    elements.balloonContainer.style.bottom = "";
-
     elements.balloonContainer.classList.remove(
       "rising"
     );
+
+    hideFeedback();
 
     showScreen("game");
 
@@ -758,7 +1360,7 @@
 
 
   /* ========================================
-     NIEUWE VRAAG TONEN
+     NIEUWE VRAAG
   ======================================== */
 
   function showQuestion() {
@@ -767,7 +1369,10 @@
       return;
     }
 
-    if (currentQuestionIndex >= questions.length) {
+    if (
+      currentQuestionIndex >=
+      questions.length
+    ) {
 
       endGame();
       return;
@@ -794,9 +1399,11 @@
     elements.answerInput.value = "";
 
     elements.answerInput.disabled = false;
+
     elements.answerButton.disabled = false;
 
     elements.answerForm.hidden = false;
+
     elements.answerResult.hidden = true;
 
     elements.answerResult.classList.remove(
@@ -804,21 +1411,21 @@
       "incorrect"
     );
 
-    elements.nextButton.textContent = "";
+    hideFeedback();
 
-    elements.nextButton.appendChild(
-      document.createTextNode(
-        currentQuestionIndex === questions.length - 1
-          ? "BEKIJK JE RESULTAAT "
-          : "VOLGENDE VRAAG "
-      )
+    elements.nextButton.replaceChildren();
+
+    const nextText = document.createTextNode(
+      currentQuestionIndex === questions.length - 1
+        ? "BEKIJK JE RESULTAAT "
+        : "VOLGENDE VRAAG "
     );
 
     const arrow = document.createElement("span");
 
     arrow.textContent = "→";
 
-    elements.nextButton.appendChild(arrow);
+    elements.nextButton.append(nextText, arrow);
 
     updateStats();
 
@@ -828,23 +1435,26 @@
 
 
   /* ========================================
-     ANTWOORD INDIENEN
+     ANTWOORD VERWERKEN
+
+     Dit is de belangrijkste wijziging.
+
+     Bij een fout antwoord wordt alleen
+     een melding getoond.
+
+     De speler blijft bij dezelfde vraag
+     en kan opnieuw proberen.
   ======================================== */
 
-  function submitAnswer(event) {
-
-    event.preventDefault();
+  function processAnswer() {
 
     if (!gameActive || answerLocked) {
       return;
     }
 
     /*
-     * Controle op verlopen tijd.
-     *
-     * Zo kan een antwoord niet alsnog
-     * goedgekeurd worden nadat de
-     * 25 seconden voorbij zijn.
+     * Controleer eerst of de tijd
+     * ondertussen voorbij is.
      */
 
     if (Date.now() >= timerDeadline) {
@@ -872,13 +1482,52 @@
 
     if (answer) {
 
+      /*
+       * Goed antwoord.
+       *
+       * De vraag is nu klaar.
+       */
+
+      hideFeedback();
+
       handleCorrectAnswer(answer);
 
     } else {
 
-      handleIncorrectAnswer();
+      /*
+       * Fout of onbekend antwoord.
+       *
+       * NIET:
+       * - Timer stoppen
+       * - Vraag afsluiten
+       * - Antwoordveld uitschakelen
+       *
+       * WEL:
+       * - Melding tonen
+       * - Suggesties zoeken
+       * - Opnieuw proberen toestaan
+       */
+
+      showIncorrectFeedback(userAnswer);
+
+      elements.answerInput.focus();
+
+      elements.answerInput.select();
 
     }
+
+  }
+
+
+  /* ========================================
+     FORMULIER INDIENEN
+  ======================================== */
+
+  function submitAnswer(event) {
+
+    event.preventDefault();
+
+    processAnswer();
 
   }
 
@@ -903,6 +1552,7 @@
       points * KM_PER_POINT;
 
     totalScore += points;
+
     totalHeight += gainedHeight;
 
     correctAnswers++;
@@ -912,6 +1562,7 @@
     animateBalloon();
 
     showAnswerResult({
+
       correct: true,
 
       icon: points >= 80
@@ -940,38 +1591,11 @@
 
 
   /* ========================================
-     FOUT ANTWOORD
-  ======================================== */
-
-  function handleIncorrectAnswer() {
-
-    if (answerLocked || !gameActive) {
-      return;
-    }
-
-    answerLocked = true;
-
-    stopTimer();
-
-    showAnswerResult({
-      correct: false,
-
-      icon: "☁️",
-
-      title: "NIET GOEDGEKEURD",
-
-      description:
-        "Dit antwoord staat niet in onze huidige " +
-        "vragenlijst. Je krijgt deze ronde geen punten.",
-
-      points: 0
-    });
-
-  }
-
-
-  /* ========================================
      TIJD OP
+
+     Dit is het enige moment waarop
+     een foutieve beurt definitief
+     wordt afgesloten.
   ======================================== */
 
   function handleTimeUp() {
@@ -985,9 +1609,13 @@
     stopTimer();
 
     secondsLeft = 0;
+
     updateTimerDisplay();
 
+    hideFeedback();
+
     showAnswerResult({
+
       correct: false,
 
       icon: "⏱️",
@@ -996,7 +1624,8 @@
 
       description:
         "Je 25 seconden zijn voorbij. " +
-        "Bij de volgende vraag krijg je een nieuwe kans.",
+        "Bij de volgende vraag krijg je " +
+        "een nieuwe kans.",
 
       points: 0
 
@@ -1012,9 +1641,11 @@
   function showAnswerResult(result) {
 
     elements.answerInput.disabled = true;
+
     elements.answerButton.disabled = true;
 
     elements.answerForm.hidden = true;
+
     elements.answerResult.hidden = false;
 
     elements.answerResult.classList.remove(
@@ -1023,7 +1654,9 @@
     );
 
     elements.answerResult.classList.add(
-      result.correct ? "correct" : "incorrect"
+      result.correct
+        ? "correct"
+        : "incorrect"
     );
 
     elements.resultIcon.textContent =
@@ -1053,7 +1686,10 @@
 
     currentQuestionIndex++;
 
-    if (currentQuestionIndex >= questions.length) {
+    if (
+      currentQuestionIndex >=
+      questions.length
+    ) {
 
       endGame();
 
@@ -1076,6 +1712,8 @@
 
     gameActive = false;
     answerLocked = true;
+
+    hideFeedback();
 
     const newRecord =
       saveRecord(totalHeight);
@@ -1130,7 +1768,10 @@
 
     totalScore = 0;
     totalHeight = 0;
+
     correctAnswers = 0;
+
+    hideFeedback();
 
     elements.progressFill.style.width = "0%";
 
@@ -1161,8 +1802,9 @@
     }
 
     const confirmed = window.confirm(
-      "Weet je zeker dat je deze vlucht wilt stoppen? " +
-      "Je huidige score wordt niet opgeslagen."
+      "Weet je zeker dat je deze vlucht " +
+      "wilt stoppen? Je huidige score " +
+      "wordt niet opgeslagen."
     );
 
     if (confirmed) {
@@ -1210,15 +1852,34 @@
       nextQuestion
     );
 
+    /*
+     * Zodra iemand opnieuw begint
+     * te typen, verdwijnt de oude
+     * foutmelding.
+     */
+
+    elements.answerInput.addEventListener(
+      "input",
+      function () {
+
+        if (!answerLocked) {
+
+          hideFeedback();
+
+        }
+
+      }
+    );
+
     window.addEventListener(
       "resize",
       updateBalloonPosition
     );
 
     /*
-     * Als een speler terugkeert
-     * naar het tabblad, controleren
-     * we direct of de tijd om is.
+     * Controleer de eindtijd opnieuw
+     * wanneer iemand terugkomt naar
+     * het tabblad.
      */
 
     document.addEventListener(
@@ -1244,12 +1905,14 @@
 
 
   /* ========================================
-     WEBSITE STARTEN
+     QUIZBALLON STARTEN
   ======================================== */
 
   function initializeQuizBallon() {
 
     loadRecord();
+
+    createFeedbackElements();
 
     initializeEvents();
 
@@ -1261,7 +1924,7 @@
     showScreen("start");
 
     console.log(
-      "🎈 QuizBallon is gestart!"
+      "🎈 QuizBallon gestart met slimme suggesties!"
     );
 
   }
