@@ -1,114 +1,249 @@
 /* =====================================================
-   QUIZBALLON - DAILY CHALLENGE V3
+   QUIZBALLON - DAILY CHALLENGE V4
 
-   - 10 VRAGEN PER NEDERLANDSE DAG
-   - DEZELFDE SELECTIE VOOR ALLE SPELERS
+   NIEUW:
+   - PRECIES 1 LETTERVRAAG PER 10 VRAGEN
+   - 9 GEWONE KENNISVRAGEN
    - MAXIMAAL 1 VRAAG PER ONDERWERP
-   - LIEFST MAXIMAAL 2 PER HOOFDCATEGORIE
-   - ONDERWERPEN VAN GISTEREN VERMIJDEN
+   - GOEDE AFWISSELING VAN CATEGORIEËN
+
+   BEHOUDEN:
+   - DEZELFDE VRAGEN VOOR ALLE SPELERS
    - NIEUWE UITDAGING OM 00.00 UUR
+   - NEDERLANDSE TIJDZONE
+   - DAGELIJKSE AFTELLER
    - 1 VOLTOOIDE UITDAGING PER DAG
-   - BESTAAND ANTWOORDENOVERZICHT BEHOUDEN
+   - ANTWOORDENOVERZICHT
+   - BESTAANDE PUNTENSCORES
+   - RAKETANTWOORDEN
 ===================================================== */
 
 (function () {
   "use strict";
 
+  /* ========================================
+     INSTELLINGEN
+  ======================================== */
+
   const TIME_ZONE = "Europe/Amsterdam";
 
   const QUESTIONS_PER_DAY = 10;
+
+  /*
+   * Precies één vraag met een
+   * extra lettereis per dag.
+   *
+   * Dat is 10% van de vragen.
+   */
+
+  const LETTER_QUESTIONS_PER_DAY = 1;
+
+  /*
+   * We proberen maximaal 2 vragen
+   * uit dezelfde hoofdcategorie
+   * te selecteren.
+   */
+
   const MAX_PER_CATEGORY = 2;
 
   const DAILY_STORAGE_KEY =
     "quizballon-daily-result-v1";
 
   const SELECTION_SALT =
-    "quizballon-daily-v3";
+    "quizballon-daily-v4";
 
-  const elements = {
-    startScreen: document.getElementById("start-screen"),
-    endScreen: document.getElementById("end-screen"),
-    startButton: document.getElementById("start-button"),
-    restartButton: document.getElementById("restart-button"),
-    homeButton: document.getElementById("home-button"),
-    quitButton: document.getElementById("quit-button"),
+  const CLOCK_INTERVAL = 1000;
 
-    dailyDate: document.getElementById("daily-date"),
-    dailyDescription: document.getElementById("daily-description"),
-    dailyStatus: document.getElementById("daily-status"),
-    dailyCountdown: document.getElementById("daily-countdown"),
-    dailyEndMessage: document.getElementById("daily-end-message"),
-
-    endScore: document.getElementById("end-score"),
-    endHeight: document.getElementById("end-height"),
-    endCorrect: document.getElementById("end-correct")
-  };
-
-  let currentDay = "";
-  let activeDay = null;
-  let completedResult = null;
-  let lastEndVisible = false;
-
-  const allQuestions =
-    Array.isArray(window.QUIZBALLON_EXPANDED_QUESTIONS)
-      ? [...window.QUIZBALLON_EXPANDED_QUESTIONS]
-      : [];
 
   /* ========================================
-     DATUM EN TIJD
+     HTML-ELEMENTEN
+  ======================================== */
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  const elements = {
+
+    startScreen: byId("start-screen"),
+
+    endScreen: byId("end-screen"),
+
+    startButton: byId("start-button"),
+
+    restartButton: byId("restart-button"),
+
+    homeButton: byId("home-button"),
+
+    quitButton: byId("quit-button"),
+
+    dailyDate: byId("daily-date"),
+
+    dailyDescription: byId("daily-description"),
+
+    dailyStatus: byId("daily-status"),
+
+    dailyCountdown: byId("daily-countdown"),
+
+    dailyEndMessage: byId("daily-end-message"),
+
+    endScore: byId("end-score"),
+
+    endHeight: byId("end-height"),
+
+    endCorrect: byId("end-correct")
+
+  };
+
+
+  /* ========================================
+     SPELSTATUS
+  ======================================== */
+
+  let currentDay = "";
+
+  let activeDay = null;
+
+  let completedResult = null;
+
+  let lastEndVisible = false;
+
+  /*
+   * Bewaar de volledige vragenbank
+   * voordat we er 10 selecteren.
+   */
+
+  const allQuestions =
+    Array.isArray(
+      window.QUIZBALLON_EXPANDED_QUESTIONS
+    )
+      ? [
+          ...window.QUIZBALLON_EXPANDED_QUESTIONS
+        ]
+      : [];
+
+
+  /* ========================================
+     NEDERLANDSE DATUM
   ======================================== */
 
   function getDayKey(date = new Date()) {
-    return new Intl.DateTimeFormat("sv-SE", {
-      timeZone: TIME_ZONE,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    }).format(date);
+
+    return new Intl.DateTimeFormat(
+      "sv-SE",
+      {
+        timeZone: TIME_ZONE,
+
+        year: "numeric",
+
+        month: "2-digit",
+
+        day: "2-digit"
+      }
+    ).format(date);
+
   }
+
+
+  /* ========================================
+     VORIGE DAG
+  ======================================== */
 
   function previousDayKey(dayKey) {
-    const date = new Date(dayKey + "T12:00:00Z");
-    date.setUTCDate(date.getUTCDate() - 1);
 
-    return date.toISOString().slice(0, 10);
+    const date = new Date(
+      dayKey + "T12:00:00Z"
+    );
+
+    date.setUTCDate(
+      date.getUTCDate() - 1
+    );
+
+    return date
+      .toISOString()
+      .slice(0, 10);
+
   }
+
+
+  /* ========================================
+     DATUM TONEN
+  ======================================== */
 
   function getDisplayDate() {
-    return new Intl.DateTimeFormat("nl-NL", {
-      timeZone: TIME_ZONE,
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    }).format(new Date());
+
+    return new Intl.DateTimeFormat(
+      "nl-NL",
+      {
+        timeZone: TIME_ZONE,
+
+        weekday: "long",
+
+        day: "numeric",
+
+        month: "long",
+
+        year: "numeric"
+      }
+    ).format(new Date());
+
   }
 
+
+  /* ========================================
+     NEDERLANDSE KLOK
+  ======================================== */
+
   function getClock() {
+
     const clock = {
+
       hour: 0,
+
       minute: 0,
+
       second: 0
+
     };
 
-    const parts = new Intl.DateTimeFormat("nl-NL", {
-      timeZone: TIME_ZONE,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hourCycle: "h23"
-    }).formatToParts(new Date());
+    const parts =
+      new Intl.DateTimeFormat(
+        "nl-NL",
+        {
+          timeZone: TIME_ZONE,
+
+          hour: "2-digit",
+
+          minute: "2-digit",
+
+          second: "2-digit",
+
+          hourCycle: "h23"
+        }
+      ).formatToParts(new Date());
 
     parts.forEach(function (part) {
+
       if (part.type in clock) {
-        clock[part.type] = Number(part.value);
+
+        clock[part.type] =
+          Number(part.value);
+
       }
+
     });
 
     return clock;
+
   }
 
+
+  /* ========================================
+     AFTELLER TOT 00.00
+  ======================================== */
+
   function getCountdown() {
+
     const clock = getClock();
 
     const elapsed =
@@ -116,24 +251,42 @@
       clock.minute * 60 +
       clock.second;
 
-    let remaining = 86400 - elapsed;
+    let remaining =
+      86400 - elapsed;
 
-    const hours = Math.floor(remaining / 3600);
+    const hours =
+      Math.floor(remaining / 3600);
+
     remaining %= 3600;
 
-    const minutes = Math.floor(remaining / 60);
-    const seconds = remaining % 60;
+    const minutes =
+      Math.floor(remaining / 60);
 
-    return [hours, minutes, seconds]
-      .map(value => String(value).padStart(2, "0"))
+    const seconds =
+      remaining % 60;
+
+    return [
+      hours,
+      minutes,
+      seconds
+    ]
+      .map(function (value) {
+
+        return String(value)
+          .padStart(2, "0");
+
+      })
       .join(":");
+
   }
 
+
   /* ========================================
-     VRAGEN HERKENNEN
+     TEKST NORMALISEREN
   ======================================== */
 
   function normalize(value) {
+
     return String(value || "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
@@ -143,32 +296,91 @@
       .replace(/[^a-z0-9 ]/g, " ")
       .replace(/\s+/g, " ")
       .trim();
+
   }
 
+
+  /* ========================================
+     LETTERVRAGEN HERKENNEN
+
+     De 100 eerder toegevoegde
+     vraagvarianten gebruiken:
+
+     "Extra eis: ..."
+
+     Daardoor kunnen we ze
+     afzonderlijk herkennen.
+  ======================================== */
+
+  function isLetterQuestion(question) {
+
+    return String(
+      question.question || ""
+    )
+      .toLowerCase()
+      .includes("extra eis:");
+
+  }
+
+
+  /* ========================================
+     BASISVRAAG HERKENNEN
+
+     Bijvoorbeeld:
+
+     "Noem een hondenras."
+
+     En:
+
+     "Noem een hondenras.
+      Extra eis: minstens 6 letters."
+
+     Hebben hetzelfde onderwerp.
+  ======================================== */
+
   function getBaseText(question) {
-    let text = String(question.question || "");
+
+    let text = String(
+      question.question || ""
+    );
 
     const position = text
       .toLowerCase()
       .indexOf("extra eis:");
 
     if (position !== -1) {
-      text = text.slice(0, position);
+
+      text = text.slice(
+        0,
+        position
+      );
+
     }
 
     return normalize(text);
+
   }
 
+
+  /* ========================================
+     ONDERWERP BEPALEN
+  ======================================== */
+
   function getTopic(question) {
+
     const text = getBaseText(question);
 
-    if (text.includes("japan") &&
-        /stad|steden/.test(text)) {
+    if (
+      text.includes("japan") &&
+      /stad|steden/.test(text)
+    ) {
       return "japanse-steden";
     }
 
-    if (text.includes("hondenras") ||
-        text.includes("hondenkruising")) {
+    if (
+      text.includes("hondenras") ||
+      text.includes("hondenkruising")
+    ) {
       return "honden";
     }
 
@@ -180,12 +392,17 @@
       return "muziekinstrumenten";
     }
 
-    if (text.includes("vogelsoort")) {
+    if (
+      text.includes("vogelsoort") ||
+      text.includes("vogel die")
+    ) {
       return "vogels";
     }
 
-    if (text.includes("maan") &&
-        text.includes("zonnestelsel")) {
+    if (
+      text.includes("maan") &&
+      text.includes("zonnestelsel")
+    ) {
       return "manen";
     }
 
@@ -226,10 +443,20 @@
     }
 
     return text;
+
   }
 
+
+  /* ========================================
+     HOOFDCATEGORIE BEPALEN
+  ======================================== */
+
   function getCategory(question) {
-    const category = normalize(question.category);
+
+    const category = normalize(
+      question.category
+    );
+
     const topic = getTopic(question);
 
     if (
@@ -275,27 +502,52 @@
     }
 
     return category || "overig";
+
   }
 
+
   /* ========================================
-     VASTE RANDOMSELECTIE
+     VASTE SEED
+
+     Hiermee krijgen alle spelers
+     met dezelfde vragenbank en datum
+     dezelfde selectie.
   ======================================== */
 
   function seedFromString(value) {
+
     let hash = 2166136261;
 
-    for (let i = 0; i < value.length; i++) {
+    for (
+      let i = 0;
+      i < value.length;
+      i++
+    ) {
+
       hash ^= value.charCodeAt(i);
-      hash = Math.imul(hash, 16777619);
+
+      hash = Math.imul(
+        hash,
+        16777619
+      );
+
     }
 
     return hash >>> 0;
+
   }
 
+
+  /* ========================================
+     VASTE RANDOMFUNCTIE
+  ======================================== */
+
   function seededRandom(seed) {
+
     let state = seed >>> 0;
 
     return function () {
+
       state += 0x6D2B79F5;
 
       let value = state;
@@ -314,106 +566,288 @@
         ((value ^ (value >>> 14)) >>> 0) /
         4294967296
       );
+
     };
+
   }
 
+
+  /* ========================================
+     VAST SCHUDDEN
+  ======================================== */
+
   function shuffle(items, seed) {
+
     const result = [...items];
-    const random = seededRandom(seed);
 
-    for (let i = result.length - 1; i > 0; i--) {
-      const j = Math.floor(random() * (i + 1));
+    const random =
+      seededRandom(seed);
 
-      [result[i], result[j]] = [
-        result[j], result[i]
+    for (
+      let i = result.length - 1;
+      i > 0;
+      i--
+    ) {
+
+      const j = Math.floor(
+        random() * (i + 1)
+      );
+
+      [
+        result[i],
+        result[j]
+      ] = [
+        result[j],
+        result[i]
       ];
+
     }
 
     return result;
+
   }
 
+
   /* ========================================
-     ONDERWERPEN GROEPEREN
+     VRAGEN GROEPEREN PER ONDERWERP
+
+     Ieder onderwerp heeft twee lijsten:
+
+     1. Gewone vragen
+     2. Vragen met extra lettereis
   ======================================== */
 
   function createTopicGroups() {
+
     const groups = new Map();
 
-    allQuestions.forEach(function (question) {
-      const key = getTopic(question);
+    allQuestions.forEach(
+      function (question) {
 
-      if (!groups.has(key)) {
-        groups.set(key, []);
+        const topic =
+          getTopic(question);
+
+        if (!groups.has(topic)) {
+
+          groups.set(topic, {
+
+            topic: topic,
+
+            regular: [],
+
+            letter: []
+
+          });
+
+        }
+
+        const group =
+          groups.get(topic);
+
+        if (isLetterQuestion(question)) {
+
+          group.letter.push(question);
+
+        } else {
+
+          group.regular.push(question);
+
+        }
+
       }
-
-      groups.get(key).push(question);
-    });
+    );
 
     return groups;
+
   }
 
-  const topicGroups = createTopicGroups();
+
+  const topicGroups =
+    createTopicGroups();
+
 
   /* ========================================
-     SELECTIE VOOR EEN BEPAALDE DAG
+     EEN GEWONE VRAAG PER ONDERWERP
 
-     We kiezen per onderwerp één variant.
-
-     Gisteren gebruikte onderwerpen
-     krijgen de laagste prioriteit.
+     We kiezen uit de gewone vragen,
+     zodat de lettervarianten niet
+     voortdurend geselecteerd worden.
   ======================================== */
 
-  function makeSelection(dayKey, avoidedTopics = new Set()) {
+  function chooseRegularQuestion(
+    group,
+    dayKey
+  ) {
+
+    if (group.regular.length === 0) {
+      return null;
+    }
+
+    const seed = seedFromString(
+      SELECTION_SALT +
+      "|" +
+      dayKey +
+      "|" +
+      group.topic +
+      "|gewoon"
+    );
+
+    return shuffle(
+      group.regular,
+      seed
+    )[0];
+
+  }
+
+
+  /* ========================================
+     EEN LETTERVRAAG KIEZEN
+
+     Alleen gebruikt voor het ene
+     speciale slot van de dag.
+  ======================================== */
+
+  function chooseLetterQuestion(
+    group,
+    dayKey
+  ) {
+
+    if (group.letter.length === 0) {
+      return null;
+    }
+
+    const seed = seedFromString(
+      SELECTION_SALT +
+      "|" +
+      dayKey +
+      "|" +
+      group.topic +
+      "|letters"
+    );
+
+    return shuffle(
+      group.letter,
+      seed
+    )[0];
+
+  }
+
+
+  /* ========================================
+     10 VERSCHILLENDE ONDERWERPEN KIEZEN
+
+     Eerst onderwerpen die gisteren
+     niet gebruikt zijn.
+
+     We proberen ook de categorieën
+     eerlijk te verdelen.
+  ======================================== */
+
+  function chooseTopics(
+    dayKey,
+    avoidedTopics = new Set()
+  ) {
+
     const candidates = [];
 
-    topicGroups.forEach(function (variants, topic) {
-      const variantSeed = seedFromString(
-        SELECTION_SALT +
-        "|" + dayKey +
-        "|" + topic
-      );
+    topicGroups.forEach(
+      function (group) {
 
-      const chosen = shuffle(
-        variants,
-        variantSeed
-      )[0];
+        if (group.regular.length === 0) {
+          return;
+        }
 
-      candidates.push({
-        topic,
-        category: getCategory(chosen),
-        question: chosen
-      });
-    });
+        const regularQuestion =
+          chooseRegularQuestion(
+            group,
+            dayKey
+          );
+
+        candidates.push({
+
+          topic: group.topic,
+
+          category: getCategory(
+            regularQuestion
+          ),
+
+          regularQuestion: regularQuestion,
+
+          group: group
+
+        });
+
+      }
+    );
 
     const shuffled = shuffle(
       candidates,
-      seedFromString(SELECTION_SALT + "|" + dayKey)
+      seedFromString(
+        SELECTION_SALT +
+        "|onderwerpen|" +
+        dayKey
+      )
     );
 
+    /*
+     * Nieuwe onderwerpen krijgen
+     * voorrang op onderwerpen van
+     * gisteren.
+     */
+
     const preferred = shuffled.filter(
-      item => !avoidedTopics.has(item.topic)
+      function (item) {
+
+        return !avoidedTopics.has(
+          item.topic
+        );
+
+      }
     );
 
     const fallback = shuffled.filter(
-      item => avoidedTopics.has(item.topic)
+      function (item) {
+
+        return avoidedTopics.has(
+          item.topic
+        );
+
+      }
     );
 
     const selected = [];
+
     const selectedTopics = new Set();
+
     const categoryCounts = new Map();
 
-    function addFrom(list, enforceCategoryLimit) {
-      for (const item of list) {
-        if (selected.length >= QUESTIONS_PER_DAY) {
+
+    function addFrom(
+      items,
+      enforceCategoryLimit
+    ) {
+
+      for (const item of items) {
+
+        if (
+          selected.length >=
+          QUESTIONS_PER_DAY
+        ) {
           break;
         }
 
-        if (selectedTopics.has(item.topic)) {
+        if (
+          selectedTopics.has(
+            item.topic
+          )
+        ) {
           continue;
         }
 
         const count =
-          categoryCounts.get(item.category) || 0;
+          categoryCounts.get(
+            item.category
+          ) || 0;
 
         if (
           enforceCategoryLimit &&
@@ -424,74 +858,241 @@
 
         selected.push(item);
 
-        selectedTopics.add(item.topic);
+        selectedTopics.add(
+          item.topic
+        );
 
         categoryCounts.set(
           item.category,
           count + 1
         );
+
       }
+
     }
 
+
     /*
-     * Eerst nieuwe onderwerpen,
-     * daarna eventueel oude.
+     * Eerste ronde:
+     * nieuwe onderwerpen,
+     * maximaal twee per categorie.
      */
 
     addFrom(preferred, true);
+
+    /*
+     * Tweede ronde:
+     * overige nieuwe onderwerpen.
+     */
+
     addFrom(preferred, false);
 
-    if (selected.length < QUESTIONS_PER_DAY) {
+    /*
+     * Alleen indien nodig:
+     * onderwerpen van gisteren.
+     */
+
+    if (
+      selected.length <
+      QUESTIONS_PER_DAY
+    ) {
+
       addFrom(fallback, true);
+
       addFrom(fallback, false);
+
     }
 
-    return shuffle(
-      selected.slice(0, QUESTIONS_PER_DAY),
-      seedFromString(
-        SELECTION_SALT + "|volgorde|" + dayKey
-      )
+    return selected.slice(
+      0,
+      QUESTIONS_PER_DAY
     );
+
   }
 
+
   /* ========================================
-     VANDAAG EN GISTEREN VERGELIJKEN
+     LETTERVRAAG TOEVOEGEN
+
+     We hebben nu 10 onderwerpen.
+
+     Voor negen onderwerpen gebruiken
+     we een normale kennisvraag.
+
+     Bij precies één onderwerp kiezen
+     we een lettervariant.
+
+     De andere negen blijven gewoon.
+  ======================================== */
+
+  function applyLetterQuestion(
+    selectedTopics,
+    dayKey
+  ) {
+
+    const result = selectedTopics.map(
+      function (item) {
+
+        return {
+
+          ...item,
+
+          question: item.regularQuestion
+
+        };
+
+      }
+    );
+
+    const eligible = result.filter(
+      function (item) {
+
+        return item.group.letter.length > 0;
+
+      }
+    );
+
+    if (eligible.length === 0) {
+
+      console.warn(
+        "QuizBallon: vandaag geen geschikte lettervariant beschikbaar."
+      );
+
+      return result;
+
+    }
+
+    /*
+     * Kies iedere dag een ander
+     * onderwerp voor de lettervraag.
+     */
+
+    const shuffledEligible = shuffle(
+      eligible,
+      seedFromString(
+        SELECTION_SALT +
+        "|letteronderwerp|" +
+        dayKey
+      )
+    );
+
+    const chosen = shuffledEligible[0];
+
+    chosen.question =
+      chooseLetterQuestion(
+        chosen.group,
+        dayKey
+      );
+
+    return result;
+
+  }
+
+
+  /* ========================================
+     VRAGEN VOOR ÉÉN DAG MAKEN
+  ======================================== */
+
+  function makeDailySelection(
+    dayKey,
+    avoidedTopics = new Set()
+  ) {
+
+    const topics = chooseTopics(
+      dayKey,
+      avoidedTopics
+    );
+
+    const withLetterQuestion =
+      applyLetterQuestion(
+        topics,
+        dayKey
+      );
+
+    /*
+     * Vaste volgorde voor de selectie.
+     */
+
+    return shuffle(
+      withLetterQuestion,
+      seedFromString(
+        SELECTION_SALT +
+        "|volgorde|" +
+        dayKey
+      )
+    );
+
+  }
+
+
+  /* ========================================
+     GISTEREN ZO VEEL MOGELIJK VERMIJDEN
   ======================================== */
 
   function chooseDailyQuestions(dayKey) {
-    const yesterday = previousDayKey(dayKey);
 
-    const previousSelection = makeSelection(yesterday);
+    const yesterday =
+      previousDayKey(dayKey);
 
-    const yesterdayTopics = new Set(
-      previousSelection.map(item => item.topic)
-    );
+    /*
+     * Bepaal de basisselectie van
+     * gisteren op dezelfde manier.
+     */
 
-    const todaySelection = makeSelection(
-      dayKey,
-      yesterdayTopics
-    );
+    const previousSelection =
+      makeDailySelection(yesterday);
+
+    const yesterdayTopics =
+      new Set(
+        previousSelection.map(
+          function (item) {
+
+            return item.topic;
+
+          }
+        )
+      );
+
+    /*
+     * Geef vandaag voorrang aan
+     * andere onderwerpen.
+     */
+
+    const todaySelection =
+      makeDailySelection(
+        dayKey,
+        yesterdayTopics
+      );
 
     return todaySelection.map(
-      item => item.question
+      function (item) {
+
+        return item.question;
+
+      }
     );
+
   }
 
+
   /* ========================================
-     DAGRESULTAAT
+     DAGRESULTAAT LADEN
   ======================================== */
 
   function loadResult() {
+
     try {
-      const value = localStorage.getItem(
+
+      const saved = localStorage.getItem(
         DAILY_STORAGE_KEY
       );
 
-      if (!value) {
+      if (!saved) {
         return null;
       }
 
-      const result = JSON.parse(value);
+      const result =
+        JSON.parse(saved);
 
       if (
         !result ||
@@ -503,47 +1104,76 @@
       }
 
       return result;
+
     } catch (error) {
+
       return null;
+
     }
+
   }
 
+
+  /* ========================================
+     DAGRESULTAAT OPSLAAN
+  ======================================== */
+
   function saveResult(result) {
+
     completedResult = result;
 
     try {
+
       localStorage.setItem(
         DAILY_STORAGE_KEY,
         JSON.stringify(result)
       );
+
     } catch (error) {
-      console.warn("Dagresultaat kon niet worden opgeslagen.");
+
+      console.warn(
+        "QuizBallon: resultaat kon niet worden opgeslagen."
+      );
+
     }
+
   }
 
+
+  /* ========================================
+     VOLTOOID?
+  ======================================== */
+
   function isCompleted() {
+
     return Boolean(
       completedResult &&
       completedResult.date === currentDay
     );
+
   }
 
+
   /* ========================================
-     EXTRA STYLING VOOR DAILY-KAART
+     DAGELIJKSE KAART STYLING
+
+     Zelfde ontwerp als de vorige
+     versie van QuizBallon.
   ======================================== */
 
   function addDailyStyles() {
+
     if (
-      document.getElementById(
-        "quizballon-daily-styles"
-      )
+      byId("quizballon-daily-styles")
     ) {
       return;
     }
 
-    const style = document.createElement("style");
+    const style =
+      document.createElement("style");
 
-    style.id = "quizballon-daily-styles";
+    style.id =
+      "quizballon-daily-styles";
 
     style.textContent = `
 
@@ -670,62 +1300,93 @@
       }
 
       @media (max-width: 760px) {
+
         .daily-card {
           padding: 20px;
         }
+
       }
 
       @media (max-width: 480px) {
+
         .daily-countdown-row {
           align-items: flex-start;
           flex-direction: column;
           gap: 8px;
         }
+
       }
 
     `;
 
     document.head.appendChild(style);
+
   }
 
+
   /* ========================================
-     KNOPTEKST
+     KNOPTEKST INSTELLEN
   ======================================== */
 
   function setButton(button, label) {
+
     if (!button) {
       return;
     }
 
-    const text = document.createElement("span");
+    const text =
+      document.createElement("span");
+
     text.textContent = label;
 
-    const arrow = document.createElement("span");
+    const arrow =
+      document.createElement("span");
+
     arrow.textContent = "↗";
 
-    button.replaceChildren(text, arrow);
+    button.replaceChildren(
+      text,
+      arrow
+    );
+
   }
 
+
   /* ========================================
-     STARTSCHERM
+     STARTSCHERM BIJWERKEN
   ======================================== */
 
   function updateHome() {
+
     if (elements.dailyDate) {
-      elements.dailyDate.textContent = getDisplayDate();
+
+      elements.dailyDate.textContent =
+        getDisplayDate();
+
     }
 
     if (elements.dailyCountdown) {
-      elements.dailyCountdown.textContent = getCountdown();
+
+      elements.dailyCountdown.textContent =
+        getCountdown();
+
     }
 
     if (isCompleted()) {
+
       if (elements.dailyStatus) {
-        elements.dailyStatus.textContent = "VOLTOOID ✓";
-        elements.dailyStatus.classList.add("completed");
+
+        elements.dailyStatus.textContent =
+          "VOLTOOID ✓";
+
+        elements.dailyStatus.classList.add(
+          "completed"
+        );
+
       }
 
       if (elements.dailyDescription) {
+
         elements.dailyDescription.textContent =
           "Je hebt de uitdaging voltooid! " +
           "Je behaalde " +
@@ -733,6 +1394,7 @@
           " punten en bereikte " +
           completedResult.height +
           ". Morgen kun je opnieuw vliegen.";
+
       }
 
       elements.startButton.disabled = true;
@@ -743,23 +1405,36 @@
       );
 
       if (elements.restartButton) {
+
         elements.restartButton.disabled = true;
 
         setButton(
           elements.restartButton,
           "MORGEN WEER SPELEN"
         );
+
       }
+
     } else {
+
       if (elements.dailyStatus) {
-        elements.dailyStatus.textContent = "BESCHIKBAAR";
-        elements.dailyStatus.classList.remove("completed");
+
+        elements.dailyStatus.textContent =
+          "BESCHIKBAAR";
+
+        elements.dailyStatus.classList.remove(
+          "completed"
+        );
+
       }
 
       if (elements.dailyDescription) {
+
         elements.dailyDescription.textContent =
           "De 10 vragen van vandaag staan klaar. " +
-          "Je hebt 25 seconden per vraag.";
+          "Je krijgt 9 gewone kennisvragen " +
+          "en 1 vraag met een extra uitdaging.";
+
       }
 
       elements.startButton.disabled = false;
@@ -770,65 +1445,123 @@
       );
 
       if (elements.restartButton) {
+
         elements.restartButton.disabled = false;
 
         setButton(
           elements.restartButton,
           "OPNIEUW VLIEGEN"
         );
+
       }
+
     }
+
   }
 
+
   /* ========================================
-     EINDSCHERM
+     EINDSCHERM BIJWERKEN
   ======================================== */
 
   function updateEnd() {
+
     if (!isCompleted()) {
       return;
     }
 
     if (elements.dailyEndMessage) {
+
       elements.dailyEndMessage.textContent =
         "📅 Dagelijkse uitdaging voltooid! " +
         "Morgen om 00.00 uur Nederlandse tijd " +
         "verschijnen nieuwe vragen.";
+
     }
 
     if (elements.restartButton) {
+
       elements.restartButton.disabled = true;
 
       setButton(
         elements.restartButton,
         "MORGEN WEER SPELEN"
       );
+
     }
+
   }
+
 
   /* ========================================
      DAGSELECTIE INSTELLEN
   ======================================== */
 
   function applySelection() {
-    const selected = chooseDailyQuestions(currentDay);
 
-    if (selected.length !== QUESTIONS_PER_DAY) {
+    const selected =
+      chooseDailyQuestions(currentDay);
+
+    if (
+      selected.length !==
+      QUESTIONS_PER_DAY
+    ) {
+
       console.error(
         "QuizBallon: onvoldoende verschillende onderwerpen."
       );
 
       elements.startButton.disabled = true;
+
       return false;
+
     }
+
+    /*
+     * Controleer hoeveel vragen
+     * een extra lettereis hebben.
+     */
+
+    const letterCount = selected.filter(
+      isLetterQuestion
+    ).length;
+
+    if (
+      letterCount !==
+      LETTER_QUESTIONS_PER_DAY
+    ) {
+
+      console.warn(
+        "QuizBallon: verwacht 1 lettervraag, gevonden:",
+        letterCount
+      );
+
+    }
+
+    /*
+     * De spelcode krijgt uitsluitend
+     * de 10 vragen van vandaag.
+     */
 
     window.QUIZBALLON_EXPANDED_QUESTIONS =
       selected;
 
     window.QUIZBALLON_DAILY_INFO = {
+
       date: currentDay,
+
       questionCount: selected.length,
-      questions: selected.map(q => q.question)
+
+      letterQuestionCount: letterCount,
+
+      questions: selected.map(
+        function (question) {
+
+          return question.question;
+
+        }
+      )
+
     };
 
     console.log(
@@ -836,42 +1569,81 @@
       currentDay
     );
 
+    console.log(
+      "📚 Totale vragenbank:",
+      allQuestions.length
+    );
+
+    console.log(
+      "🔤 Lettervragen vandaag:",
+      letterCount
+    );
+
     console.table(
-      selected.map((q, index) => ({
-        nummer: index + 1,
-        categorie: getCategory(q),
-        onderwerp: getTopic(q),
-        vraag: q.question
-      }))
+      selected.map(
+        function (question, index) {
+
+          return {
+
+            nummer: index + 1,
+
+            categorie:
+              getCategory(question),
+
+            onderwerp:
+              getTopic(question),
+
+            lettervraag:
+              isLetterQuestion(question),
+
+            vraag:
+              question.question
+
+          };
+
+        }
+      )
     );
 
     return true;
+
   }
 
+
   /* ========================================
-     START REGISTREREN
+     SPELSTART REGISTREREN
   ======================================== */
 
   function registerStart() {
+
     if (isCompleted()) {
       return;
     }
 
     activeDay = currentDay;
+
     lastEndVisible = false;
+
   }
+
 
   /* ========================================
      VOLTOOIING REGISTREREN
   ======================================== */
 
   function checkEndScreen() {
+
     const visible =
-      elements.endScreen.classList.contains("active");
+      elements.endScreen.classList.contains(
+        "active"
+      );
 
     if (!visible) {
+
       lastEndVisible = false;
+
       return;
+
     }
 
     if (lastEndVisible) {
@@ -889,7 +1661,10 @@
     }
 
     const score = Number(
-      elements.endScore.textContent.replace(/[^\d]/g, "")
+      elements.endScore.textContent.replace(
+        /[^\d]/g,
+        ""
+      )
     );
 
     if (!Number.isFinite(score)) {
@@ -897,11 +1672,20 @@
     }
 
     const result = {
+
       date: currentDay,
-      score,
-      height: elements.endHeight.textContent.trim(),
-      correct: elements.endCorrect.textContent.trim(),
-      completedAt: new Date().toISOString()
+
+      score: score,
+
+      height:
+        elements.endHeight.textContent.trim(),
+
+      correct:
+        elements.endCorrect.textContent.trim(),
+
+      completedAt:
+        new Date().toISOString()
+
     };
 
     saveResult(result);
@@ -909,47 +1693,78 @@
     activeDay = null;
 
     updateHome();
+
     updateEnd();
 
-    console.log("🏆 Daily Challenge voltooid:", result);
+    console.log(
+      "🏆 Daily Challenge voltooid:",
+      result
+    );
+
   }
 
+
   /* ========================================
-     DAGWISSELING
+     NIEUWE DAG HERKENNEN
   ======================================== */
 
   function checkClock() {
+
     if (getDayKey() !== currentDay) {
+
       window.location.reload();
+
       return;
+
     }
 
     if (elements.dailyCountdown) {
-      elements.dailyCountdown.textContent = getCountdown();
+
+      elements.dailyCountdown.textContent =
+        getCountdown();
+
     }
+
   }
 
+
   /* ========================================
-     START
+     INITIALISEREN
   ======================================== */
 
   function initialize() {
+
     if (
       !elements.startButton ||
       !elements.endScreen ||
       !elements.endScore
     ) {
-      console.error("QuizBallon: vereiste HTML ontbreekt.");
+
+      console.error(
+        "QuizBallon: vereiste HTML ontbreekt."
+      );
+
       return;
+
     }
 
-    if (allQuestions.length < QUESTIONS_PER_DAY) {
-      console.error("QuizBallon: te weinig vragen.");
+    if (
+      allQuestions.length <
+      QUESTIONS_PER_DAY
+    ) {
+
+      console.error(
+        "QuizBallon: te weinig vragen."
+      );
+
       elements.startButton.disabled = true;
+
       return;
+
     }
 
     currentDay = getDayKey();
+
     completedResult = loadResult();
 
     addDailyStyles();
@@ -959,7 +1774,12 @@
     }
 
     updateHome();
+
     updateEnd();
+
+    /*
+     * STARTKNOP
+     */
 
     elements.startButton.addEventListener(
       "click",
@@ -967,65 +1787,122 @@
       true
     );
 
+    /*
+     * OPNIEUW SPELEN
+     */
+
     if (elements.restartButton) {
+
       elements.restartButton.addEventListener(
         "click",
         registerStart,
         true
       );
+
     }
 
+    /*
+     * TERUG NAAR BEGIN
+     */
+
     if (elements.homeButton) {
+
       elements.homeButton.addEventListener(
         "click",
         updateHome
       );
+
     }
 
+    /*
+     * STOPPEN MET SPELEN
+     */
+
     if (elements.quitButton) {
+
       elements.quitButton.addEventListener(
         "click",
         function () {
-          setTimeout(function () {
-            if (
-              elements.startScreen.classList.contains(
-                "active"
-              )
-            ) {
-              activeDay = null;
-              updateHome();
-            }
-          }, 0);
+
+          setTimeout(
+            function () {
+
+              if (
+                elements.startScreen.classList.contains(
+                  "active"
+                )
+              ) {
+
+                activeDay = null;
+
+                updateHome();
+
+              }
+
+            },
+            0
+          );
+
         }
       );
+
     }
 
-    const observer = new MutationObserver(
-      checkEndScreen
+    /*
+     * EINDSCHERM OBSERVEREN
+     */
+
+    const observer =
+      new MutationObserver(
+        checkEndScreen
+      );
+
+    observer.observe(
+      elements.endScreen,
+      {
+        attributes: true,
+
+        attributeFilter: ["class"]
+      }
     );
 
-    observer.observe(elements.endScreen, {
-      attributes: true,
-      attributeFilter: ["class"]
-    });
+    /*
+     * CONTROLE BIJ TERUGKEREN
+     * NAAR HET TABBLAD
+     */
 
     document.addEventListener(
       "visibilitychange",
       function () {
-        if (document.visibilityState === "visible") {
+
+        if (
+          document.visibilityState ===
+          "visible"
+        ) {
+
           checkClock();
+
         }
+
       }
     );
 
-    setInterval(checkClock, 1000);
+    /*
+     * KLOK IEDERE SECONDE
+     * BIJWERKEN
+     */
+
+    setInterval(
+      checkClock,
+      CLOCK_INTERVAL
+    );
 
     console.log(
-      "✅ Daily Challenge v3 actief!",
-      allQuestions.length,
-      "vragen beschikbaar."
+      "✅ QuizBallon Daily Challenge v4 actief!"
     );
+
   }
+
 
   initialize();
 
