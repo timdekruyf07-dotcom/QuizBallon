@@ -16,21 +16,15 @@
 
   <meta
     name="description"
-    content="Speel iedere dag QuizBallon. Geef zeldzame antwoorden, vlieg hoger en bekijk na afloop alle antwoorden!"
+    content="Speel iedere dag QuizBallon! Geef zeldzame antwoorden, vlieg hoger en bekijk na afloop alle antwoorden."
   >
 
   <title>QuizBallon 🎈 | Dagelijkse uitdaging</title>
 
-  <!-- BASISONTWERP -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- VERBETERDE STARTKNOP -->
   <link rel="stylesheet" href="verbeteringen.css">
-
-  <!-- NIEUW: ANTWOORDENOVERZICHT -->
   <link rel="stylesheet" href="resultaten.css">
 
-  <!-- WEBAPP -->
   <link rel="manifest" href="manifest.webmanifest">
 
 </head>
@@ -254,8 +248,11 @@
             <span>🧠</span>
 
             <div>
+
               <strong>10 vragen</strong>
+
               <small>Iedere dag</small>
+
             </div>
 
           </div>
@@ -265,8 +262,11 @@
             <span>⏱️</span>
 
             <div>
+
               <strong>25 seconden</strong>
+
               <small>Per vraag</small>
+
             </div>
 
           </div>
@@ -276,8 +276,11 @@
             <span>🚀</span>
 
             <div>
+
               <strong>Raketantwoord</strong>
+
               <small>100 punten</small>
+
             </div>
 
           </div>
@@ -285,7 +288,7 @@
         </div>
 
 
-        <!-- STARTKNOP RECHTS -->
+        <!-- STARTKNOP -->
 
         <button
           class="primary-button start-button"
@@ -306,9 +309,7 @@
         </div>
 
 
-        <!-- HIER KOMT NA HET SPELEN
-             AUTOMATISCH DE KNOP OM
-             ANTWOORDEN TE BEKIJKEN -->
+        <!-- ANTWOORDEN BEKIJKEN NA AFLOOP -->
 
         <div
           id="results-home-slot"
@@ -491,7 +492,7 @@
           </form>
 
 
-          <!-- RESULTAAT PER VRAAG -->
+          <!-- ANTWOORDRESULTAAT -->
 
           <div
             class="answer-result"
@@ -665,7 +666,7 @@
         </div>
 
 
-        <!-- NIEUW: ANTWOORDENOVERZICHT -->
+        <!-- ANTWOORDENOVERZICHT -->
 
         <div
           id="results-end-slot"
@@ -720,26 +721,100 @@
 
   <!-- =====================================
        JAVASCRIPT
-
-       VOLGORDE IS BELANGRIJK!
+       VOLGORDE IS BELANGRIJK
   ====================================== -->
 
-  <!-- 1. BASISVRAGEN -->
+  <!-- 1. BESTAANDE BASISVRAGEN -->
   <script src="vragen.js"></script>
 
-  <!-- 2. SPELLOGICA -->
+  <!-- 2. BESTAANDE SPELLOGICA -->
   <script src="script.js"></script>
 
-  <!-- 3. ANTWOORDUITBREIDING -->
+  <!-- 3. BESTAANDE ANTWOORDUITBREIDING -->
   <script src="antwoorduitbreiding.js"></script>
 
   <!-- 4. GESCHIEDENIS -->
   <script src="geschiedenis.js"></script>
 
-  <!-- 5. DAILY CHALLENGE -->
+  <!-- 5. NIEUWE VRAGEN -->
+  <script src="vragen-uitbreiding.js"></script>
+
+  <!-- 6. GEGEVENSCONTROLE -->
+  <script>
+    (function () {
+      "use strict";
+
+      const questions =
+        window.QUIZBALLON_EXPANDED_QUESTIONS;
+
+      if (!Array.isArray(questions)) {
+        return;
+      }
+
+      /*
+       * Deze personen zijn in 1900
+       * of later geboren en passen
+       * daarom niet bij de vraag.
+       */
+
+      const tooLate = new Set([
+        "Anne Frank",
+        "Etty Hillesum",
+        "Frida Kahlo",
+        "Rachel Carson",
+        "Hedy Lamarr",
+        "Noor Inayat Khan",
+        "Josephine Baker"
+      ]);
+
+      const historyQuestion = questions.find(
+        function (question) {
+          return question.question ===
+            "Noem een bekende vrouw uit de geschiedenis die vóór 1900 is geboren.";
+        }
+      );
+
+      if (historyQuestion) {
+        historyQuestion.answers =
+          historyQuestion.answers.filter(
+            function (answer) {
+              return !tooLate.has(answer.answer);
+            }
+          );
+      }
+
+      /*
+       * Deze extra vermelding is een
+       * alternatieve naam voor Orion,
+       * geen afzonderlijk sterrenbeeld.
+       */
+
+      const constellationQuestion = questions.find(
+        function (question) {
+          return question.question ===
+            "Noem een officieel sterrenbeeld.";
+        }
+      );
+
+      if (constellationQuestion) {
+        constellationQuestion.answers =
+          constellationQuestion.answers.filter(
+            function (answer) {
+              return (
+                answer.answer !== "Jager" &&
+                answer.answer !== "Kleine Waterslang"
+              );
+            }
+          );
+      }
+
+    })();
+  </script>
+
+  <!-- 7. DAILY CHALLENGE -->
   <script src="daily.js"></script>
 
-  <!-- 6. NIEUW: ANTWOORDENOVERZICHT -->
+  <!-- 8. ANTWOORDENOVERZICHT -->
   <script src="resultaten.js"></script>
 
 </body>
