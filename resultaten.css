@@ -1,0 +1,568 @@
+/* ==========================================
+   QUIZBALLON
+   ANTWOORDENOVERZICHT
+
+   - UITKLAPBARE VRAGEN
+   - ZOEKVELD PER VRAAG
+   - SCORES VAN HOOG NAAR LAAG
+   - SPECIAAL RAKETANTWOORD
+   - EIGEN ANTWOORD TONEN
+   - RESPONSIEF
+========================================== */
+
+
+/* ==========================================
+   BASIS
+========================================== */
+
+.results-home-slot,
+.results-end-slot {
+  width: 100%;
+}
+
+.results-home-slot {
+  max-width: 560px;
+  margin-top: 24px;
+}
+
+.results-end-slot {
+  margin: 20px 0 25px;
+}
+
+
+/* ==========================================
+   KNOP OP STARTSCHERM
+========================================== */
+
+.results-home-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+
+  width: 100%;
+
+  min-height: 65px;
+  padding: 18px 20px;
+
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: 17px;
+
+  background: rgba(255, 255, 255, .9);
+  color: #17213d;
+
+  box-shadow:
+    0 12px 30px rgba(28, 67, 123, .12);
+
+  font-size: 13px;
+  font-weight: 900;
+  text-align: left;
+
+  transition:
+    transform .2s ease,
+    background .2s ease;
+}
+
+.results-home-button:hover {
+  background: white;
+  transform: translateY(-2px);
+}
+
+.results-home-button span:last-child {
+  color: #477dff;
+  font-size: 23px;
+}
+
+
+/* ==========================================
+   OPEN / DICHT KNOP OP EINDSCHERM
+========================================== */
+
+.results-toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  width: 100%;
+  min-height: 62px;
+
+  padding: 17px 19px;
+
+  border: none;
+  border-radius: 15px;
+
+  background: linear-gradient(
+    135deg,
+    #477dff,
+    #705bdf
+  );
+
+  color: white;
+
+  font-size: 12px;
+  font-weight: 900;
+  text-align: left;
+
+  box-shadow:
+    0 10px 24px rgba(65, 110, 240, .22);
+}
+
+.results-toggle-button .results-toggle-arrow {
+  font-size: 20px;
+}
+
+
+/* ==========================================
+   PANEL
+========================================== */
+
+.results-panel {
+  width: 100%;
+
+  margin-top: 18px;
+  padding: 22px;
+
+  border: 1px solid #e1e9fa;
+  border-radius: 21px;
+
+  background: #f7faff;
+
+  text-align: left;
+}
+
+.results-panel-heading {
+  margin-bottom: 20px;
+}
+
+.results-panel-eyebrow {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #477dff;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.results-panel-heading h3 {
+  margin: 0 0 9px;
+
+  color: #17213d;
+
+  font-family: 'Outfit', Arial, sans-serif;
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+
+.results-panel-heading p {
+  margin: 0;
+
+  color: #65728b;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+
+/* ==========================================
+   VRAGENOVERZICHT
+========================================== */
+
+.results-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+
+/* ==========================================
+   UITKLAPBARE VRAAG
+========================================== */
+
+.results-question {
+  border: 1px solid #e1e8f5;
+  border-radius: 15px;
+
+  background: white;
+
+  overflow: hidden;
+}
+
+.results-question[open] {
+  border-color: #aac3ff;
+
+  box-shadow:
+    0 8px 26px rgba(55, 96, 170, .08);
+}
+
+.results-question-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 17px;
+
+  cursor: pointer;
+  list-style: none;
+}
+
+.results-question-summary::-webkit-details-marker {
+  display: none;
+}
+
+.results-question-number {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 36px;
+
+  width: 36px;
+  height: 36px;
+
+  border-radius: 11px;
+
+  background: #ebf1ff;
+  color: #477dff;
+
+  font-family: 'Outfit', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.results-question-summary-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.results-question-category {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #6880a6;
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.results-question-title {
+  display: block;
+
+  color: #17213d;
+
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.results-question-chevron {
+  flex: 0 0 auto;
+
+  color: #477dff;
+  font-size: 20px;
+
+  transition: transform .2s ease;
+}
+
+.results-question[open] .results-question-chevron {
+  transform: rotate(180deg);
+}
+
+
+/* ==========================================
+   INHOUD VAN DE VRAAG
+========================================== */
+
+.results-question-body {
+  padding: 0 17px 19px;
+
+  border-top: 1px solid #edf1f8;
+}
+
+
+/* ==========================================
+   EIGEN ANTWOORD
+========================================== */
+
+.results-your-answer {
+  margin: 16px 0;
+  padding: 13px 15px;
+
+  border-radius: 12px;
+
+  background: #edf4ff;
+}
+
+.results-your-answer.failed {
+  background: #fff1ed;
+}
+
+.results-your-label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #6a7c9a;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+
+.results-your-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.results-your-name {
+  color: #17213d;
+  font-size: 13px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.results-your-score {
+  color: #477dff;
+
+  font-size: 13px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+.results-your-answer.failed .results-your-score {
+  color: #cc6250;
+}
+
+
+/* ==========================================
+   ZOEKVELD
+========================================== */
+
+.results-search-label {
+  display: block;
+
+  margin: 17px 0 8px;
+
+  color: #53637e;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.results-search {
+  width: 100%;
+  min-height: 48px;
+
+  padding: 12px 14px;
+
+  border: 2px solid #e2e9f5;
+  border-radius: 12px;
+
+  background: white;
+  color: #17213d;
+
+  outline: none;
+
+  font-size: 14px;
+}
+
+.results-search::placeholder {
+  color: #9aa8be;
+}
+
+.results-search:focus {
+  border-color: #477dff;
+}
+
+.results-search-count {
+  margin: 10px 0 13px;
+
+  color: #7886a0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+/* ==========================================
+   ANTWOORDENLIJST
+========================================== */
+
+.results-answer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  max-height: 350px;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  padding-right: 5px;
+}
+
+.results-answer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  min-height: 46px;
+  padding: 10px 12px;
+
+  border: 1px solid #edf1f8;
+  border-radius: 10px;
+
+  background: #fafcff;
+}
+
+.results-answer-row.is-rocket {
+  border-color: #f5d17c;
+
+  background: linear-gradient(
+    90deg,
+    #fff5d5,
+    #fffaf0
+  );
+}
+
+.results-answer-row.is-your-answer {
+  outline: 2px solid #8aafff;
+  outline-offset: -2px;
+}
+
+.results-answer-name {
+  min-width: 0;
+
+  color: #243452;
+
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+.results-answer-points {
+  flex: 0 0 auto;
+
+  padding: 6px 9px;
+
+  border-radius: 8px;
+
+  background: #edf2ff;
+  color: #426ad2;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+.results-answer-row.is-rocket .results-answer-points {
+  background: #ffe4a3;
+  color: #8c5709;
+}
+
+.results-no-matches {
+  padding: 20px 10px;
+
+  color: #7886a0;
+
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+
+/* ==========================================
+   MOBIEL
+========================================== */
+
+@media (max-width: 760px) {
+
+  .results-panel {
+    padding: 16px;
+  }
+
+  .results-panel-heading h3 {
+    font-size: 22px;
+  }
+
+  .results-question-summary {
+    padding: 14px 12px;
+    gap: 10px;
+  }
+
+  .results-question-number {
+    flex-basis: 32px;
+
+    width: 32px;
+    height: 32px;
+  }
+
+  .results-question-title {
+    font-size: 12px;
+  }
+
+  .results-question-body {
+    padding-inline: 12px;
+  }
+
+  .results-answer-row {
+    padding: 10px;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .results-home-button {
+    padding: 16px;
+    font-size: 12px;
+  }
+
+  .results-panel {
+    padding: 12px;
+  }
+
+  .results-panel-heading {
+    padding: 5px;
+  }
+
+  .results-answer-list {
+    max-height: 290px;
+  }
+
+  .results-your-row {
+    align-items: flex-start;
+  }
+
+}
+
+
+/* ==========================================
+   TOEGANKELIJKHEID
+========================================== */
+
+.results-home-button:focus-visible,
+.results-toggle-button:focus-visible,
+.results-question-summary:focus-visible,
+.results-search:focus-visible {
+  outline: 3px solid #ffce52;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .results-home-button,
+  .results-question-chevron {
+    transition: none;
+  }
+
+}
