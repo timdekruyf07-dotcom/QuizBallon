@@ -22,10 +22,8 @@
 
   <title>QuizBallon 🎈 | Dagelijkse uitdaging</title>
 
-  <!-- BESTAANDE STYLING -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- NIEUWE STYLING -->
   <link rel="stylesheet" href="verbeteringen.css">
 
   <link
@@ -39,9 +37,7 @@
 
   <div class="app" id="app">
 
-    <!-- ===================================
-         ACHTERGROND
-    ==================================== -->
+    <!-- ACHTERGROND -->
 
     <div class="world zone-earth" id="world">
 
@@ -70,9 +66,7 @@
       </div>
 
 
-      <!-- ===================================
-           LUCHTBALLON
-      ==================================== -->
+      <!-- LUCHTBALLON -->
 
       <div
         class="balloon-container"
@@ -117,9 +111,7 @@
     </div>
 
 
-    <!-- ===================================
-         HEADER
-    ==================================== -->
+    <!-- HEADER -->
 
     <header class="site-header">
 
@@ -154,9 +146,7 @@
     </header>
 
 
-    <!-- ===================================
-         STARTSCHERM
-    ==================================== -->
+    <!-- STARTSCHERM -->
 
     <main
       class="screen start-screen active"
@@ -196,9 +186,7 @@
         </p>
 
 
-        <!-- ===================================
-             DAILY CHALLENGE
-        ==================================== -->
+        <!-- DAILY CHALLENGE -->
 
         <section
           class="daily-card"
@@ -249,9 +237,7 @@
         </section>
 
 
-        <!-- ===================================
-             SPELINFORMATIE
-        ==================================== -->
+        <!-- SPELINFORMATIE -->
 
         <div class="start-features">
 
@@ -300,12 +286,7 @@
         </div>
 
 
-        <!-- ===================================
-             STARTKNOP
-
-             Op computer rechts in beeld.
-             Op mobiel onder de uitleg.
-        ==================================== -->
+        <!-- STARTKNOP RECHTS -->
 
         <button
           class="primary-button start-button"
@@ -330,9 +311,7 @@
     </main>
 
 
-    <!-- ===================================
-         SPELSCHERM
-    ==================================== -->
+    <!-- SPELSCHERM -->
 
     <main
       class="screen game-screen"
@@ -341,9 +320,6 @@
 
       <div class="game-layout">
 
-
-        <!-- SPELSTATISTIEKEN -->
-
         <div class="game-stats">
 
           <div class="stat-box">
@@ -351,9 +327,7 @@
             <span>VRAAG</span>
 
             <strong>
-
               <span id="question-number">1</span>/10
-
             </strong>
 
           </div>
@@ -407,9 +381,7 @@
         </div>
 
 
-        <!-- ===================================
-             VRAAGKAART
-        ==================================== -->
+        <!-- VRAAGKAART -->
 
         <section
           class="question-card"
@@ -474,7 +446,7 @@
           </div>
 
 
-          <!-- ANTWOORD -->
+          <!-- ANTWOORDVELD -->
 
           <form
             id="answer-form"
@@ -596,9 +568,7 @@
     </main>
 
 
-    <!-- ===================================
-         EINDSCHERM
-    ==================================== -->
+    <!-- EINDSCHERM -->
 
     <main
       class="screen end-screen"
@@ -685,7 +655,7 @@
         </div>
 
 
-        <!-- DAILY CHALLENGE MELDING -->
+        <!-- DAILY MELDING -->
 
         <div
           class="daily-end-message"
@@ -727,9 +697,7 @@
     </main>
 
 
-    <!-- ===================================
-         FOOTER
-    ==================================== -->
+    <!-- FOOTER -->
 
     <footer class="site-footer">
 
@@ -747,7 +715,7 @@
   <!-- =====================================
        JAVASCRIPT
 
-       DE VOLGORDE IS BELANGRIJK!
+       VOLGORDE IS BELANGRIJK
   ====================================== -->
 
   <!-- 1. BASISVRAGEN -->
@@ -756,10 +724,13 @@
   <!-- 2. SPELLOGICA -->
   <script src="script.js"></script>
 
-  <!-- 3. NIEUWE ANTWOORDUITBREIDING -->
+  <!-- 3. ANTWOORDUITBREIDING -->
   <script src="antwoorduitbreiding.js"></script>
 
-  <!-- 4. DAGELIJKSE UITDAGING -->
+  <!-- 4. NIEUWE GESCHIEDENISVRAAG -->
+  <script src="geschiedenis.js"></script>
+
+  <!-- 5. DAILY CHALLENGE -->
   <script src="daily.js"></script>
 
 </body>
