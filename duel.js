@@ -1,37 +1,20 @@
 /* ============================================================
-   QUIZBALLON DUEL - VERSIE 2
-   LICHT DESIGN + LIVE TYPEN + KARAKTERS
+   QUIZBALLON DUEL V3
 
-   SPELREGELS:
-   - 2 spelers
-   - ieder begint met 2 levens
-   - maximaal 3 levens
-   - extra leven bij 250 punten
-   - 12 seconden per beurt
-   - maximaal 12 antwoorden per vraag
-   - geen dubbele antwoorden
-   - bij tijdverlies: 1 leven kwijt
-   - tegenstander krijgt nog één beurt
-   - daarna automatisch volgende vraag
-
-   NIEUWE FUNCTIES:
-   - 6 ZELFGETEKENDE SVG-KARAKTERS
-   - LIVE ZIEN WAT DE TEGENSTANDER TYPT
-   - TWEE ANTWOORDVAKKEN
-   - BRANDENDE QB-BALLON ALS TIMER
-   - HARTJESANIMATIES
-   - VISUELE VOORTGANG NAAR EXTRA LEVEN
+   - 14 seconden per beurt
+   - Automatische focus op je antwoordvak
+   - Opnieuw spelen in dezelfde room
+   - Live typen
+   - Karakterkeuze
+   - Extra antwoordlijsten
+   - Brandende QB-ballon
+   - Extra levens bij 250 punten
 
    LET OP:
-   Deze testversie gebruikt client-side
-   antwoordcontrole en is nog niet
-   volledig beveiligd tegen valsspelen.
+   Antwoordcontrole gebeurt nog in de browser.
 ============================================================ */
 
-
-/* ============================================================
-   FIREBASE IMPORTS
-============================================================ */
+import "./quizballon-antwoorden-extra.js";
 
 import {
   initializeApp
@@ -53,7 +36,7 @@ import {
 
 
 /* ============================================================
-   FIREBASE CONFIGURATIE
+   FIREBASE
 ============================================================ */
 
 const firebaseConfig = {
@@ -73,20 +56,14 @@ const database = getDatabase(app);
 
 
 /* ============================================================
-   INSTELLINGEN
+   SPELINSTELLINGEN
 ============================================================ */
 
-const TURN_SECONDS = 12;
-const TURN_DURATION = TURN_SECONDS * 1000;
-
+const TURN_DURATION = 14000;
 const MAX_ANSWERS = 12;
 
-const START_LIVES = 2;
 const MAX_LIVES = 3;
-
 const EXTRA_LIFE_POINTS = 250;
-
-const TYPING_DELAY = 220;
 
 const ROOM_ALPHABET =
   "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -101,237 +78,254 @@ const NAME_PATTERN =
 
 const byId = id => document.getElementById(id);
 
-const ui = {
-  connectionStatus: byId("connection-status"),
+const ui = {};
 
-  lobbyStart: byId("lobby-start"),
-  playerName: byId("player-name"),
+const elementIds = [
+  "connection-status",
+  "lobby-start",
+  "player-name",
+  "avatar-picker",
+  "room-input",
+  "create-button",
+  "join-button",
+  "room-panel",
+  "room-code",
+  "copy-button",
+  "host-card",
+  "guest-card",
+  "host-avatar",
+  "guest-avatar",
+  "host-name",
+  "guest-name",
+  "host-hearts",
+  "guest-hearts",
+  "host-score",
+  "guest-score",
+  "host-progress-track",
+  "guest-progress-track",
+  "host-progress-fill",
+  "guest-progress-fill",
+  "host-progress-label",
+  "guest-progress-label",
+  "host-status",
+  "guest-status",
+  "host-heart-effects",
+  "guest-heart-effects",
+  "room-status",
+  "start-duel-button",
+  "game-section",
+  "round-display",
+  "turn-timer",
+  "timer-balloon",
+  "question-category",
+  "question-text",
+  "host-answer-lane",
+  "guest-answer-lane",
+  "host-turn-label",
+  "guest-turn-label",
+  "host-turn-status",
+  "guest-turn-status",
+  "host-answer-input",
+  "guest-answer-input",
+  "turn-message",
+  "answer-form",
+  "answer-button",
+  "answer-feedback",
+  "used-count",
+  "used-list",
+  "last-event",
+  "winner-section",
+  "winner-title",
+  "winner-description",
+  "new-room-button"
+];
 
-  avatarPicker: byId("avatar-picker"),
-
-  roomInput: byId("room-input"),
-
-  createButton: byId("create-button"),
-  joinButton: byId("join-button"),
-
-  roomPanel: byId("room-panel"),
-
-  roomCode: byId("room-code"),
-  copyButton: byId("copy-button"),
-
-  hostCard: byId("host-card"),
-  guestCard: byId("guest-card"),
-
-  hostAvatar: byId("host-avatar"),
-  guestAvatar: byId("guest-avatar"),
-
-  hostName: byId("host-name"),
-  guestName: byId("guest-name"),
-
-  hostHearts: byId("host-hearts"),
-  guestHearts: byId("guest-hearts"),
-
-  hostScore: byId("host-score"),
-  guestScore: byId("guest-score"),
-
-  hostProgressTrack: byId("host-progress-track"),
-  guestProgressTrack: byId("guest-progress-track"),
-
-  hostProgressFill: byId("host-progress-fill"),
-  guestProgressFill: byId("guest-progress-fill"),
-
-  hostProgressLabel: byId("host-progress-label"),
-  guestProgressLabel: byId("guest-progress-label"),
-
-  hostStatus: byId("host-status"),
-  guestStatus: byId("guest-status"),
-
-  hostHeartEffects: byId("host-heart-effects"),
-  guestHeartEffects: byId("guest-heart-effects"),
-
-  roomStatus: byId("room-status"),
-
-  startDuelButton: byId("start-duel-button"),
-
-  gameSection: byId("game-section"),
-
-  roundDisplay: byId("round-display"),
-  turnTimer: byId("turn-timer"),
-
-  timerBalloon: byId("timer-balloon"),
-
-  questionCategory: byId("question-category"),
-  questionText: byId("question-text"),
-
-  hostAnswerLane: byId("host-answer-lane"),
-  guestAnswerLane: byId("guest-answer-lane"),
-
-  hostTurnLabel: byId("host-turn-label"),
-  guestTurnLabel: byId("guest-turn-label"),
-
-  hostTurnStatus: byId("host-turn-status"),
-  guestTurnStatus: byId("guest-turn-status"),
-
-  hostAnswerInput: byId("host-answer-input"),
-  guestAnswerInput: byId("guest-answer-input"),
-
-  turnMessage: byId("turn-message"),
-
-  answerForm: byId("answer-form"),
-  answerButton: byId("answer-button"),
-
-  answerFeedback: byId("answer-feedback"),
-
-  usedCount: byId("used-count"),
-  usedList: byId("used-list"),
-
-  lastEvent: byId("last-event"),
-
-  winnerSection: byId("winner-section"),
-  winnerTitle: byId("winner-title"),
-  winnerDescription: byId("winner-description"),
-
-  newRoomButton: byId("new-room-button")
-};
+for (const id of elementIds) {
+  ui[id] = byId(id);
+}
 
 
 /* ============================================================
-   STATUS
+   KARAKTERS
 ============================================================ */
 
-let currentUser = null;
+const avatars = [
+  ["astro", "Astronaut", "#b9e8ff"],
+  ["robot", "Robot", "#d7d0ff"],
+  ["alien", "Alien", "#d4f7bd"],
+  ["piraat", "Piraat", "#ffe2ac"],
+  ["tovenaar", "Tovenaar", "#eacaff"],
+  ["vos", "Vos", "#ffddb7"]
+];
 
-let currentRoomCode = null;
-let currentRoom = null;
 
-let myRole = null;
+/* ============================================================
+   LOKALE STATUS
+============================================================ */
+
+let currentUserId = null;
+
+let roomCode = "";
+let room = null;
+let myRole = "";
 
 let selectedAvatar = "astro";
 
 let stopRoomListener = null;
 
-let serverTimeOffset = 0;
+let serverOffset = 0;
 
 let busy = false;
-
 let sendingAnswer = false;
 let processingTimeout = false;
 
 let typingTimer = null;
 
-let previousTurnId = null;
-let previousQuestionKey = "";
+let previousTurn = "";
+let previousEvent = "";
 
-let previousEventNumber = null;
+let burnTimer = null;
+let hasFocused = false;
 
-let burnTimeout = null;
+let rematchBusy = false;
 
 
 /* ============================================================
-   KARAKTERS
+   VRAGENBANK
 
-   Alle figuren zijn getekend als SVG.
-   Er zijn geen externe afbeeldingen
-   of betaalde bestanden nodig.
-
-   De speler kiest uit:
-   - Astronaut
-   - Robot
-   - Alien
-   - Piraat
-   - Tovenaar
-   - Vos
+   Het nieuwe antwoordbestand is bovenaan
+   geïmporteerd en heeft de bestaande
+   vragenbanken al aangevuld.
 ============================================================ */
 
-const AVATARS = [
-  {
-    id: "astro",
-    name: "Astronaut",
-    color: "#b9e8ff"
-  },
-  {
-    id: "robot",
-    name: "Robot",
-    color: "#d7d0ff"
-  },
-  {
-    id: "alien",
-    name: "Alien",
-    color: "#d4f7bd"
-  },
-  {
-    id: "piraat",
-    name: "Piraat",
-    color: "#ffe2ac"
-  },
-  {
-    id: "tovenaar",
-    name: "Tovenaar",
-    color: "#eacaff"
-  },
-  {
-    id: "vos",
-    name: "Vos",
-    color: "#ffddb7"
+const questions = (
+  window.QUIZBALLON_EXPANDED_QUESTIONS || []
+).filter(question => {
+  if (
+    !question ||
+    typeof question.question !== "string" ||
+    !Array.isArray(question.answers)
+  ) {
+    return false;
   }
-];
+
+  const title = question.question.toLowerCase();
+
+  if (
+    /sterrenbeeld|historische vrouw/.test(title)
+  ) {
+    return false;
+  }
+
+  return question.answers.length >= 50;
+});
 
 
 /* ============================================================
-   SVG-KARAKTER TEKENEN
+   SERVERKLOK
+============================================================ */
 
-   Alleen vooraf gedefinieerde
-   onderdelen worden als SVG gebruikt.
-   Spelersnamen worden nooit als HTML
-   in de pagina geplaatst.
+function serverNow() {
+  return Date.now() + serverOffset;
+}
+
+onValue(
+  ref(database, ".info/serverTimeOffset"),
+  snapshot => {
+    serverOffset = Number(snapshot.val()) || 0;
+  }
+);
+
+
+/* ============================================================
+   MELDINGEN
+============================================================ */
+
+function connectionNotice(message, type = "") {
+  ui["connection-status"].textContent = message;
+
+  ui["connection-status"].className =
+    "duel-notice " + type;
+}
+
+function roomNotice(message, type = "") {
+  ui["room-status"].textContent = message;
+
+  ui["room-status"].className =
+    "duel-notice room-notice " + type;
+}
+
+function answerFeedback(message, type = "") {
+  ui["answer-feedback"].textContent = message;
+
+  ui["answer-feedback"].className =
+    "answer-feedback " + type;
+}
+
+function updateLobbyControls() {
+  const enabled =
+    Boolean(currentUserId) &&
+    questions.length > 0 &&
+    !busy;
+
+  ui["create-button"].disabled = !enabled;
+  ui["join-button"].disabled = !enabled;
+}
+
+
+/* ============================================================
+   GETEKENDE KARAKTERS
 ============================================================ */
 
 function avatarSvg(id) {
   const avatar =
-    AVATARS.find(item => item.id === id) ||
-    AVATARS[0];
+    avatars.find(item => item[0] === id) ||
+    avatars[0];
 
   const background = `
     <circle
       cx="60"
       cy="60"
       r="55"
-      fill="${avatar.color}"
+      fill="${avatar[2]}"
     />
+
     <ellipse
       cx="60"
       cy="103"
-      rx="34"
-      ry="10"
+      rx="33"
+      ry="9"
       fill="#24466b"
-      opacity=".10"
+      opacity=".1"
     />
   `;
 
-  let drawing = "";
+  const drawings = {
 
-  if (id === "astro") {
-    drawing = `
+    astro: `
       <path
         d="M25 105 Q30 76 60 76 Q90 76 95 105"
-        fill="#ffffff"
+        fill="#fff"
         stroke="#447cbd"
         stroke-width="4"
       />
+
       <circle
         cx="60"
         cy="52"
         r="37"
-        fill="#ffffff"
+        fill="#fff"
         stroke="#4b88c9"
         stroke-width="5"
       />
+
       <circle
         cx="60"
         cy="53"
         r="27"
         fill="#a8e7ff"
       />
+
       <ellipse
         cx="60"
         cy="58"
@@ -339,19 +333,22 @@ function avatarSvg(id) {
         ry="23"
         fill="#f2bc93"
       />
+
       <path
         d="M39 52 Q43 29 60 33 Q77 30 81 53"
         fill="#593b38"
       />
+
       <circle cx="50" cy="58" r="3" fill="#263e61"/>
       <circle cx="70" cy="58" r="3" fill="#263e61"/>
+
       <path
         d="M53 69 Q60 75 67 69"
         stroke="#a75b5b"
         stroke-width="3"
         fill="none"
-        stroke-linecap="round"
       />
+
       <rect
         x="50"
         y="86"
@@ -360,11 +357,9 @@ function avatarSvg(id) {
         rx="4"
         fill="#ff6379"
       />
-    `;
-  }
+    `,
 
-  if (id === "robot") {
-    drawing = `
+    robot: `
       <rect
         x="30"
         y="79"
@@ -373,6 +368,7 @@ function avatarSvg(id) {
         rx="14"
         fill="#526ec4"
       />
+
       <rect
         x="29"
         y="29"
@@ -383,6 +379,7 @@ function avatarSvg(id) {
         stroke="#536fbe"
         stroke-width="5"
       />
+
       <rect
         x="37"
         y="42"
@@ -391,53 +388,42 @@ function avatarSvg(id) {
         rx="9"
         fill="#283b80"
       />
+
       <circle cx="49" cy="55" r="7" fill="#85f5ff"/>
       <circle cx="71" cy="55" r="7" fill="#85f5ff"/>
+
       <path
         d="M50 76 H70"
         stroke="#536fbe"
         stroke-width="4"
-        stroke-linecap="round"
       />
+
       <path
         d="M60 28 V15"
         stroke="#536fbe"
         stroke-width="5"
       />
-      <circle cx="60" cy="13" r="7" fill="#ff7187"/>
-      <rect
-        x="19"
-        y="47"
-        width="10"
-        height="22"
-        rx="4"
-        fill="#536fbe"
-      />
-      <rect
-        x="91"
-        y="47"
-        width="10"
-        height="22"
-        rx="4"
-        fill="#536fbe"
-      />
-    `;
-  }
 
-  if (id === "alien") {
-    drawing = `
+      <circle
+        cx="60"
+        cy="13"
+        r="7"
+        fill="#ff7187"
+      />
+    `,
+
+    alien: `
       <path
         d="M30 108 Q36 78 60 78 Q84 78 90 108"
         fill="#6fbf83"
       />
+
       <path
-        d="M36 40 Q20 16 24 11 Q40 17 45 34"
+        d="M36 40 Q20 16 24 11 Q40 17 45 34
+           M84 40 Q100 16 96 11 Q80 17 75 34"
         fill="#84d878"
       />
-      <path
-        d="M84 40 Q100 16 96 11 Q80 17 75 34"
-        fill="#84d878"
-      />
+
       <ellipse
         cx="60"
         cy="53"
@@ -447,41 +433,40 @@ function avatarSvg(id) {
         stroke="#5bae73"
         stroke-width="4"
       />
+
       <ellipse
         cx="45"
         cy="56"
         rx="11"
         ry="15"
         fill="#263d5a"
-        transform="rotate(-20 45 56)"
       />
+
       <ellipse
         cx="75"
         cy="56"
         rx="11"
         ry="15"
         fill="#263d5a"
-        transform="rotate(20 75 56)"
       />
-      <circle cx="41" cy="51" r="3" fill="#ffffff"/>
-      <circle cx="71" cy="51" r="3" fill="#ffffff"/>
+
+      <circle cx="41" cy="51" r="3" fill="#fff"/>
+      <circle cx="71" cy="51" r="3" fill="#fff"/>
+
       <path
         d="M52 77 Q60 84 68 77"
         stroke="#39855f"
         stroke-width="3"
         fill="none"
-        stroke-linecap="round"
       />
-      <circle cx="60" cy="96" r="7" fill="#f8e98f"/>
-    `;
-  }
+    `,
 
-  if (id === "piraat") {
-    drawing = `
+    piraat: `
       <path
         d="M24 109 Q30 81 60 81 Q90 81 96 109"
         fill="#e24f63"
       />
+
       <ellipse
         cx="60"
         cy="58"
@@ -489,49 +474,61 @@ function avatarSvg(id) {
         ry="34"
         fill="#edb98e"
       />
+
       <path
         d="M26 50 Q21 15 60 15 Q99 15 94 50"
         fill="#233d5b"
       />
+
       <path
         d="M18 45 Q60 55 102 45"
         stroke="#233d5b"
         stroke-width="10"
-        stroke-linecap="round"
       />
-      <circle cx="60" cy="29" r="10" fill="#ffffff"/>
-      <circle cx="60" cy="29" r="5" fill="#233d5b"/>
-      <path
-        d="M39 56 H58"
-        stroke="#273d5b"
-        stroke-width="6"
+
+      <circle
+        cx="60"
+        cy="29"
+        r="10"
+        fill="#fff"
       />
-      <circle cx="43" cy="55" r="7" fill="#273d5b"/>
+
+      <circle
+        cx="60"
+        cy="29"
+        r="5"
+        fill="#233d5b"
+      />
+
+      <circle
+        cx="43"
+        cy="55"
+        r="7"
+        fill="#273d5b"
+      />
+
       <path
-        d="M58 56 L73 50"
+        d="M43 55 L73 50"
         stroke="#273d5b"
         stroke-width="3"
       />
+
       <circle cx="75" cy="57" r="3" fill="#273d5b"/>
+
       <path
         d="M53 72 Q62 79 70 72"
         stroke="#a35b52"
         stroke-width="3"
         fill="none"
       />
-      <path
-        d="M60 95 L50 110 H70 Z"
-        fill="#f5d992"
-      />
-    `;
-  }
+    `,
 
-  if (id === "tovenaar") {
-    drawing = `
+    tovenaar: `
       <path
         d="M22 109 Q27 80 60 80 Q93 80 98 109"
         fill="#7958ba"
       />
+
       <ellipse
         cx="60"
         cy="59"
@@ -539,63 +536,50 @@ function avatarSvg(id) {
         ry="33"
         fill="#f3c6a9"
       />
+
       <path
         d="M60 4 L95 49 H25 Z"
         fill="#6950b9"
         stroke="#4a3999"
         stroke-width="3"
       />
+
       <path
         d="M21 47 Q60 37 99 47"
         stroke="#5540a2"
         stroke-width="9"
-        stroke-linecap="round"
       />
+
       <path
         d="M43 69 Q60 109 77 69"
-        fill="#ffffff"
+        fill="#fff"
       />
+
       <circle cx="49" cy="57" r="3" fill="#33456d"/>
       <circle cx="71" cy="57" r="3" fill="#33456d"/>
+
       <path
-        d="M54 68 Q60 73 66 68"
-        stroke="#b8777a"
-        stroke-width="3"
-        fill="none"
-      />
-      <path
-        d="M58 15 L62 24 L72 24 L64 30 L67 40 L58 34 L49 40 L52 30 L44 24 L55 24 Z"
+        d="M58 15 L62 24 L72 24 L64 30
+           L67 40 L58 34 L49 40 L52 30
+           L44 24 L55 24 Z"
         fill="#ffe36a"
       />
-    `;
-  }
+    `,
 
-  if (id === "vos") {
-    drawing = `
+    vos: `
       <path
         d="M22 100 Q37 75 60 80 Q83 75 98 100"
         fill="#ec874a"
       />
+
       <path
-        d="M26 49 L22 13 L49 31"
+        d="M26 49 L22 13 L49 31
+           M94 49 L98 13 L71 31"
         fill="#e7813c"
         stroke="#9e4b2d"
         stroke-width="4"
       />
-      <path
-        d="M94 49 L98 13 L71 31"
-        fill="#e7813c"
-        stroke="#9e4b2d"
-        stroke-width="4"
-      />
-      <path
-        d="M32 43 L29 23 L44 37"
-        fill="#ffcfba"
-      />
-      <path
-        d="M88 43 L91 23 L76 37"
-        fill="#ffcfba"
-      />
+
       <ellipse
         cx="60"
         cy="58"
@@ -603,201 +587,96 @@ function avatarSvg(id) {
         ry="35"
         fill="#f69c4e"
       />
+
       <path
-        d="M25 62 Q38 72 60 67 Q82 72 95 62 Q83 95 60 96 Q37 95 25 62"
+        d="M25 62 Q38 72 60 67 Q82 72
+           95 62 Q83 95 60 96 Q37 95 25 62"
         fill="#fff5e3"
       />
+
       <circle cx="47" cy="56" r="4" fill="#3c3540"/>
       <circle cx="73" cy="56" r="4" fill="#3c3540"/>
+
       <path
         d="M54 70 Q60 65 66 70 L60 77 Z"
         fill="#3c3540"
       />
-      <path
-        d="M60 77 Q54 83 48 78 M60 77 Q66 83 72 78"
-        stroke="#765447"
-        stroke-width="2.5"
-        fill="none"
-        stroke-linecap="round"
-      />
-    `;
-  }
+    `
+  };
 
   return `
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 120 120"
       role="img"
-      aria-label="${avatar.name}"
+      aria-label="${avatar[1]}"
     >
       ${background}
-      ${drawing}
+      ${drawings[avatar[0]]}
     </svg>
   `;
 }
 
 
 /* ============================================================
-   KARAKTERKEUZE OPBOUWEN
+   KARAKTERKIEZER
 ============================================================ */
 
-function initializeAvatarPicker() {
-  ui.avatarPicker.replaceChildren();
+function renderAvatarPicker() {
+  ui["avatar-picker"].replaceChildren();
 
-  AVATARS.forEach(avatar => {
+  for (const avatar of avatars) {
     const button = document.createElement("button");
 
     button.type = "button";
     button.className = "avatar-option";
-
-    button.dataset.avatar = avatar.id;
+    button.dataset.avatar = avatar[0];
 
     button.setAttribute(
       "aria-label",
-      "Kies " + avatar.name
+      "Kies " + avatar[1]
+    );
+
+    button.innerHTML =
+      avatarSvg(avatar[0]) +
+      "<span>" +
+      avatar[1] +
+      "</span>";
+
+    button.addEventListener("click", () => {
+      selectedAvatar = avatar[0];
+      updateAvatarPicker();
+    });
+
+    ui["avatar-picker"].appendChild(button);
+  }
+
+  updateAvatarPicker();
+}
+
+function updateAvatarPicker() {
+  const buttons =
+    ui["avatar-picker"].querySelectorAll("button");
+
+  buttons.forEach(button => {
+    const selected =
+      button.dataset.avatar === selectedAvatar;
+
+    button.classList.toggle(
+      "selected",
+      selected
     );
 
     button.setAttribute(
       "aria-pressed",
-      String(avatar.id === selectedAvatar)
+      String(selected)
     );
-
-    button.innerHTML =
-      avatarSvg(avatar.id) +
-      "<span>" + avatar.name + "</span>";
-
-    button.addEventListener("click", () => {
-      selectedAvatar = avatar.id;
-
-      updateAvatarSelection();
-    });
-
-    ui.avatarPicker.appendChild(button);
-  });
-
-  updateAvatarSelection();
-}
-
-function updateAvatarSelection() {
-  ui.avatarPicker
-    .querySelectorAll(".avatar-option")
-    .forEach(button => {
-      const selected =
-        button.dataset.avatar === selectedAvatar;
-
-      button.classList.toggle(
-        "selected",
-        selected
-      );
-
-      button.setAttribute(
-        "aria-pressed",
-        String(selected)
-      );
-    });
-}
-
-function updateDisplayedAvatars(room) {
-  ui.hostAvatar.innerHTML =
-    avatarSvg(room.hostAvatar || "astro");
-
-  ui.guestAvatar.innerHTML =
-    avatarSvg(room.guest?.avatar || "robot");
-}
-
-
-/* ============================================================
-   VRAGENBANK
-
-   Voorlopig dezelfde Duel-kennisvragen
-   die in de vorige werkende versie
-   werden gebruikt.
-
-   Later koppelen we duel-vragen.js
-   met een eigen uitgebreide vragenbank.
-============================================================ */
-
-function loadDuelQuestions() {
-  const bank =
-    window.QUIZBALLON_EXPANDED_QUESTIONS || [];
-
-  return bank.filter(question => {
-    if (
-      !question ||
-      typeof question.question !== "string" ||
-      !Array.isArray(question.answers)
-    ) {
-      return false;
-    }
-
-    const text =
-      question.question.toLowerCase();
-
-    if (text.includes("sterrenbeeld")) {
-      return false;
-    }
-
-    if (
-      text.includes("bekende vrouw") &&
-      text.includes("geschiedenis")
-    ) {
-      return false;
-    }
-
-    return question.answers.length >= 50;
   });
 }
 
-const questions = loadDuelQuestions();
-
 
 /* ============================================================
-   STATUSBERICHTEN
-============================================================ */
-
-function showConnectionStatus(
-  message,
-  type = ""
-) {
-  ui.connectionStatus.textContent = message;
-
-  ui.connectionStatus.className =
-    "duel-notice " + type;
-}
-
-function showRoomStatus(
-  message,
-  type = ""
-) {
-  ui.roomStatus.textContent = message;
-
-  ui.roomStatus.className =
-    "duel-notice room-notice " + type;
-}
-
-function showFeedback(
-  message,
-  type = ""
-) {
-  ui.answerFeedback.textContent = message;
-
-  ui.answerFeedback.className =
-    "answer-feedback " + type;
-}
-
-function updateLobbyButtons() {
-  const enabled =
-    Boolean(currentUser) &&
-    questions.length > 0 &&
-    !busy;
-
-  ui.createButton.disabled = !enabled;
-  ui.joinButton.disabled = !enabled;
-}
-
-
-/* ============================================================
-   NORMALISEREN
+   ANTWOORDEN NORMALISEREN EN ZOEKEN
 ============================================================ */
 
 function normalize(value) {
@@ -812,72 +691,6 @@ function normalize(value) {
     .trim();
 }
 
-
-/* ============================================================
-   ANTWOORDEN LEZEN
-============================================================ */
-
-function answerName(answer) {
-  if (typeof answer === "string") {
-    return answer;
-  }
-
-  return String(
-    answer.answer ||
-    answer.name ||
-    ""
-  );
-}
-
-function answerAliases(answer) {
-  if (!answer || typeof answer !== "object") {
-    return [];
-  }
-
-  if (Array.isArray(answer.aliases)) {
-    return answer.aliases;
-  }
-
-  if (typeof answer.aliases === "string") {
-    return answer.aliases.split("|");
-  }
-
-  return [];
-}
-
-function answerPoints(answer) {
-  if (!answer || typeof answer !== "object") {
-    return 10;
-  }
-
-  if (answer.isRocket === true) {
-    return 100;
-  }
-
-  const points = Number(answer.points);
-
-  if (Number.isFinite(points) && points > 0) {
-    return Math.max(
-      10,
-      Math.min(100, Math.round(points))
-    );
-  }
-
-  const rarity = Number(answer.rarity);
-
-  if (Number.isFinite(rarity)) {
-    return Math.max(
-      10,
-      Math.min(
-        99,
-        Math.round(9 + rarity * .86)
-      )
-    );
-  }
-
-  return 10;
-}
-
 function findAnswer(question, typed) {
   const wanted = normalize(typed);
 
@@ -885,25 +698,76 @@ function findAnswer(question, typed) {
     return null;
   }
 
-  for (let i = 0; i < question.answers.length; i++) {
-    const entry = question.answers[i];
+  for (
+    let index = 0;
+    index < question.answers.length;
+    index++
+  ) {
+    const entry = question.answers[index];
+
+    const name =
+      typeof entry === "string"
+        ? entry
+        : String(
+            entry.answer ||
+            entry.name ||
+            ""
+          );
+
+    const aliases =
+      Array.isArray(entry.aliases)
+        ? entry.aliases
+        : typeof entry.aliases === "string"
+          ? entry.aliases.split("|")
+          : [];
 
     const possibleNames = [
-      answerName(entry),
-      ...answerAliases(entry)
+      name,
+      ...aliases
     ];
 
-    if (
-      possibleNames.some(
-        name => normalize(name) === wanted
-      )
-    ) {
-      return {
-        key: "a" + i,
-        name: answerName(entry),
-        points: answerPoints(entry)
-      };
+    const matches = possibleNames.some(
+      candidate =>
+        normalize(candidate) === wanted
+    );
+
+    if (!matches) {
+      continue;
     }
+
+    const points = Number(entry.points);
+    const rarity = Number(entry.rarity);
+
+    let awardedPoints = 10;
+
+    if (entry.isRocket === true) {
+      awardedPoints = 100;
+    } else if (
+      Number.isFinite(points) &&
+      points > 0
+    ) {
+      awardedPoints = Math.max(
+        10,
+        Math.min(
+          100,
+          Math.round(points)
+        )
+      );
+    } else if (Number.isFinite(rarity)) {
+      awardedPoints = Math.max(
+        10,
+        Math.min(
+          99,
+          Math.round(9 + rarity * 0.86)
+        )
+      );
+    }
+
+    return {
+      key: "a" + index,
+      name,
+      points: awardedPoints
+    };
   }
 
   return null;
@@ -911,23 +775,23 @@ function findAnswer(question, typed) {
 
 
 /* ============================================================
-   ROOMCODE EN SPELERSNAAM
+   SPELERS EN ROOMCODES
 ============================================================ */
 
-function generateRoomCode() {
-  const bytes = new Uint8Array(6);
+function otherRole(role) {
+  return role === "host" ? "guest" : "host";
+}
 
-  crypto.getRandomValues(bytes);
-
-  let code = "";
-
-  for (const byte of bytes) {
-    code += ROOM_ALPHABET[
-      byte % ROOM_ALPHABET.length
-    ];
+function playerNameFor(role) {
+  if (role === "host") {
+    return room?.hostName || "Speler 1";
   }
 
-  return code;
+  return room?.guest?.name || "Speler 2";
+}
+
+function myAnswerInput() {
+  return ui[myRole + "-answer-input"];
 }
 
 function cleanRoomCode(value) {
@@ -938,335 +802,72 @@ function cleanRoomCode(value) {
 }
 
 function getPlayerName() {
-  const name = ui.playerName.value.trim();
+  const name =
+    ui["player-name"].value.trim();
 
   if (!NAME_PATTERN.test(name)) {
-    showConnectionStatus(
-      "❌ Kies een naam van 2 tot 18 tekens.",
+    connectionNotice(
+      "❌ Kies een spelersnaam van 2 tot 18 tekens.",
       "error"
     );
 
-    ui.playerName.focus();
-    return null;
+    ui["player-name"].focus();
+
+    return "";
   }
 
   return name;
 }
 
+function generateRoomCode() {
+  const randomBytes = new Uint8Array(6);
 
-/* ============================================================
-   SERVERKLOK
-============================================================ */
+  crypto.getRandomValues(randomBytes);
 
-function serverNow() {
-  return Date.now() + serverTimeOffset;
+  return [...randomBytes]
+    .map(byte =>
+      ROOM_ALPHABET[
+        byte % ROOM_ALPHABET.length
+      ]
+    )
+    .join("");
 }
 
-onValue(
-  ref(database, ".info/serverTimeOffset"),
-  snapshot => {
-    serverTimeOffset =
-      Number(snapshot.val()) || 0;
-  }
-);
-
-
-/* ============================================================
-   VRAGEN EN SPELERS
-============================================================ */
-
-function firstQuestionIndex(code) {
+function hashCode(text) {
   let hash = 0;
 
-  for (const character of code) {
+  for (const character of text) {
     hash = (
       Math.imul(hash, 31) +
       character.charCodeAt(0)
     ) >>> 0;
   }
 
-  return hash % questions.length;
+  return hash;
 }
 
-function getQuestion(game) {
+function questionFor(game) {
   return questions[game.questionIndex] || null;
 }
 
-function otherRole(role) {
-  return role === "host" ? "guest" : "host";
-}
-
-function getRoleName(role) {
-  if (!currentRoom) {
-    return role === "host"
-      ? "Speler 1"
-      : "Speler 2";
-  }
-
-  return role === "host"
-    ? currentRoom.hostName
-    : currentRoom.guest?.name || "Speler 2";
-}
-
-function hearts(lives) {
-  const count = Math.max(
-    0,
-    Math.min(
-      MAX_LIVES,
-      Number(lives) || 0
-    )
-  );
-
-  return (
-    "❤️".repeat(count) +
-    "🖤".repeat(MAX_LIVES - count)
-  );
-}
-
 
 /* ============================================================
-   ROOM TONEN
+   STARTGEGEVENS
+
+   matchNumber telt hoe vaak er in
+   dezelfde room een duel wordt gespeeld.
 ============================================================ */
 
-function showRoom(code) {
-  currentRoomCode = code;
-
-  ui.lobbyStart.hidden = true;
-  ui.roomPanel.hidden = false;
-
-  ui.roomCode.textContent = code;
-
-  showRoomStatus(
-    "⏳ Verbinding maken met de room..."
-  );
-}
-
-
-/* ============================================================
-   ROOM LIVE VOLGEN
-============================================================ */
-
-function listenToRoom(code) {
-  if (stopRoomListener) {
-    stopRoomListener();
-  }
-
-  stopRoomListener = onValue(
-    ref(database, "duelRooms/" + code),
-
-    snapshot => {
-      if (!snapshot.exists()) {
-        showRoomStatus(
-          "❌ Deze room bestaat niet meer.",
-          "error"
-        );
-
-        return;
-      }
-
-      const room = snapshot.val();
-
-      currentRoom = room;
-
-      if (room.hostUid === currentUser.uid) {
-        myRole = "host";
-
-      } else if (
-        room.guest?.uid === currentUser.uid
-      ) {
-        myRole = "guest";
-
-      } else {
-        myRole = null;
-      }
-
-      if (!myRole) {
-        showRoomStatus(
-          "❌ Je bent geen speler in deze room.",
-          "error"
-        );
-
-        return;
-      }
-
-      updateRoomInterface(room);
-    },
-
-    error => {
-      console.error(error);
-
-      showRoomStatus(
-        "❌ Room lezen mislukt. " +
-        "Controleer je Firebase Rules.",
-        "error"
-      );
-    }
-  );
-}
-
-
-/* ============================================================
-   ROOM AANMAKEN
-============================================================ */
-
-async function createRoom() {
-  if (!currentUser || busy) {
-    return;
-  }
-
-  const name = getPlayerName();
-
-  if (!name) {
-    return;
-  }
-
-  busy = true;
-  updateLobbyButtons();
-
-  showConnectionStatus(
-    "🏠 Room aanmaken..."
-  );
-
-  try {
-    let lastError = null;
-
-    for (let attempt = 0; attempt < 5; attempt++) {
-      const code = generateRoomCode();
-
-      try {
-        await set(
-          ref(database, "duelRooms/" + code),
-          {
-            hostUid: currentUser.uid,
-            hostName: name,
-            hostAvatar: selectedAvatar,
-            createdAt: serverTimestamp()
-          }
-        );
-
-        showRoom(code);
-        listenToRoom(code);
-
-        showConnectionStatus(
-          "✅ Room aangemaakt!",
-          "success"
-        );
-
-        return;
-
-      } catch (error) {
-        lastError = error;
-
-        if (
-          error.code !== "PERMISSION_DENIED" &&
-          error.code !== "permission-denied"
-        ) {
-          throw error;
-        }
-      }
-    }
-
-    throw lastError ||
-      new Error("Room aanmaken mislukt.");
-
-  } catch (error) {
-    console.error(error);
-
-    showConnectionStatus(
-      "❌ Room aanmaken mislukt. " +
-      "Controleer of de nieuwste Firebase Rules " +
-      "zijn gepubliceerd.",
-      "error"
-    );
-
-  } finally {
-    busy = false;
-    updateLobbyButtons();
-  }
-}
-
-
-/* ============================================================
-   DEELNEMEN
-============================================================ */
-
-async function joinRoom() {
-  if (!currentUser || busy) {
-    return;
-  }
-
-  const name = getPlayerName();
-
-  if (!name) {
-    return;
-  }
-
-  const code = cleanRoomCode(
-    ui.roomInput.value
-  );
-
-  if (code.length !== 6) {
-    showConnectionStatus(
-      "❌ Vul een roomcode van 6 tekens in.",
-      "error"
-    );
-
-    return;
-  }
-
-  busy = true;
-  updateLobbyButtons();
-
-  showConnectionStatus(
-    "🔄 Deelnemen aan " + code + "..."
-  );
-
-  try {
-    await set(
-      ref(
-        database,
-        "duelRooms/" + code + "/guest"
-      ),
-      {
-        uid: currentUser.uid,
-        name,
-        avatar: selectedAvatar
-      }
-    );
-
-    showRoom(code);
-    listenToRoom(code);
-
-    showConnectionStatus(
-      "✅ Je bent lid van de room!",
-      "success"
-    );
-
-  } catch (error) {
-    console.error(error);
-
-    showConnectionStatus(
-      "❌ Deelnemen mislukt. " +
-      "Controleer de roomcode of maak een nieuwe room.",
-      "error"
-    );
-
-  } finally {
-    busy = false;
-    updateLobbyButtons();
-  }
-}
-
-
-/* ============================================================
-   BEGINSTATUS DUEL
-============================================================ */
-
-function makeInitialGame(code) {
+function initialGame(matchNumber = 1) {
   return {
     status: "playing",
 
-    questionIndex: firstQuestionIndex(code),
+    matchNumber,
+
+    questionIndex:
+      (hashCode(roomCode) + matchNumber - 1) %
+      questions.length,
+
     round: 1,
 
     turn: "host",
@@ -1277,8 +878,8 @@ function makeInitialGame(code) {
       serverNow() + TURN_DURATION
     ),
 
-    hostLives: START_LIVES,
-    guestLives: START_LIVES,
+    hostLives: 2,
+    guestLives: 2,
 
     hostScore: 0,
     guestScore: 0,
@@ -1301,37 +902,264 @@ function makeInitialGame(code) {
 
 
 /* ============================================================
-   DUEL STARTEN
+   ROOM TONEN EN VOLGEN
+============================================================ */
+
+function showRoom(code) {
+  roomCode = code;
+
+  ui["lobby-start"].hidden = true;
+  ui["room-panel"].hidden = false;
+
+  ui["room-code"].textContent = code;
+}
+
+function watchRoom() {
+  if (stopRoomListener) {
+    stopRoomListener();
+  }
+
+  const roomReference = ref(
+    database,
+    "duelRooms/" + roomCode
+  );
+
+  stopRoomListener = onValue(
+    roomReference,
+
+    snapshot => {
+      if (!snapshot.exists()) {
+        roomNotice(
+          "❌ De room bestaat niet meer.",
+          "error"
+        );
+
+        return;
+      }
+
+      room = snapshot.val();
+
+      if (room.hostUid === currentUserId) {
+        myRole = "host";
+      } else if (
+        room.guest?.uid === currentUserId
+      ) {
+        myRole = "guest";
+      } else {
+        myRole = "";
+      }
+
+      if (!myRole) {
+        roomNotice(
+          "❌ Je bent geen speler in deze room.",
+          "error"
+        );
+
+        return;
+      }
+
+      renderRoom();
+    },
+
+    error => {
+      console.error(error);
+
+      roomNotice(
+        "❌ Database lezen mislukt. " +
+        "Controleer je Firebase Rules.",
+        "error"
+      );
+    }
+  );
+}
+
+
+/* ============================================================
+   ROOM AANMAKEN
+============================================================ */
+
+async function createRoom() {
+  if (!currentUserId || busy) {
+    return;
+  }
+
+  const name = getPlayerName();
+
+  if (!name) {
+    return;
+  }
+
+  busy = true;
+  updateLobbyControls();
+
+  connectionNotice("🏠 Room aanmaken...");
+
+  try {
+    let lastError;
+
+    for (
+      let attempt = 0;
+      attempt < 5;
+      attempt++
+    ) {
+      const code = generateRoomCode();
+
+      try {
+        await set(
+          ref(
+            database,
+            "duelRooms/" + code
+          ),
+          {
+            hostUid: currentUserId,
+            hostName: name,
+            hostAvatar: selectedAvatar,
+            createdAt: serverTimestamp()
+          }
+        );
+
+        showRoom(code);
+        watchRoom();
+
+        connectionNotice(
+          "✅ Room aangemaakt!",
+          "success"
+        );
+
+        return;
+
+      } catch (error) {
+        lastError = error;
+
+        if (
+          error.code !== "PERMISSION_DENIED" &&
+          error.code !== "permission-denied"
+        ) {
+          throw error;
+        }
+      }
+    }
+
+    throw lastError ||
+      new Error(
+        "Room aanmaken mislukt."
+      );
+
+  } catch (error) {
+    console.error(error);
+
+    connectionNotice(
+      "❌ Room aanmaken mislukt. " +
+      "Controleer de nieuwe Firebase Rules.",
+      "error"
+    );
+
+  } finally {
+    busy = false;
+    updateLobbyControls();
+  }
+}
+
+
+/* ============================================================
+   DEELNEMEN
+============================================================ */
+
+async function joinRoom() {
+  if (!currentUserId || busy) {
+    return;
+  }
+
+  const name = getPlayerName();
+
+  const code = cleanRoomCode(
+    ui["room-input"].value
+  );
+
+  if (!name) {
+    return;
+  }
+
+  if (code.length !== 6) {
+    connectionNotice(
+      "❌ Vul een code van 6 tekens in.",
+      "error"
+    );
+
+    return;
+  }
+
+  busy = true;
+  updateLobbyControls();
+
+  connectionNotice(
+    "🔄 Deelnemen..."
+  );
+
+  try {
+    await set(
+      ref(
+        database,
+        "duelRooms/" + code + "/guest"
+      ),
+      {
+        uid: currentUserId,
+        name,
+        avatar: selectedAvatar
+      }
+    );
+
+    showRoom(code);
+    watchRoom();
+
+    connectionNotice(
+      "✅ Je bent lid van de room!",
+      "success"
+    );
+
+  } catch (error) {
+    console.error(error);
+
+    connectionNotice(
+      "❌ Deelnemen mislukt. " +
+      "Controleer de roomcode.",
+      "error"
+    );
+
+  } finally {
+    busy = false;
+    updateLobbyControls();
+  }
+}
+
+
+/* ============================================================
+   EERSTE DUEL STARTEN
 ============================================================ */
 
 async function startDuel() {
   if (
-    !currentRoomCode ||
-    !currentRoom?.guest ||
-    myRole !== "host"
+    myRole !== "host" ||
+    !room?.guest
   ) {
     return;
   }
 
-  ui.startDuelButton.disabled = true;
+  ui["start-duel-button"].disabled = true;
 
   try {
-    const result = await runTransaction(
+    await runTransaction(
       ref(
         database,
-        "duelRooms/" +
-        currentRoomCode +
-        "/game"
+        "duelRooms/" + roomCode + "/game"
       ),
 
-      existing => {
-        if (existing !== null) {
+      game => {
+        if (game !== null) {
           return;
         }
 
-        return makeInitialGame(
-          currentRoomCode
-        );
+        return initialGame();
       },
 
       {
@@ -1339,23 +1167,16 @@ async function startDuel() {
       }
     );
 
-    if (!result.committed) {
-      showRoomStatus(
-        "Het duel is al gestart."
-      );
-    }
-
   } catch (error) {
     console.error(error);
 
-    showRoomStatus(
-      "❌ Duel starten mislukt. " +
-      "Controleer Firebase Rules.",
+    roomNotice(
+      "❌ Duel starten mislukt.",
       "error"
     );
 
   } finally {
-    ui.startDuelButton.disabled = false;
+    ui["start-duel-button"].disabled = false;
   }
 }
 
@@ -1364,9 +1185,9 @@ async function startDuel() {
    VOLGENDE VRAAG
 ============================================================ */
 
-function advanceQuestion(
+function nextQuestion(
   game,
-  nextStarter,
+  starter,
   time
 ) {
   game.questionIndex =
@@ -1375,7 +1196,7 @@ function advanceQuestion(
 
   game.round += 1;
 
-  game.turn = nextStarter;
+  game.turn = starter;
   game.turnCount = 0;
 
   game.turnId += 1;
@@ -1385,7 +1206,7 @@ function advanceQuestion(
   );
 
   game.bonusTurn = false;
-  game.resetStarter = nextStarter;
+  game.resetStarter = starter;
 
   delete game.used;
 }
@@ -1393,36 +1214,37 @@ function advanceQuestion(
 
 /* ============================================================
    PUNTEN EN EXTRA LEVENS
-
-   Als een speler al 3 levens heeft,
-   blijft de extra-levensbalk leeg.
-
-   Na het verliezen van een leven
-   kan die opnieuw punten sparen.
 ============================================================ */
 
-function addPoints(game, role, points) {
-  const scoreKey = role + "Score";
-  const progressKey = role + "Progress";
-  const livesKey = role + "Lives";
+function addPoints(
+  game,
+  role,
+  points
+) {
+  game[role + "Score"] += points;
 
-  game[scoreKey] += points;
-
-  if (game[livesKey] >= MAX_LIVES) {
-    game[progressKey] = 0;
+  if (
+    game[role + "Lives"] >= MAX_LIVES
+  ) {
+    game[role + "Progress"] = 0;
     return false;
   }
 
-  game[progressKey] += points;
+  game[role + "Progress"] += points;
 
   if (
-    game[progressKey] >= EXTRA_LIFE_POINTS
+    game[role + "Progress"] >=
+    EXTRA_LIFE_POINTS
   ) {
-    game[progressKey] -= EXTRA_LIFE_POINTS;
-    game[livesKey] += 1;
+    game[role + "Progress"] -=
+      EXTRA_LIFE_POINTS;
 
-    if (game[livesKey] >= MAX_LIVES) {
-      game[progressKey] = 0;
+    game[role + "Lives"] += 1;
+
+    if (
+      game[role + "Lives"] >= MAX_LIVES
+    ) {
+      game[role + "Progress"] = 0;
     }
 
     return true;
@@ -1433,44 +1255,11 @@ function addPoints(game, role, points) {
 
 
 /* ============================================================
-   ANTWOORD AL GEBRUIKT?
-============================================================ */
-
-function answerUsed(game, key) {
-  return Boolean(
-    game.used &&
-    game.used[key]
-  );
-}
-
-
-/* ============================================================
-   EIGEN ANTWOORDVELD
-============================================================ */
-
-function myAnswerInput() {
-  return myRole === "host"
-    ? ui.hostAnswerInput
-    : ui.guestAnswerInput;
-}
-
-
-/* ============================================================
    LIVE TYPEN
-
-   Bij het typen sturen we de
-   tekst naar Firebase.
-
-   Elke 220 milliseconden wordt
-   hoogstens één update geprobeerd.
-
-   turnId zorgt ervoor dat een oude
-   tekst niet zichtbaar blijft bij
-   de volgende beurt.
 ============================================================ */
 
-function canTypeNow() {
-  const game = currentRoom?.game;
+function canType() {
+  const game = room?.game;
 
   return Boolean(
     game &&
@@ -1481,28 +1270,42 @@ function canTypeNow() {
   );
 }
 
-async function sendTypingText() {
-  if (
-    !currentRoomCode ||
-    !myRole ||
-    !canTypeNow()
-  ) {
+function cancelTyping() {
+  clearTimeout(typingTimer);
+  typingTimer = null;
+}
+
+function scheduleTyping() {
+  cancelTyping();
+
+  if (!canType()) {
     return;
   }
 
-  const turnId = currentRoom.game.turnId;
-
-  const text = myAnswerInput().value.slice(
-    0,
-    100
+  typingTimer = setTimeout(
+    sendTyping,
+    160
   );
+}
+
+async function sendTyping() {
+  if (!canType() || !roomCode) {
+    return;
+  }
+
+  const game = room.game;
+
+  const turnId = game.turnId;
+
+  const text =
+    myAnswerInput().value.slice(0, 100);
 
   try {
     await set(
       ref(
         database,
         "duelRooms/" +
-        currentRoomCode +
+        roomCode +
         "/typing/" +
         myRole
       ),
@@ -1514,128 +1317,35 @@ async function sendTypingText() {
 
   } catch (error) {
     /*
-     * De beurt kan ondertussen
-     * afgelopen zijn.
-
-     * Dat is geen ernstige fout:
-     * de tekst van de nieuwe beurt
-     * blijft dan gewoon leeg.
+     * Een typupdate kan mislukken
+     * wanneer de beurt intussen
+     * is afgelopen. Dat is normaal.
      */
   }
 }
 
-function scheduleTypingUpdate() {
-  clearTimeout(typingTimer);
-
-  if (!canTypeNow()) {
-    return;
-  }
-
-  typingTimer = setTimeout(
-    sendTypingText,
-    TYPING_DELAY
-  );
-}
-
-function cancelTypingUpdate() {
-  clearTimeout(typingTimer);
-  typingTimer = null;
-}
-
 
 /* ============================================================
-   LIVE TEKST VAN TEGENSTANDER TONEN
-
-   Een antwoord wordt pas gebruikt
-   wanneer het daadwerkelijk correct
-   is ingediend.
-
-   Alleen typen reserveert dus niets.
-============================================================ */
-
-function updateLiveTyping(room) {
-  const game = room.game;
-
-  if (
-    !game ||
-    game.status !== "playing"
-  ) {
-    return;
-  }
-
-  const hostText =
-    room.typing?.host?.turnId === game.turnId
-      ? room.typing.host.text || ""
-      : "";
-
-  const guestText =
-    room.typing?.guest?.turnId === game.turnId
-      ? room.typing.guest.text || ""
-      : "";
-
-  /*
-   * De speler ziet in het eigen
-   * antwoordvak de eigen tekst.
-   *
-   * Alleen het vak van de tegenstander
-   * wordt vanuit Firebase ingevuld.
-   */
-
-  if (myRole !== "host") {
-    ui.hostAnswerInput.value =
-      game.turn === "host" ? hostText : "";
-  }
-
-  if (myRole !== "guest") {
-    ui.guestAnswerInput.value =
-      game.turn === "guest" ? guestText : "";
-  }
-}
-
-
-/* ============================================================
-   ANTWOORD INSTUREN
+   ANTWOORD VERSTUREN
 ============================================================ */
 
 async function submitAnswer(event) {
   event.preventDefault();
 
-  if (
-    !currentRoom?.game ||
-    !myRole ||
-    sendingAnswer
-  ) {
+  if (!canType()) {
     return;
   }
 
-  const game = currentRoom.game;
-
-  if (!canTypeNow()) {
-    showFeedback(
-      "⏳ Je bent nog niet aan de beurt.",
-      "bad"
-    );
-
-    return;
-  }
+  const game = room.game;
 
   const input = myAnswerInput();
 
   const typed = input.value.trim();
 
-  if (!typed) {
-    showFeedback(
-      "Vul eerst een antwoord in.",
-      "bad"
-    );
-
-    return;
-  }
-
-  const question = getQuestion(game);
+  const question = questionFor(game);
 
   if (!question) {
-    showFeedback(
+    answerFeedback(
       "❌ De vraag kon niet worden geladen.",
       "bad"
     );
@@ -1649,18 +1359,21 @@ async function submitAnswer(event) {
   );
 
   if (!answer) {
-    showFeedback(
-      "❌ Dit antwoord staat niet in de antwoordenbank. " +
-      "Je mag opnieuw proberen zolang je tijd hebt.",
+    answerFeedback(
+      "❌ Dit antwoord staat nog niet " +
+      "in onze lijst. Probeer opnieuw.",
       "bad"
     );
 
     return;
   }
 
-  if (answerUsed(game, answer.key)) {
-    showFeedback(
-      "🚫 Dat antwoord is al gebruikt!",
+  if (
+    game.used &&
+    game.used[answer.key]
+  ) {
+    answerFeedback(
+      "🚫 Dit antwoord is al gebruikt.",
       "bad"
     );
 
@@ -1669,21 +1382,22 @@ async function submitAnswer(event) {
 
   sendingAnswer = true;
 
-  cancelTypingUpdate();
-
+  cancelTyping();
   updateAnswerControls();
 
   const submittedRole = myRole;
   const submittedTurnId = game.turnId;
 
   try {
+    const gameReference = ref(
+      database,
+      "duelRooms/" +
+      roomCode +
+      "/game"
+    );
+
     const result = await runTransaction(
-      ref(
-        database,
-        "duelRooms/" +
-        currentRoomCode +
-        "/game"
-      ),
+      gameReference,
 
       currentGame => {
         if (
@@ -1697,7 +1411,8 @@ async function submitAnswer(event) {
         }
 
         if (
-          answerUsed(currentGame, answer.key)
+          currentGame.used &&
+          currentGame.used[answer.key]
         ) {
           return;
         }
@@ -1718,7 +1433,7 @@ async function submitAnswer(event) {
 
         next.turnCount += 1;
 
-        const earnedLife = addPoints(
+        const earnedExtraLife = addPoints(
           next,
           submittedRole,
           answer.points
@@ -1726,72 +1441,60 @@ async function submitAnswer(event) {
 
         next.lastEvent =
           "✅ " +
-          getRoleName(submittedRole) +
+          playerNameFor(submittedRole) +
           ": " +
           answer.name +
           " (+" +
           answer.points +
           " punten)" +
-          (earnedLife
-            ? " 💖 EXTRA LEVEN!"
-            : "");
+          (
+            earnedExtraLife
+              ? " 💖 EXTRA LEVEN!"
+              : ""
+          );
 
-        next.lastType = earnedLife
-          ? "extraLife"
-          : "answer";
+        next.lastType =
+          earnedExtraLife
+            ? "extraLife"
+            : "answer";
 
         next.lastLoser = submittedRole;
-
         next.eventNumber += 1;
 
-        const now = serverNow();
+        const time = serverNow();
 
         /*
-         * Dit was de laatste beurt
-         * van de tegenstander na
-         * een verloren leven.
+         * Na de laatste beurt op
+         * een vraag start een nieuwe.
          */
 
         if (next.bonusTurn) {
-          advanceQuestion(
+          nextQuestion(
             next,
             next.resetStarter,
-            now
+            time
           );
 
-          return next;
-        }
-
-        /*
-         * Na 12 goede antwoorden:
-         * nieuwe vraag.
-         */
-
-        if (
+        } else if (
           next.turnCount >= MAX_ANSWERS
         ) {
-          advanceQuestion(
+          nextQuestion(
             next,
             otherRole(submittedRole),
-            now
+            time
           );
 
-          return next;
+        } else {
+          next.turn = otherRole(
+            submittedRole
+          );
+
+          next.turnId += 1;
+
+          next.deadline = Math.round(
+            time + TURN_DURATION
+          );
         }
-
-        /*
-         * Gewone beurtwisseling.
-         */
-
-        next.turn = otherRole(
-          submittedRole
-        );
-
-        next.turnId += 1;
-
-        next.deadline = Math.round(
-          now + TURN_DURATION
-        );
 
         return next;
       },
@@ -1804,17 +1507,16 @@ async function submitAnswer(event) {
     if (result.committed) {
       input.value = "";
 
-      showFeedback(
-        "✅ Goed antwoord! +" +
+      answerFeedback(
+        "✅ Goed! +" +
         answer.points +
         " punten.",
         "good"
       );
 
     } else {
-      showFeedback(
-        "⏱️ De beurt is intussen veranderd " +
-        "of het antwoord is al gebruikt.",
+      answerFeedback(
+        "⏱️ De beurt is intussen veranderd.",
         "bad"
       );
     }
@@ -1822,9 +1524,8 @@ async function submitAnswer(event) {
   } catch (error) {
     console.error(error);
 
-    showFeedback(
-      "❌ Verzenden mislukt. " +
-      "Controleer je verbinding.",
+    answerFeedback(
+      "❌ Verzenden mislukt.",
       "bad"
     );
 
@@ -1836,29 +1537,16 @@ async function submitAnswer(event) {
 
 
 /* ============================================================
-   TIJD VERSTREKEN
-
-   Wanneer de tijd op is, verliest
-   de actieve speler één leven.
-
-   De tegenstander krijgt nog één
-   beurt op dezelfde vraag.
-
-   Daarna volgt de volgende vraag.
+   TIMER VERWERKEN
 ============================================================ */
 
 async function processTimeout() {
+  const game = room?.game;
+
   if (
     processingTimeout ||
-    !currentRoomCode ||
-    !currentRoom?.game
-  ) {
-    return;
-  }
-
-  const game = currentRoom.game;
-
-  if (
+    !roomCode ||
+    !game ||
     game.status !== "playing" ||
     serverNow() < game.deadline
   ) {
@@ -1868,13 +1556,15 @@ async function processTimeout() {
   processingTimeout = true;
 
   try {
+    const gameReference = ref(
+      database,
+      "duelRooms/" +
+      roomCode +
+      "/game"
+    );
+
     await runTransaction(
-      ref(
-        database,
-        "duelRooms/" +
-        currentRoomCode +
-        "/game"
-      ),
+      gameReference,
 
       currentGame => {
         if (
@@ -1889,84 +1579,81 @@ async function processTimeout() {
           structuredClone(currentGame);
 
         const loser = next.turn;
-        const opponent = otherRole(loser);
+        const winner = otherRole(loser);
 
-        const livesKey = loser + "Lives";
-
-        next[livesKey] = Math.max(
+        next[loser + "Lives"] = Math.max(
           0,
-          next[livesKey] - 1
+          next[loser + "Lives"] - 1
         );
-
-        next.eventNumber += 1;
 
         next.lastType = "timeout";
         next.lastLoser = loser;
 
-        const now = serverNow();
+        next.eventNumber += 1;
+
+        const time = serverNow();
 
         /*
-         * Geen levens meer:
-         * duel afgelopen.
+         * De speler heeft geen
+         * levens meer.
          */
 
-        if (next[livesKey] <= 0) {
+        if (
+          next[loser + "Lives"] === 0
+        ) {
           next.status = "finished";
-          next.winner = opponent;
+          next.winner = winner;
           next.deadline = 0;
 
           next.lastEvent =
             "💔 " +
-            getRoleName(loser) +
+            playerNameFor(loser) +
             " heeft geen levens meer!";
 
           return next;
         }
 
         /*
-         * Ook de laatste beurt
-         * van de tegenstander
-         * is verlopen.
-
-         * Dan direct verder met
-         * een nieuwe vraag.
+         * De bonusbeurt is voorbij:
+         * ga naar een nieuwe vraag.
          */
 
         if (next.bonusTurn) {
           next.lastEvent =
             "💔 " +
-            getRoleName(loser) +
+            playerNameFor(loser) +
             " verloor een leven. " +
             "Nieuwe vraag!";
 
-          advanceQuestion(
+          nextQuestion(
             next,
             next.resetStarter,
-            now
+            time
           );
 
           return next;
         }
 
         /*
-         * Eerste mislukte beurt.
+         * De tegenstander krijgt
+         * nog één beurt.
          */
 
         next.bonusTurn = true;
         next.resetStarter = loser;
 
-        next.turn = opponent;
+        next.turn = winner;
         next.turnId += 1;
 
         next.deadline = Math.round(
-          now + TURN_DURATION
+          time + TURN_DURATION
         );
 
         next.lastEvent =
           "💔 " +
-          getRoleName(loser) +
+          playerNameFor(loser) +
           " verloor een leven! " +
-          "De tegenstander mag nog één keer.";
+          "Laatste beurt op deze vraag.";
 
         return next;
       },
@@ -1977,10 +1664,7 @@ async function processTimeout() {
     );
 
   } catch (error) {
-    console.error(
-      "Timer verwerken mislukt:",
-      error
-    );
+    console.error(error);
 
   } finally {
     processingTimeout = false;
@@ -1989,56 +1673,47 @@ async function processTimeout() {
 
 
 /* ============================================================
-   LEVENS EN PROGRESSIE TONEN
+   HARTJES EN VOORTGANG
 ============================================================ */
 
-function updateLifeProgress(
-  role,
-  game
-) {
-  const lives = game[role + "Lives"];
-  const progress = game[role + "Progress"];
-
-  const fill = role === "host"
-    ? ui.hostProgressFill
-    : ui.guestProgressFill;
-
-  const label = role === "host"
-    ? ui.hostProgressLabel
-    : ui.guestProgressLabel;
-
-  const track = role === "host"
-    ? ui.hostProgressTrack
-    : ui.guestProgressTrack;
-
-  if (lives >= MAX_LIVES) {
-    fill.style.width = "100%";
-    label.textContent = "MAX LEVENS ❤️";
-
-    track.setAttribute(
-      "aria-valuenow",
-      "100"
-    );
-
-    return;
-  }
-
-  const percentage = Math.max(
-    0,
-    Math.min(
-      100,
-      Math.round(
-        (progress / EXTRA_LIFE_POINTS) * 100
-      )
+function heartText(lives) {
+  return (
+    "❤️".repeat(
+      Math.max(0, lives)
+    ) +
+    "🖤".repeat(
+      Math.max(0, 3 - lives)
     )
   );
+}
 
-  fill.style.width = percentage + "%";
+function updateLifeProgress(
+  playerRole,
+  game
+) {
+  const full =
+    game[playerRole + "Lives"] === 3;
 
-  label.textContent =
+  const progress =
+    game[playerRole + "Progress"];
+
+  const percentage = full
+    ? 100
+    : Math.round(
+        progress /
+        EXTRA_LIFE_POINTS *
+        100
+      );
+
+  ui[playerRole + "-progress-fill"].style.width =
     percentage + "%";
 
-  track.setAttribute(
+  ui[playerRole + "-progress-label"].textContent =
+    full
+      ? "MAX LEVENS ❤️"
+      : percentage + "%";
+
+  ui[playerRole + "-progress-track"].setAttribute(
     "aria-valuenow",
     String(percentage)
   );
@@ -2046,531 +1721,151 @@ function updateLifeProgress(
 
 
 /* ============================================================
-   SPELERSKAARTEN BIJWERKEN
+   SPELERSKAARTEN TEKENEN
 ============================================================ */
 
-function updatePlayers(room) {
-  ui.hostName.textContent =
+function drawPlayers() {
+  ui["host-name"].textContent =
     room.hostName || "Speler 1";
 
-  ui.guestName.textContent =
+  ui["guest-name"].textContent =
     room.guest?.name || "Nog niemand";
 
-  updateDisplayedAvatars(room);
+  ui["host-avatar"].innerHTML =
+    avatarSvg(
+      room.hostAvatar || "astro"
+    );
 
-  ui.hostTurnLabel.textContent =
-    "🔴 " + (room.hostName || "Speler 1");
+  ui["guest-avatar"].innerHTML =
+    avatarSvg(
+      room.guest?.avatar || "robot"
+    );
 
-  ui.guestTurnLabel.textContent =
+  ui["host-turn-label"].textContent =
+    "🔴 " +
+    (room.hostName || "Speler 1");
+
+  ui["guest-turn-label"].textContent =
     "🔵 " +
     (room.guest?.name || "Speler 2");
 
-  ui.hostStatus.textContent =
+  ui["host-status"].textContent =
     myRole === "host"
       ? "Jij bent speler 1 ✅"
-      : "Speler 1 verbonden ✅";
+      : "Speler 1 verbonden";
 
-  ui.guestStatus.textContent =
+  ui["guest-status"].textContent =
     !room.guest
-      ? "Wachten op speler..."
+      ? "Wachten..."
       : myRole === "guest"
         ? "Jij bent speler 2 ✅"
-        : "Speler 2 verbonden ✅";
+        : "Speler 2 verbonden";
 
   const game = room.game;
 
-  if (!game) {
-    ui.hostHearts.textContent =
-      hearts(START_LIVES);
-
-    ui.guestHearts.textContent =
-      hearts(START_LIVES);
-
-    ui.hostScore.textContent = "0";
-    ui.guestScore.textContent = "0";
-
-    ui.hostProgressFill.style.width = "0%";
-    ui.guestProgressFill.style.width = "0%";
-
-    ui.hostProgressLabel.textContent = "0%";
-    ui.guestProgressLabel.textContent = "0%";
-
-    ui.hostCard.classList.remove("active");
-    ui.guestCard.classList.remove("active");
-
-    return;
-  }
-
-  ui.hostHearts.textContent =
-    hearts(game.hostLives);
-
-  ui.guestHearts.textContent =
-    hearts(game.guestLives);
-
-  ui.hostScore.textContent =
-    String(game.hostScore);
-
-  ui.guestScore.textContent =
-    String(game.guestScore);
-
-  updateLifeProgress("host", game);
-  updateLifeProgress("guest", game);
-
-  const playing =
-    game.status === "playing";
-
-  ui.hostCard.classList.toggle(
-    "active",
-    playing && game.turn === "host"
-  );
-
-  ui.guestCard.classList.toggle(
-    "active",
-    playing && game.turn === "guest"
-  );
-}
-
-
-/* ============================================================
-   HARTJESANIMATIE
-
-   Bij tijdverlies:
-   een hartje vliegt weg.
-
-   Bij een extra leven:
-   een nieuw hartje verschijnt.
-============================================================ */
-
-function animateHeart(role, gained = false) {
-  const container = role === "host"
-    ? ui.hostHeartEffects
-    : ui.guestHeartEffects;
-
-  const particle =
-    document.createElement("span");
-
-  particle.className =
-    "heart-particle" +
-    (gained ? " gained" : "");
-
-  particle.textContent = gained
-    ? "💖"
-    : "💔";
-
-  container.appendChild(particle);
-
-  setTimeout(() => {
-    particle.remove();
-  }, 1400);
-}
-
-
-/* ============================================================
-   BALLONANIMATIE BIJ TIJDVERLIES
-============================================================ */
-
-function animateBalloonBurn() {
-  clearTimeout(burnTimeout);
-
-  ui.timerBalloon.classList.remove(
-    "burning"
-  );
-
-  /*
-   * Animatie opnieuw laten beginnen.
-   */
-
-  void ui.timerBalloon.offsetWidth;
-
-  ui.timerBalloon.classList.add(
-    "burning"
-  );
-
-  burnTimeout = setTimeout(() => {
-    ui.timerBalloon.classList.remove(
-      "burning"
-    );
-  }, 1100);
-}
-
-
-/* ============================================================
-   NIEUWE GEBEURTENIS CONTROLEREN
-
-   Bij live typupdates verandert
-   de room ook, maar het eventnummer
-   blijft gelijk.
-
-   Daardoor starten animaties niet
-   opnieuw bij elke letter.
-============================================================ */
-
-function handleGameEvent(game) {
-  if (
-    previousEventNumber === null
-  ) {
-    previousEventNumber = game.eventNumber;
-    return;
-  }
-
-  if (
-    previousEventNumber ===
-    game.eventNumber
-  ) {
-    return;
-  }
-
-  previousEventNumber = game.eventNumber;
-
-  if (game.lastType === "timeout") {
-    animateBalloonBurn();
-
-    if (
-      game.lastLoser === "host" ||
-      game.lastLoser === "guest"
-    ) {
-      animateHeart(
-        game.lastLoser,
-        false
+  for (const playerRole of [
+    "host",
+    "guest"
+  ]) {
+    ui[playerRole + "-hearts"].textContent =
+      heartText(
+        game
+          ? game[playerRole + "Lives"]
+          : 2
       );
-    }
-  }
 
-  if (game.lastType === "extraLife") {
-    if (
-      game.lastLoser === "host" ||
-      game.lastLoser === "guest"
-    ) {
-      animateHeart(
-        game.lastLoser,
-        true
+    ui[playerRole + "-score"].textContent =
+      String(
+        game
+          ? game[playerRole + "Score"]
+          : 0
       );
-    }
-  }
-}
 
-
-/* ============================================================
-   AL GEBRUIKTE ANTWOORDEN
-============================================================ */
-
-function updateUsedAnswers(game) {
-  const entries = Object.values(
-    game.used || {}
-  );
-
-  entries.sort(
-    (a, b) => a.order - b.order
-  );
-
-  ui.usedCount.textContent =
-    String(entries.length);
-
-  ui.usedList.replaceChildren();
-
-  if (entries.length === 0) {
-    ui.usedList.textContent =
-      "Nog geen antwoorden.";
-    return;
-  }
-
-  entries.forEach(answer => {
-    const element =
-      document.createElement("span");
-
-    element.className =
-      "used-answer";
-
-    element.textContent =
-      answer.name +
-      " (+" +
-      answer.points +
-      ")";
-
-    ui.usedList.appendChild(element);
-  });
-}
-
-
-/* ============================================================
-   ANTWOORDVAKKEN BIJWERKEN
-============================================================ */
-
-function updateAnswerControls() {
-  const game = currentRoom?.game;
-
-  const playing = Boolean(
-    game &&
-    game.status === "playing"
-  );
-
-  const hostActive =
-    playing &&
-    game.turn === "host";
-
-  const guestActive =
-    playing &&
-    game.turn === "guest";
-
-  ui.hostAnswerLane.classList.toggle(
-    "active",
-    hostActive
-  );
-
-  ui.guestAnswerLane.classList.toggle(
-    "active",
-    guestActive
-  );
-
-  ui.hostTurnStatus.textContent =
-    hostActive
-      ? "🎯 AAN DE BEURT"
-      : "Wachten...";
-
-  ui.guestTurnStatus.textContent =
-    guestActive
-      ? "🎯 AAN DE BEURT"
-      : "Wachten...";
-
-  const canAnswer = canTypeNow();
-
-  ui.hostAnswerInput.disabled =
-    !(canAnswer && myRole === "host");
-
-  ui.guestAnswerInput.disabled =
-    !(canAnswer && myRole === "guest");
-
-  ui.answerButton.disabled = !canAnswer;
-
-  /*
-   * De niet-actieve speler kan
-   * het antwoordveld niet bewerken,
-   * maar ziet daarin wel live
-   * de tekst van de tegenstander.
-   */
-
-  ui.hostAnswerInput.placeholder =
-    hostActive
-      ? myRole === "host"
-        ? "Typ jouw antwoord..."
-        : "Tegenstander typt..."
-      : "Wachten op beurt...";
-
-  ui.guestAnswerInput.placeholder =
-    guestActive
-      ? myRole === "guest"
-        ? "Typ jouw antwoord..."
-        : "Tegenstander typt..."
-      : "Wachten op beurt...";
-}
-
-
-/* ============================================================
-   SPELSCHERM BIJWERKEN
-============================================================ */
-
-function updateGame(game) {
-  const question = getQuestion(game);
-
-  if (!question) {
-    showRoomStatus(
-      "❌ Deze vraag ontbreekt in de vragenbank.",
-      "error"
-    );
-
-    return;
-  }
-
-  const questionKey =
-    game.round + "|" + game.questionIndex;
-
-  /*
-   * Nieuwe vraag:
-   * invoervakken leegmaken.
-   */
-
-  if (questionKey !== previousQuestionKey) {
-    previousQuestionKey = questionKey;
-
-    ui.hostAnswerInput.value = "";
-    ui.guestAnswerInput.value = "";
-
-    showFeedback("");
-  }
-
-  /*
-   * Nieuwe beurt:
-   * vorige typtekst verwijderen.
-   */
-
-  if (game.turnId !== previousTurnId) {
-    previousTurnId = game.turnId;
-
-    cancelTypingUpdate();
-
-    ui.hostAnswerInput.value = "";
-    ui.guestAnswerInput.value = "";
-
-    showFeedback("");
-  }
-
-  ui.roundDisplay.textContent =
-    "VRAAG " +
-    game.round +
-    " · " +
-    game.turnCount +
-    "/12 ANTWOORDEN";
-
-  ui.questionCategory.textContent =
-    String(
-      question.category || "KENNISVRAAG"
-    );
-
-  ui.questionText.textContent =
-    question.question;
-
-  if (game.turn === myRole) {
-    ui.turnMessage.textContent =
-      "🎯 JIJ BENT AAN DE BEURT! " +
-      "Geef binnen 12 seconden een antwoord.";
-
-  } else {
-    ui.turnMessage.textContent =
-      "👀 " +
-      getRoleName(game.turn) +
-      " is aan de beurt. " +
-      "Je kunt live meekijken.";
-  }
-
-  if (game.bonusTurn) {
-    ui.turnMessage.textContent +=
-      " Dit is de laatste beurt " +
-      "op deze vraag.";
-  }
-
-  ui.lastEvent.textContent =
-    game.lastEvent || "";
-
-  updateUsedAnswers(game);
-
-  updateAnswerControls();
-
-  updateLiveTyping(currentRoom);
-
-  handleGameEvent(game);
-}
-
-
-/* ============================================================
-   WINNAAR
-============================================================ */
-
-function updateWinner(game) {
-  const winnerName =
-    getRoleName(game.winner);
-
-  ui.winnerTitle.textContent =
-    "🏆 " + winnerName + " WINT!";
-
-  ui.winnerDescription.textContent =
-    getRoleName("host") +
-    " behaalde " +
-    game.hostScore +
-    " punten. " +
-    getRoleName("guest") +
-    " behaalde " +
-    game.guestScore +
-    " punten. " +
-    "Wat een duel!";
-
-  showRoomStatus(
-    "🏆 Het duel is afgelopen!",
-    "success"
-  );
-}
-
-
-/* ============================================================
-   COMPLETE ROOMINTERFACE
-============================================================ */
-
-function updateRoomInterface(room) {
-  updatePlayers(room);
-
-  const hasGuest = Boolean(room.guest);
-  const hasGame = Boolean(room.game);
-
-  ui.startDuelButton.hidden = !(
-    myRole === "host" &&
-    hasGuest &&
-    !hasGame
-  );
-
-  if (!hasGame) {
-    ui.gameSection.hidden = true;
-    ui.winnerSection.hidden = true;
-
-    if (hasGuest) {
-      showRoomStatus(
-        "✅ " +
-        room.hostName +
-        " en " +
-        room.guest.name +
-        " zijn verbonden! " +
-        (myRole === "host"
-          ? "Je kunt het duel starten."
-          : "Wachten totdat de maker start."),
-        "success"
+    if (game) {
+      updateLifeProgress(
+        playerRole,
+        game
       );
 
     } else {
-      showRoomStatus(
-        "⏳ Deel de roomcode met een vriend. " +
-        "We wachten op speler 2."
-      );
+      ui[playerRole + "-progress-fill"].style.width =
+        "0%";
+
+      ui[playerRole + "-progress-label"].textContent =
+        "0%";
     }
 
-    return;
+    ui[playerRole + "-card"].classList.toggle(
+      "active",
+      Boolean(
+        game &&
+        game.status === "playing" &&
+        game.turn === playerRole
+      )
+    );
   }
-
-  const game = room.game;
-
-  if (game.status === "finished") {
-    handleGameEvent(game);
-
-    ui.gameSection.hidden = true;
-    ui.winnerSection.hidden = false;
-
-    updateWinner(game);
-    return;
-  }
-
-  ui.gameSection.hidden = false;
-  ui.winnerSection.hidden = true;
-
-  showRoomStatus(
-    "⚔️ Het duel is begonnen!",
-    "success"
-  );
-
-  updateGame(game);
 }
 
 
 /* ============================================================
-   LIVE TIMER + BRANDENDE BALLON
-
-   Naarmate de tijd verstrijkt:
-   - wordt de vlam groter;
-   - gaat de ballon gevaarlijker gloeien;
-   - kleurt de timer rood.
-
-   Bij 0 seconden wordt de
-   verloren beurt verwerkt.
+   ANTWOORDVAKKEN AAN- OF UITZETTEN
 ============================================================ */
 
-function updateTimer() {
-  const game = currentRoom?.game;
+function updateAnswerControls() {
+  const game = room?.game;
+
+  for (const playerRole of [
+    "host",
+    "guest"
+  ]) {
+    const active =
+      game?.status === "playing" &&
+      game.turn === playerRole;
+
+    ui[
+      playerRole + "-answer-lane"
+    ].classList.toggle(
+      "active",
+      Boolean(active)
+    );
+
+    ui[
+      playerRole + "-turn-status"
+    ].textContent =
+      active
+        ? "🎯 AAN DE BEURT"
+        : "Wachten...";
+
+    ui[
+      playerRole + "-answer-input"
+    ].disabled = !(
+      playerRole === myRole &&
+      canType()
+    );
+
+    ui[
+      playerRole + "-answer-input"
+    ].placeholder =
+      active
+        ? (
+            playerRole === myRole
+              ? "Typ jouw antwoord..."
+              : "Tegenstander typt..."
+          )
+        : "Wachten op beurt...";
+  }
+
+  ui["answer-button"].disabled =
+    !canType();
+}
+
+
+/* ============================================================
+   TEGENSTANDER LIVE TONEN
+============================================================ */
+
+function renderTyping() {
+  const game = room.game;
 
   if (
     !game ||
@@ -2579,61 +1874,656 @@ function updateTimer() {
     return;
   }
 
-  const millisecondsLeft =
+  for (const playerRole of [
+    "host",
+    "guest"
+  ]) {
+    /*
+     * Het eigen invoervak wordt
+     * niet overschreven.
+     */
+
+    if (playerRole === myRole) {
+      continue;
+    }
+
+    const entry =
+      room.typing?.[playerRole];
+
+    ui[
+      playerRole + "-answer-input"
+    ].value =
+      game.turn === playerRole &&
+      entry?.turnId === game.turnId
+        ? entry.text || ""
+        : "";
+  }
+}
+
+
+/* ============================================================
+   HARTJESANIMATIES
+============================================================ */
+
+function animateHeart(
+  playerRole,
+  gained
+) {
+  const particle =
+    document.createElement("span");
+
+  particle.className =
+    "heart-particle" +
+    (gained ? " gained" : "");
+
+  particle.textContent =
+    gained ? "💖" : "💔";
+
+  ui[
+    playerRole + "-heart-effects"
+  ].appendChild(particle);
+
+  setTimeout(
+    () => particle.remove(),
+    1400
+  );
+}
+
+
+/* ============================================================
+   BALLON LATEN BRANDEN
+============================================================ */
+
+function animateBalloonBurn() {
+  clearTimeout(burnTimer);
+
+  ui["timer-balloon"].classList.remove(
+    "burning"
+  );
+
+  /*
+   * De animatie opnieuw beginnen.
+   */
+
+  void ui["timer-balloon"].offsetWidth;
+
+  ui["timer-balloon"].classList.add(
+    "burning"
+  );
+
+  burnTimer = setTimeout(
+    () => {
+      ui["timer-balloon"].classList.remove(
+        "burning"
+      );
+    },
+    1100
+  );
+}
+
+
+/* ============================================================
+   NIEUWE GEBEURTENISSEN HERKENNEN
+============================================================ */
+
+function handleGameEvent(game) {
+  const eventKey =
+    game.matchNumber +
+    ":" +
+    game.eventNumber;
+
+  /*
+   * Bij het openen van een room
+   * geen oude animatie afspelen.
+   */
+
+  if (previousEvent === "") {
+    previousEvent = eventKey;
+    return;
+  }
+
+  if (previousEvent === eventKey) {
+    return;
+  }
+
+  previousEvent = eventKey;
+
+  if (game.lastType === "timeout") {
+    animateBalloonBurn();
+
+    if (
+      ["host", "guest"].includes(
+        game.lastLoser
+      )
+    ) {
+      animateHeart(
+        game.lastLoser,
+        false
+      );
+    }
+
+  } else if (
+    game.lastType === "extraLife" &&
+    ["host", "guest"].includes(
+      game.lastLoser
+    )
+  ) {
+    animateHeart(
+      game.lastLoser,
+      true
+    );
+  }
+}
+
+
+/* ============================================================
+   GEBRUIKTE ANTWOORDEN TONEN
+============================================================ */
+
+function renderUsedAnswers(game) {
+  const answers = Object.values(
+    game.used || {}
+  );
+
+  answers.sort(
+    (a, b) => a.order - b.order
+  );
+
+  ui["used-count"].textContent =
+    String(answers.length);
+
+  ui["used-list"].replaceChildren();
+
+  if (answers.length === 0) {
+    ui["used-list"].textContent =
+      "Nog geen antwoorden.";
+
+    return;
+  }
+
+  for (const answer of answers) {
+    const element =
+      document.createElement("span");
+
+    element.className = "used-answer";
+
+    element.textContent =
+      answer.name +
+      " (+" +
+      answer.points +
+      ")";
+
+    ui["used-list"].appendChild(element);
+  }
+}
+
+
+/* ============================================================
+   AUTOMATISCH BEGINNEN MET TYPEN
+
+   Zodra het jouw beurt is, wordt
+   jouw invoervak automatisch actief.
+============================================================ */
+
+function focusMyAnswer() {
+  if (
+    !canType() ||
+    document.hidden
+  ) {
+    return;
+  }
+
+  const input = myAnswerInput();
+
+  if (input.disabled) {
+    return;
+  }
+
+  input.focus({
+    preventScroll: true
+  });
+}
+
+
+/* ============================================================
+   SPELSCHERM BIJWERKEN
+============================================================ */
+
+function renderGame(game) {
+  const question = questionFor(game);
+
+  if (!question) {
+    roomNotice(
+      "❌ Vraag ontbreekt in de lokale vragenbank.",
+      "error"
+    );
+
+    return;
+  }
+
+  /*
+   * Een nieuw duel of nieuwe beurt
+   * heeft altijd een andere sleutel.
+   */
+
+  const turnKey =
+    game.matchNumber +
+    ":" +
+    game.turnId;
+
+  if (turnKey !== previousTurn) {
+    previousTurn = turnKey;
+
+    cancelTyping();
+
+    ui["host-answer-input"].value = "";
+    ui["guest-answer-input"].value = "";
+
+    answerFeedback("");
+
+    hasFocused = false;
+  }
+
+  ui["round-display"].textContent =
+    "VRAAG " +
+    game.round +
+    " · " +
+    game.turnCount +
+    "/12 ANTWOORDEN";
+
+  ui["question-category"].textContent =
+    question.category ||
+    "KENNISVRAAG";
+
+  ui["question-text"].textContent =
+    question.question;
+
+  if (game.turn === myRole) {
+    ui["turn-message"].textContent =
+      "🎯 JIJ BENT AAN DE BEURT! " +
+      "Je hebt 14 seconden.";
+
+  } else {
+    ui["turn-message"].textContent =
+      "👀 " +
+      playerNameFor(game.turn) +
+      " typt een antwoord...";
+  }
+
+  if (game.bonusTurn) {
+    ui["turn-message"].textContent +=
+      " Laatste beurt op deze vraag.";
+  }
+
+  ui["last-event"].textContent =
+    game.lastEvent;
+
+  renderUsedAnswers(game);
+
+  updateAnswerControls();
+  renderTyping();
+
+  handleGameEvent(game);
+
+  /*
+   * Autofocus bij jouw beurt.
+   * We proberen het direct en nog
+   * één keer nadat de DOM is bijgewerkt.
+   */
+
+  if (
+    game.turn === myRole &&
+    !hasFocused
+  ) {
+    hasFocused = true;
+
+    requestAnimationFrame(
+      focusMyAnswer
+    );
+
+    setTimeout(
+      focusMyAnswer,
+      70
+    );
+  }
+}
+
+
+/* ============================================================
+   WINNAAR + OPNIEUW SPELEN
+============================================================ */
+
+function renderWinner(game) {
+  ui["winner-title"].textContent =
+    "🏆 " +
+    playerNameFor(game.winner) +
+    " WINT!";
+
+  ui["winner-description"].textContent =
+    playerNameFor("host") +
+    ": " +
+    game.hostScore +
+    " punten · " +
+    playerNameFor("guest") +
+    ": " +
+    game.guestScore +
+    " punten";
+
+  const myVote =
+    room.rematch?.[myRole] ===
+    game.matchNumber;
+
+  const opponentVote =
+    room.rematch?.[otherRole(myRole)] ===
+    game.matchNumber;
+
+  if (!myVote) {
+    ui["new-room-button"].textContent =
+      "🔄 OPNIEUW SPELEN IN DEZELFDE ROOM";
+
+    ui["new-room-button"].disabled = false;
+
+  } else if (opponentVote) {
+    ui["new-room-button"].textContent =
+      "✅ Nieuw duel wordt gestart...";
+
+    ui["new-room-button"].disabled = true;
+
+  } else {
+    ui["new-room-button"].textContent =
+      "✅ Klaar! Wachten op tegenstander...";
+
+    ui["new-room-button"].disabled = true;
+  }
+}
+
+
+/* ============================================================
+   COMPLETE ROOM TONEN
+============================================================ */
+
+function renderRoom() {
+  drawPlayers();
+
+  const game = room.game;
+
+  ui["start-duel-button"].hidden = !(
+    myRole === "host" &&
+    Boolean(room.guest) &&
+    !game
+  );
+
+  /*
+   * Wachtkamer.
+   */
+
+  if (!game) {
+    ui["game-section"].hidden = true;
+    ui["winner-section"].hidden = true;
+
+    if (room.guest) {
+      roomNotice(
+        "✅ Beide spelers zijn verbonden! " +
+        (
+          myRole === "host"
+            ? "Start het duel."
+            : "Wacht op de maker."
+        ),
+        "success"
+      );
+
+    } else {
+      roomNotice(
+        "⏳ Deel de roomcode met een vriend."
+      );
+    }
+
+    return;
+  }
+
+  /*
+   * Eindscherm.
+   */
+
+  if (game.status === "finished") {
+    handleGameEvent(game);
+
+    ui["game-section"].hidden = true;
+    ui["winner-section"].hidden = false;
+
+    renderWinner(game);
+
+    roomNotice(
+      "🏆 Het duel is afgelopen!",
+      "success"
+    );
+
+    if (myRole === "host") {
+      tryStartRematch();
+    }
+
+    return;
+  }
+
+  /*
+   * Actief duel.
+   */
+
+  ui["game-section"].hidden = false;
+  ui["winner-section"].hidden = true;
+
+  roomNotice(
+    "⚔️ Het duel is bezig!",
+    "success"
+  );
+
+  renderGame(game);
+}
+
+
+/* ============================================================
+   OPNIEUW SPELEN: STEM UITBRENGEN
+
+   Beide spelers moeten op
+   OPNIEUW SPELEN klikken.
+
+   De roomcode, namen en
+   karakters blijven behouden.
+============================================================ */
+
+async function voteForRematch() {
+  const game = room?.game;
+
+  if (
+    !game ||
+    game.status !== "finished" ||
+    !myRole
+  ) {
+    return;
+  }
+
+  try {
+    await set(
+      ref(
+        database,
+        "duelRooms/" +
+        roomCode +
+        "/rematch/" +
+        myRole
+      ),
+
+      game.matchNumber
+    );
+
+  } catch (error) {
+    console.error(error);
+
+    roomNotice(
+      "❌ Opnieuw spelen kon niet " +
+      "worden bevestigd.",
+      "error"
+    );
+  }
+}
+
+
+/* ============================================================
+   OPNIEUW SPELEN: NIEUW POTJE STARTEN
+
+   Zodra beide spelers akkoord zijn,
+   start de host een nieuwe wedstrijd.
+
+   Een Firebase-transactie zorgt ervoor
+   dat het duel maar één keer herstart.
+============================================================ */
+
+async function tryStartRematch() {
+  const game = room?.game;
+
+  if (
+    rematchBusy ||
+    myRole !== "host" ||
+    game?.status !== "finished"
+  ) {
+    return;
+  }
+
+  const hostReady =
+    room.rematch?.host ===
+    game.matchNumber;
+
+  const guestReady =
+    room.rematch?.guest ===
+    game.matchNumber;
+
+  if (
+    !hostReady ||
+    !guestReady
+  ) {
+    return;
+  }
+
+  rematchBusy = true;
+
+  try {
+    const nextMatchNumber =
+      game.matchNumber + 1;
+
+    await runTransaction(
+      ref(
+        database,
+        "duelRooms/" +
+        roomCode +
+        "/game"
+      ),
+
+      currentGame => {
+        if (
+          !currentGame ||
+          currentGame.status !== "finished" ||
+          currentGame.matchNumber !==
+            game.matchNumber
+        ) {
+          return;
+        }
+
+        return initialGame(
+          nextMatchNumber
+        );
+      },
+
+      {
+        applyLocally: false
+      }
+    );
+
+  } catch (error) {
+    console.error(error);
+
+    roomNotice(
+      "❌ Opnieuw starten mislukt.",
+      "error"
+    );
+
+  } finally {
+    rematchBusy = false;
+  }
+}
+
+
+/* ============================================================
+   DE TIMER EN DE GROEIENDE VLAM
+
+   Een beurt duurt nu 14 seconden.
+============================================================ */
+
+function updateTimer() {
+  const game = room?.game;
+
+  if (
+    !game ||
+    game.status !== "playing"
+  ) {
+    return;
+  }
+
+  const timeLeft =
     game.deadline - serverNow();
 
   const secondsLeft = Math.max(
     0,
-    Math.ceil(millisecondsLeft / 1000)
-  );
-
-  ui.turnTimer.textContent =
-    String(secondsLeft);
-
-  const fraction = Math.max(
-    0,
-    Math.min(
-      1,
-      1 - millisecondsLeft / TURN_DURATION
+    Math.ceil(
+      timeLeft / 1000
     )
   );
 
+  const progress = Math.max(
+    0,
+    Math.min(
+      1,
+      1 - timeLeft / TURN_DURATION
+    )
+  );
+
+  ui["turn-timer"].textContent =
+    String(secondsLeft);
+
+  const urgent = secondsLeft <= 4;
+
+  ui["turn-timer"].classList.toggle(
+    "urgent",
+    urgent
+  );
+
+  ui["timer-balloon"].classList.toggle(
+    "danger",
+    urgent
+  );
+
   /*
-   * De vlam begint klein
-   * en groeit steeds verder.
+   * De vlam groeit gedurende
+   * de volledige 14 seconden.
    */
 
   const flameScale =
-    .15 + fraction * 2.3;
+    0.15 + progress * 2.3;
 
   const flameOpacity =
-    .2 + fraction * .8;
+    0.2 + progress * 0.8;
 
-  ui.timerBalloon.style.setProperty(
+  ui["timer-balloon"].style.setProperty(
     "--flame-scale",
     flameScale.toFixed(2)
   );
 
-  ui.timerBalloon.style.setProperty(
+  ui["timer-balloon"].style.setProperty(
     "--flame-opacity",
     flameOpacity.toFixed(2)
   );
 
-  const danger = secondsLeft <= 4;
-
-  ui.timerBalloon.classList.toggle(
-    "danger",
-    danger
-  );
-
-  ui.turnTimer.classList.toggle(
-    "urgent",
-    danger
-  );
-
   updateAnswerControls();
 
-  if (millisecondsLeft <= 0) {
+  if (timeLeft <= 0) {
     processTimeout();
   }
 }
@@ -2649,76 +2539,77 @@ setInterval(
 ============================================================ */
 
 async function copyCode() {
-  if (!currentRoomCode) {
-    return;
-  }
-
   try {
     await navigator.clipboard.writeText(
-      currentRoomCode
+      roomCode
     );
 
-    ui.copyButton.textContent =
-      "✅ GEKOPIEERD!";
+    ui["copy-button"].textContent =
+      "✅ Gekopieerd";
 
     setTimeout(() => {
-      ui.copyButton.textContent =
+      ui["copy-button"].textContent =
         "📋 Kopieer code";
     }, 2000);
 
   } catch (error) {
-    showRoomStatus(
-      "Selecteer de code hierboven " +
-      "om hem handmatig te kopiëren."
+    roomNotice(
+      "Selecteer de code om te kopiëren."
     );
   }
 }
 
 
 /* ============================================================
-   EVENTS
+   KNOPPEN VERBINDEN
 ============================================================ */
 
-ui.createButton.addEventListener(
+ui["create-button"].addEventListener(
   "click",
   createRoom
 );
 
-ui.joinButton.addEventListener(
+ui["join-button"].addEventListener(
   "click",
   joinRoom
 );
 
-ui.startDuelButton.addEventListener(
+ui["start-duel-button"].addEventListener(
   "click",
   startDuel
 );
 
-ui.copyButton.addEventListener(
-  "click",
-  copyCode
-);
-
-ui.answerForm.addEventListener(
+ui["answer-form"].addEventListener(
   "submit",
   submitAnswer
 );
 
-ui.newRoomButton.addEventListener(
+ui["new-room-button"].addEventListener(
   "click",
-  () => window.location.reload()
+  voteForRematch
 );
 
-ui.roomInput.addEventListener(
+ui["copy-button"].addEventListener(
+  "click",
+  copyCode
+);
+
+
+/* ============================================================
+   ROOMCODE INVOEREN
+============================================================ */
+
+ui["room-input"].addEventListener(
   "input",
   () => {
-    ui.roomInput.value = cleanRoomCode(
-      ui.roomInput.value
-    );
+    ui["room-input"].value =
+      cleanRoomCode(
+        ui["room-input"].value
+      );
   }
 );
 
-ui.roomInput.addEventListener(
+ui["room-input"].addEventListener(
   "keydown",
   event => {
     if (event.key === "Enter") {
@@ -2730,38 +2621,43 @@ ui.roomInput.addEventListener(
 
 
 /* ============================================================
-   BEIDE ANTWOORDVAKKEN
-
-   Alleen het antwoordvak van de
-   huidige speler kan echt typen.
+   LIVE TYPEN EN ENTER
 ============================================================ */
 
-ui.hostAnswerInput.addEventListener(
-  "input",
-  scheduleTypingUpdate
-);
+for (const playerRole of [
+  "host",
+  "guest"
+]) {
+  const input =
+    ui[playerRole + "-answer-input"];
 
-ui.guestAnswerInput.addEventListener(
-  "input",
-  scheduleTypingUpdate
-);
+  input.addEventListener(
+    "input",
+    scheduleTyping
+  );
 
-ui.hostAnswerInput.addEventListener(
-  "keydown",
-  event => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      ui.answerForm.requestSubmit();
+  input.addEventListener(
+    "keydown",
+    event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        ui["answer-form"].requestSubmit();
+      }
     }
-  }
-);
+  );
+}
 
-ui.guestAnswerInput.addEventListener(
-  "keydown",
-  event => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      ui.answerForm.requestSubmit();
+
+/* ============================================================
+   AUTOMATISCHE FOCUS BIJ TERUGKEREN
+============================================================ */
+
+document.addEventListener(
+  "visibilitychange",
+  () => {
+    if (!document.hidden) {
+      focusMyAnswer();
     }
   }
 );
@@ -2772,44 +2668,65 @@ ui.guestAnswerInput.addEventListener(
 ============================================================ */
 
 async function initialize() {
-  initializeAvatarPicker();
+  renderAvatarPicker();
+
+  ui["turn-timer"].textContent = "14";
+
+  /*
+   * De oude footer kan nog
+   * "12 seconden" vermelden.
+   * Die passen we automatisch aan.
+   */
+
+  const footer =
+    document.querySelector(
+      ".duel-footer-note"
+    );
+
+  if (footer) {
+    footer.textContent =
+      footer.textContent.replace(
+        "12 seconden",
+        "14 seconden"
+      );
+  }
 
   try {
     if (questions.length === 0) {
       throw new Error(
-        "Geen Duel-vragen gevonden. " +
-        "Controleer vragen-uitbreiding.js."
+        "Geen vragen gevonden. " +
+        "Controleer vragen-uitbreiding.js " +
+        "en het nieuwe antwoordenbestand."
       );
     }
 
     const result =
       await signInAnonymously(auth);
 
-    currentUser = result.user;
+    currentUserId = result.user.uid;
 
-    showConnectionStatus(
-      "✅ Verbonden met Firebase! " +
-      "Kies je naam en karakter.",
+    connectionNotice(
+      "✅ Verbonden! Kies je naam en karakter.",
       "success"
     );
 
-    updateLobbyButtons();
+    updateLobbyControls();
 
     console.log(
-      "🎈⚔️ QuizBallon Duel V2 geladen!"
+      "🎈 QuizBallon Duel gestart!"
     );
 
     console.log(
-      "📚 Duel-vragen:",
+      "📚 Aantal duelvragen:",
       questions.length
     );
 
   } catch (error) {
     console.error(error);
 
-    showConnectionStatus(
-      "❌ Verbinden mislukt. " +
-      "Controleer Firebase en de vragenbank.",
+    connectionNotice(
+      "❌ Kon QuizBallon niet starten: " +
+      error.message,
       "error"
     );
   }
