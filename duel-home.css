@@ -1,0 +1,138 @@
+/* ======================================================
+   QUIZBALLON HOMEPAGE
+   NIEUWE DUEL-KNOP
+
+   De dagelijkse startknop blijft staan.
+
+   De Duel-knop komt eronder en
+   krijgt dezelfde lichte, vrolijke
+   stijl als de rest van QuizBallon.
+====================================================== */
+
+.duel-home-link {
+  position: relative;
+  z-index: 30;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  width: min(100%, 360px);
+
+  min-height: 62px;
+
+  margin-top: 15px;
+  padding: 16px 20px;
+
+  border: 2px solid #d7e8ff;
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #eaf5ff
+    );
+
+  color: #2d66b5;
+
+  font-family:
+    "Outfit",
+    Arial,
+    sans-serif;
+
+  font-size: 14px;
+  font-weight: 1000;
+
+  letter-spacing: .02em;
+
+  text-align: center;
+  text-decoration: none;
+
+  box-shadow:
+    0 12px 25px rgba(51, 108, 187, .13);
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+.duel-home-link:hover {
+  transform: translateY(-3px);
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff,
+      #ddecff
+    );
+
+  box-shadow:
+    0 15px 30px rgba(51, 108, 187, .18);
+}
+
+.duel-home-link:focus-visible {
+  outline: 3px solid #3584ee;
+  outline-offset: 4px;
+}
+
+.duel-home-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.duel-home-text {
+  flex: 1;
+
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.duel-home-arrow {
+  font-size: 21px;
+}
+
+
+/* ======================================================
+   DESKTOP
+
+   Het script in index.html kan de
+   knop exact onder de bestaande
+   startknop positioneren.
+====================================================== */
+
+@media (min-width: 900px) {
+  .duel-home-link.is-positioned {
+    position: fixed;
+
+    margin: 0;
+
+    z-index: 40;
+  }
+}
+
+
+/* ======================================================
+   MOBIEL
+
+   Op telefoons blijft de Duel-knop
+   gewoon onder de dagelijkse knop
+   in de normale paginavolgorde.
+====================================================== */
+
+@media (max-width: 899px) {
+  .duel-home-link {
+    display: flex;
+    width: min(100%, 390px);
+
+    margin: 18px auto 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .duel-home-link {
+    transition: none;
+  }
+}
