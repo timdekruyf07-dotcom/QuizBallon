@@ -1,1946 +1,425 @@
-/* =====================================================
-   QUIZBALLON - DAILY CHALLENGE V6
+/* ==========================================================
+   QUIZBALLON DAILY V7 - 650 VRAGEN
 
-   - 10 VRAGEN PER DAG
-   - 10 VOLLEDIGE DAGEN GEEN HERHALING
-   - LETTERVARIANT = DEZELFDE BASISVRAAG
-   - 9 GEWONE VRAGEN + 1 LETTERVRAAG
-   - WILLEKEURIGE, VASTE ROULATIE
-   - GEEN VERPLICHTE CATEGORIEËN
-   - DEZELFDE VRAGEN PER DATUM
-   - NEDERLANDSE TIJDZONE
-   - EEN VOLTOOIDE DAILY PER DAG
-   - BESTAANDE RESULTATEN BEHOUDEN
-===================================================== */
+   - 10 vragen per dag
+   - 6 t/m 9 verschillende categorieën per dag
+   - maximaal 2 vragen uit dezelfde categorie
+   - geen basisvraag uit de vorige 10 dagen
+   - 1 lettervraag, 9 gewone vragen
+   - dezelfde vaste dagselectie voor iedereen
+   - Nederland: 00:00 tot 00:00
+   - 1 afgeronde Daily per browser per dag
+   - oude resultaten van Daily V6 blijven bewaard
 
+   Vereist: vragen-650.js VOOR daily.js
+   Daily gebruikt uitsluitend de 650 nieuwe basisvragen.
+========================================================== */
 (function () {
   "use strict";
 
   const TZ = "Europe/Amsterdam";
-
-  const PER_DAY = 10;
-
+  const DAILY_COUNT = 10;
   const BLOCK_DAYS = 10;
-
-  const REQUIRED =
-    PER_DAY * (BLOCK_DAYS + 1);
-
-  const SALT =
-    "quizballon-v6-vaste-roulatie-2026-11";
-
-  const STORAGE =
-    "quizballon-daily-result-v1";
-
-
-  /* ========================================
-     HTML
-  ======================================== */
-
-  function el(id) {
-    return document.getElementById(id);
-  }
-
+  const MIN_CATEGORIES = 6;
+  const MAX_CATEGORIES = 9;
+  const EPOCH = Date.UTC(2026, 10, 27) / 86400000;
+  const STORAGE = "quizballon-daily-result-v1";
+  const VERSION = "QB650-2026-11-27-1";
+  const QUESTIONS = window.QB650_QUESTIONS;
+  const BY_CATEGORY = window.QB650_BY_CATEGORY;
   const ui = {
-
-    start: el("start-button"),
-
-    restart: el("restart-button"),
-
-    home: el("home-button"),
-
-    quit: el("quit-button"),
-
-    startScreen: el("start-screen"),
-
-    end: el("end-screen"),
-
-    date: el("daily-date"),
-
-    desc: el("daily-description"),
-
-    status: el("daily-status"),
-
-    countdown: el("daily-countdown"),
-
-    endMessage: el("daily-end-message"),
-
-    score: el("end-score"),
-
-    height: el("end-height"),
-
-    correct: el("end-correct")
-
+    start: document.getElementById("start-button"),
+    restart: document.getElementById("restart-button"),
+    home: document.getElementById("home-button"),
+    quit: document.getElementById("quit-button"),
+    startScreen: document.getElementById("start-screen"),
+    end: document.getElementById("end-screen"),
+    date: document.getElementById("daily-date"),
+    description: document.getElementById("daily-description"),
+    status: document.getElementById("daily-status"),
+    countdown: document.getElementById("daily-countdown"),
+    endMessage: document.getElementById("daily-end-message"),
+    endScore: document.getElementById("end-score"),
+    endHeight: document.getElementById("end-height"),
+    endCorrect: document.getElementById("end-correct")
   };
 
+  function fail(message) {
+    console.error("QuizBallon Daily V7: " + message);
+    if (ui.description) ui.description.textContent = "Daily tijdelijk niet beschikbaar: " + message;
+    if (ui.start) ui.start.disabled = true;
+  }
 
-  /* ========================================
-     COMPLETE VRAGENBANK BEWAREN
-  ======================================== */
+  if (!Array.isArray(QUESTIONS) || QUESTIONS.length !== 650 ||
+      !BY_CATEGORY || Object.keys(BY_CATEGORY).length !== 13) {
+    fail("Het bestand vragen-650.js is niet volledig geladen.");
+    return;
+  }
 
-  const original = Array.isArray(
-    window.QUIZBALLON_EXPANDED_QUESTIONS
-  )
-    ? [
-        ...window.QUIZBALLON_EXPANDED_QUESTIONS
-      ]
-    : [];
+  if (!ui.start || !ui.end || !ui.endScore) {
+    fail("Vereiste HTML-elementen ontbreken.");
+    return;
+  }
 
+  function hash(value) {
+    let h = 2166136261;
+    for (let i = 0; i < value.length; i++) {
+      h ^= value.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
 
-  /* ========================================
-     NORMALISEREN
-  ======================================== */
+  function rng(seed) {
+    let x = seed >>> 0;
+    return function () {
+      x += 0x6d2b79f5;
+      let t = x;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
 
-  function norm(value) {
+  function shuffle(list, seed) {
+    const result = list.slice();
+    const rand = rng(seed);
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }
 
+  function dutchDate(date) {
+    return new Intl.DateTimeFormat("sv-SE", {
+      timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit"
+    }).format(date || new Date());
+  }
+
+  function numberOfDay(key) {
+    const [y, m, d] = key.split("-").map(Number);
+    return Math.floor(Date.UTC(y, m - 1, d) / 86400000);
+  }
+
+  function keyOfDay(number) {
+    return new Date(number * 86400000).toISOString().slice(0, 10);
+  }
+
+  const categoryNames = Object.keys(BY_CATEGORY).sort();
+  const pools = {};
+  categoryNames.forEach(function (name) {
+    if (BY_CATEGORY[name].length !== 50) throw Error("Geen 50 vragen in " + name);
+    pools[name] = shuffle(
+      BY_CATEGORY[name].slice().sort(function (a, b) { return a.id.localeCompare(b.id); }),
+      hash(VERSION + "|pool|" + name)
+    );
+  });
+
+  /*
+   * Eerst willekeurig 6-9 verschillende categorieën kiezen.
+   * Daarna extra categoriebeurten verdelen, maximaal 2 per
+   * categorie. Er is GEEN categorie die verplicht iedere dag
+   * aan bod komt.
+   */
+  function categorySlots(day) {
+    const key = keyOfDay(day);
+    const order = shuffle(categoryNames, hash(VERSION + "|cats|" + key));
+    const count = MIN_CATEGORIES +
+      (hash(VERSION + "|count|" + key) % (MAX_CATEGORIES - MIN_CATEGORIES + 1));
+    const chosen = order.slice(0, count);
+    const extras = shuffle(chosen, hash(VERSION + "|extra|" + key))
+      .slice(0, DAILY_COUNT - count);
+    return shuffle(chosen.concat(extras), hash(VERSION + "|slots|" + key));
+  }
+
+  /*
+   * Permanente, voorspelbare reeks:
+   * Iedere categorie heeft 50 unieke vragen in een geschudde
+   * lijst. Bij een categoriebeurt nemen we de volgende vraag.
+   * Per dag zijn er maximaal 2 beurten per categorie.
+   * Eenzelfde vraag kan dus niet binnen 10 dagen terugkeren:
+   * er kunnen maximaal 20 van de 50 posities passeren.
+   *
+   * De planning wordt deterministisch opgebouwd vanaf
+   * 27 november 2026. Daardoor krijgen alle bezoekers met
+   * dezelfde versie dezelfde vragen.
+   */
+  const used = {};
+  categoryNames.forEach(function (name) { used[name] = 0; });
+  const planCache = new Map();
+  let highestBuilt = EPOCH - 1;
+
+  function ensurePlan(day) {
+    if (!Number.isInteger(day) || day < EPOCH) {
+      throw Error("Daily V7 ondersteunt datums vanaf 2026-11-27.");
+    }
+    for (let d = highestBuilt + 1; d <= day; d++) {
+      const slots = categorySlots(d);
+      const entry = slots.map(function (category) {
+        const pool = pools[category];
+        const question = pool[used[category] % pool.length];
+        used[category]++;
+        return { category: category, id: question.id, question: question };
+      });
+      planCache.set(d, entry);
+      highestBuilt = d;
+    }
+    return planCache.get(day);
+  }
+
+  function letters(value) {
     return String(value || "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
-      .replace(/['’`]/g, "")
-      .replace(/[-–—_]/g, " ")
-      .replace(/[^a-z0-9 ]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-
-  }
-
-
-  /* ========================================
-     BASISVRAAG HERKENNEN
-
-     Een lettervariant krijgt
-     dezelfde basisvraag als
-     de gewone vraag.
-  ======================================== */
-
-  function baseText(question) {
-
-    return String(
-      question.question || ""
-    )
-      .split(/extra eis\s*:/i)[0]
-      .trim();
-
-  }
-
-
-  function topicKey(question) {
-
-    const explicit =
-      question.baseQuestionId ||
-      question.topicId ||
-      question.topic;
-
-    if (explicit) {
-      return norm(explicit);
-    }
-
-    const text = norm(
-      baseText(question)
-    );
-
-    /*
-     * Bekende dubbele onderwerpen
-     * uit de bestaande vragenbank.
-     */
-
-    if (
-      /stad in japan/.test(text)
-    ) {
-      return "japanse steden";
-    }
-
-    if (
-      /hondenras/.test(text)
-    ) {
-      return "hondenrassen";
-    }
-
-    return text;
-
-  }
-
-
-  /* ========================================
-     NEDERLANDSE DATUM
-  ======================================== */
-
-  function keyOfDate(
-    date = new Date()
-  ) {
-
-    return new Intl.DateTimeFormat(
-      "sv-SE",
-      {
-        timeZone: TZ,
-
-        year: "numeric",
-
-        month: "2-digit",
-
-        day: "2-digit"
-      }
-    ).format(date);
-
-  }
-
-
-  function dayIndex(key) {
-
-    const parts = key
-      .split("-")
-      .map(Number);
-
-    const year = parts[0];
-    const month = parts[1];
-    const day = parts[2];
-
-    return Math.floor(
-      Date.UTC(
-        year,
-        month - 1,
-        day
-      ) / 86400000
-    );
-
-  }
-
-
-  function nextDate(
-    key,
-    numberOfDays
-  ) {
-
-    const date = new Date(
-      key + "T12:00:00Z"
-    );
-
-    date.setUTCDate(
-      date.getUTCDate() +
-      numberOfDays
-    );
-
-    return date
-      .toISOString()
-      .slice(0, 10);
-
-  }
-
-
-  /* ========================================
-     VASTE WILLEKEURIGE SEED
-  ======================================== */
-
-  function hash(value) {
-
-    let result = 2166136261;
-
-    for (
-      let i = 0;
-      i < value.length;
-      i++
-    ) {
-
-      result ^= value.charCodeAt(i);
-
-      result = Math.imul(
-        result,
-        16777619
-      );
-
-    }
-
-    return result >>> 0;
-
-  }
-
-
-  function random(seed) {
-
-    let state = seed >>> 0;
-
-    return function () {
-
-      state += 0x6D2B79F5;
-
-      let value = state;
-
-      value = Math.imul(
-        value ^ (value >>> 15),
-        value | 1
-      );
-
-      value ^= value + Math.imul(
-        value ^ (value >>> 7),
-        value | 61
-      );
-
-      return (
-        ((value ^ (value >>> 14)) >>> 0) /
-        4294967296
-      );
-
-    };
-
-  }
-
-
-  function shuffle(items, seed) {
-
-    const result = [...items];
-
-    const rnd = random(seed);
-
-    for (
-      let i = result.length - 1;
-      i > 0;
-      i--
-    ) {
-
-      const j = Math.floor(
-        rnd() * (i + 1)
-      );
-
-      [
-        result[i],
-        result[j]
-      ] = [
-        result[j],
-        result[i]
-      ];
-
-    }
-
-    return result;
-
-  }
-
-
-  /* ========================================
-     LETTERVARIANT HERKENNEN
-  ======================================== */
-
-  function hasLetterVariant(question) {
-
-    return /extra eis\s*:/i.test(
-      question.question || ""
-    );
-
-  }
-
-
-  /* ========================================
-     BASISVRAGEN GROEPEREN
-
-     Alle varianten van dezelfde
-     vraag komen in één groep.
-
-     Die groep kan maar één keer
-     voorkomen binnen de roulatie.
-  ======================================== */
-
-  const grouped = new Map();
-
-  original.forEach(
-    function (question) {
-
-      if (
-        !question ||
-        !Array.isArray(
-          question.answers
-        ) ||
-        !question.answers.length
-      ) {
-        return;
-      }
-
-      const key = topicKey(
-        question
-      );
-
-      if (!key) {
-        return;
-      }
-
-      if (!grouped.has(key)) {
-
-        grouped.set(key, {
-
-          key: key,
-
-          regular: [],
-
-          variants: []
-
-        });
-
-      }
-
-      const group =
-        grouped.get(key);
-
-      if (
-        hasLetterVariant(question)
-      ) {
-
-        group.variants.push(
-          question
-        );
-
-      } else {
-
-        group.regular.push(
-          question
-        );
-
-      }
-
-    }
-  );
-
-
-  const bases = [
-    ...grouped.values()
-  ].filter(
-    function (group) {
-
-      return group.regular.length > 0;
-
-    }
-  );
-
-
-  /* ========================================
-     VASTE ROULATIE
-
-     Sorteer eerst de basisvragen
-     zodat de bronvolgorde geen
-     invloed heeft.
-
-     Daarna schudden we ze één keer
-     met een vaste seed.
-  ======================================== */
-
-  const ordered = shuffle(
-
-    bases.sort(
-      function (a, b) {
-
-        return a.key.localeCompare(
-          b.key,
-          "nl"
-        );
-
-      }
-    ),
-
-    hash(SALT)
-
-  );
-
-
-  const sufficient =
-    ordered.length >= REQUIRED;
-
-
-  /* ========================================
-     DAGSTATUS
-  ======================================== */
-
-  let current = keyOfDate();
-
-  let completed = null;
-
-  let startedDay = null;
-
-  let lastEnd = false;
-
-
-  /* ========================================
-     GEWONE VRAAG KIEZEN
-  ======================================== */
-
-  function baseFor(
-    group,
-    key
-  ) {
-
-    return shuffle(
-
-      group.regular,
-
-      hash(
-        SALT +
-        "|basis|" +
-        key +
-        "|" +
-        group.key
-      )
-
-    )[0];
-
-  }
-
-
-  /* ========================================
-     ANTWOORDEN HELPERS
-  ======================================== */
-
-  function answersFor(question) {
-
-    return Array.isArray(
-      question.answers
-    )
-      ? question.answers
-      : [];
-
-  }
-
-
-  function nameOf(answer) {
-
-    if (
-      typeof answer === "string"
-    ) {
-
-      return answer.split("|")[0];
-
-    }
-
-    return answer.answer;
-
-  }
-
-
-  function letters(value) {
-
-    return norm(value)
       .replace(/[^a-z]/g, "");
-
   }
 
-
-  /* ========================================
-     VERSCHILLENDE LETTERREGELS
-
-     Ook de lettervraag zelf
-     wisselt per datum.
-  ======================================== */
-
-  const LETTER_RULES = [
-
-    {
-      label:
-        "de naam heeft minstens 5 letters",
-
-      test: function (name) {
-
-        return letters(name).length >= 5;
-
-      }
-    },
-
-    {
-      label:
-        "de naam heeft minstens 6 letters",
-
-      test: function (name) {
-
-        return letters(name).length >= 6;
-
-      }
-    },
-
-    {
-      label:
-        "de naam bevat de letter A of E",
-
-      test: function (name) {
-
-        return /[ae]/.test(
-          letters(name)
-        );
-
-      }
-    },
-
-    {
-      label:
-        "de naam heeft minstens 2 klinkers",
-
-      test: function (name) {
-
-        return (
-          letters(name).match(
-            /[aeiou]/g
-          ) || []
-        ).length >= 2;
-
-      }
-    },
-
-    {
-      label:
-        "de naam bevat een N, R of S",
-
-      test: function (name) {
-
-        return /[nrs]/.test(
-          letters(name)
-        );
-
-      }
-    },
-
-    {
-      label:
-        "de naam begint met een medeklinker",
-
-      test: function (name) {
-
-        return /^[bcdfghjklmnpqrstvwxyz]/.test(
-          letters(name)
-        );
-
-      }
-    },
-
-    {
-      label:
-        "de naam bevat minstens 3 medeklinkers",
-
-      test: function (name) {
-
-        return (
-          letters(name).match(
-            /[bcdfghjklmnpqrstvwxyz]/g
-          ) || []
-        ).length >= 3;
-
-      }
-    },
-
-    {
-      label:
-        "de naam eindigt op een medeklinker",
-
-      test: function (name) {
-
-        return /[bcdfghjklmnpqrstvwxyz]$/.test(
-          letters(name)
-        );
-
-      }
-    }
-
+  const RULES = [
+    { name: "de naam heeft minstens 5 letters", test: function (n) { return letters(n).length >= 5; } },
+    { name: "de naam heeft minstens 6 letters", test: function (n) { return letters(n).length >= 6; } },
+    { name: "de naam bevat de letter A", test: function (n) { return letters(n).includes("a"); } },
+    { name: "de naam bevat de letter E", test: function (n) { return letters(n).includes("e"); } },
+    { name: "de naam bevat de letter O", test: function (n) { return letters(n).includes("o"); } },
+    { name: "de naam bevat minstens 2 klinkers", test: function (n) {
+      return (letters(n).match(/[aeiou]/g) || []).length >= 2;
+    } },
+    { name: "de naam begint met een medeklinker", test: function (n) {
+      return /^[bcdfghjklmnpqrstvwxyz]/.test(letters(n));
+    } },
+    { name: "de naam eindigt op een medeklinker", test: function (n) {
+      return /[bcdfghjklmnpqrstvwxyz]$/.test(letters(n));
+    } }
   ];
 
-
-  /* ========================================
-     LETTERVRAAG MAKEN
-
-     Belangrijk:
-     - Alleen passende antwoorden
-     - Alternatieve namen moeten
-       zelf ook aan de eis voldoen
-     - Precies één raketantwoord
-  ======================================== */
-
-  function makeLetterQuestion(
-    question,
-    key
-  ) {
-
-    const availableRules = shuffle(
-
-      LETTER_RULES,
-
-      hash(
-        SALT +
-        "|eis|" +
-        key +
-        "|" +
-        question.question
-      )
-
-    );
-
-
-    for (
-      const rule of availableRules
-    ) {
-
-      const matches =
-        answersFor(question).filter(
-          function (answer) {
-
-            return rule.test(
-              nameOf(answer)
-            );
-
-          }
-        );
-
-
-      if (matches.length < 8) {
-        continue;
-      }
-
-
-      const copied = matches.map(
-        function (answer) {
-
-          if (
-            typeof answer === "string"
-          ) {
-
-            const parts =
-              answer.split("|");
-
-            return {
-
-              answer: parts[0],
-
-              points: Math.max(
-                10,
-                Math.min(
-                  99,
-                  Number(parts[1]) || 10
-                )
-              ),
-
-              aliases:
-                parts.slice(2).filter(
-                  rule.test
-                ),
-
-              isRocket: false
-
-            };
-
-          }
-
-
-          return {
-
-            ...answer,
-
-            aliases: (
-              answer.aliases || []
-            ).filter(
-              rule.test
-            ),
-
-            isRocket:
-              answer.isRocket === true
-
-          };
-
-        }
-      );
-
-
-      /*
-       * Bestaand raketantwoord
-       * behouden wanneer het
-       * aan de letterregel voldoet.
-       */
-
-      const rockets = copied.filter(
-        function (answer) {
-
-          return (
-            answer.isRocket ||
-            Number(answer.points) === 100
-          );
-
-        }
-      );
-
-
-      /*
-       * Anders het hoogst
-       * gewaardeerde geldige
-       * antwoord selecteren.
-       */
-
-      const rocket =
-        rockets[0] ||
-
-        copied.reduce(
-          function (best, answer) {
-
-            return Number(
-              answer.points
-            ) > Number(
-              best.points
-            )
-              ? answer
-              : best;
-
-          },
-          copied[0]
-        );
-
-
-      copied.forEach(
-        function (answer) {
-
-          answer.isRocket =
-            answer === rocket;
-
-          answer.points =
-            answer === rocket
-
-              ? 100
-
-              : Math.max(
-                  10,
-                  Math.min(
-                    99,
-                    Number(
-                      answer.points
-                    ) || 10
-                  )
-                );
-
-        }
-      );
-
-
+  function makeLetterQuestion(question, dayKey) {
+    const rules = shuffle(RULES, hash(VERSION + "|rules|" + dayKey + "|" + question.id));
+    for (const rule of rules) {
+      const accepted = question.answers.filter(function (a) {
+        return rule.test(a.answer);
+      });
+      if (accepted.length < 4) continue;
+      const copy = accepted.map(function (answer) {
+        return {
+          ...answer,
+          aliases: (answer.aliases || []).filter(rule.test),
+          isRocket: false,
+          points: Math.min(99, Number(answer.points) || 10)
+        };
+      });
+      const originalRocket = question.answers.find(function (a) {
+        return a.isRocket && rule.test(a.answer);
+      });
+      const rocket = (originalRocket && copy.find(function (a) {
+        return a.answer === originalRocket.answer;
+      })) || copy.reduce(function (a, b) { return a.points >= b.points ? a : b; });
+      rocket.points = 100;
+      rocket.isRocket = true;
       return {
-
         ...question,
-
-        question:
-          baseText(question)
-            .replace(
-              /[.!?\s]+$/,
-              ""
-            ) +
-          ". Extra eis: " +
-          rule.label +
-          ".",
-
-        hint:
-          "Alleen antwoorden die aan " +
-          "de extra lettereis voldoen " +
-          "tellen mee.",
-
-        answers:
-          copied
-
+        isLetterQuestion: true,
+        question: question.question.replace(/[.!?\s]+$/, "") +
+          ". Extra eis: " + rule.name + ".",
+        hint: "Alleen antwoorden die voldoen aan de extra lettereis tellen mee.",
+        answers: copy
       };
-
     }
-
-
     return null;
-
   }
-
-
-  /* ========================================
-     10 VRAGEN VOOR ÉÉN DAG
-
-     De wiskunde achter de blokkade:
-
-     Minstens 110 unieke basisvragen.
-
-     Iedere dag verschuiven we
-     10 posities door de geschudde
-     lijst.
-
-     Een vraag komt dus pas terug
-     nadat alle andere posities
-     zijn gepasseerd.
-
-     Dat duurt minstens 11 dagen.
-  ======================================== */
 
   function select(key) {
+    const day = numberOfDay(key);
+    const base = ensurePlan(day);
+    const items = base.map(function (entry) {
+      return {
+        id: entry.id,
+        category: entry.category,
+        question: entry.question
+      };
+    });
+    const eligible = shuffle(items.map(function (item, index) {
+      return { index: index, question: makeLetterQuestion(item.question, key) };
+    }).filter(function (x) { return x.question !== null; }), hash(VERSION + "|letter|" + key));
+    if (!eligible.length) throw Error("Geen geschikte lettervraag op " + key);
+    const winner = eligible[0];
+    items[winner.index].question = winner.question;
+    return items;
+  }
 
-    if (!sufficient) {
-      return [];
+  function verify(key) {
+    const day = numberOfDay(key);
+    const today = select(key);
+    if (today.length !== DAILY_COUNT) return false;
+    const ids = new Set(today.map(function (x) { return x.id; }));
+    const counts = {};
+    today.forEach(function (x) { counts[x.category] = (counts[x.category] || 0) + 1; });
+    const categoryCount = Object.keys(counts).length;
+    if (ids.size !== DAILY_COUNT || categoryCount < MIN_CATEGORIES ||
+        categoryCount > MAX_CATEGORIES ||
+        Object.values(counts).some(function (n) { return n > 2; })) return false;
+    if (today.filter(function (x) { return x.question.isLetterQuestion; }).length !== 1) return false;
+    for (let offset = 1; offset <= BLOCK_DAYS; offset++) {
+      if (day - offset < EPOCH) break;
+      const previous = ensurePlan(day - offset);
+      if (previous.some(function (x) { return ids.has(x.id); })) return false;
     }
-
-    const start = (
-
-      (
-        dayIndex(key) * PER_DAY
-      ) % ordered.length +
-
-      ordered.length
-
-    ) % ordered.length;
-
-
-    const selectedGroups =
-      Array.from(
-        {
-          length: PER_DAY
-        },
-        function (_, index) {
-
-          return ordered[
-            (
-              start + index
-            ) % ordered.length
-          ];
-
-        }
-      );
-
-
-    const output =
-      selectedGroups.map(
-        function (group) {
-
-          return {
-
-            key: group.key,
-
-            question:
-              baseFor(
-                group,
-                key
-              )
-
-          };
-
-        }
-      );
-
-
-    /*
-     * Iedere dag precies
-     * één lettervraag maken.
-     */
-
-    const eligible =
-      output.map(
-        function (item, index) {
-
-          return {
-
-            index: index,
-
-            variant:
-              makeLetterQuestion(
-                item.question,
-                key
-              )
-
-          };
-
-        }
-      ).filter(
-        function (item) {
-
-          return Boolean(
-            item.variant
-          );
-
-        }
-      );
-
-
-    if (!eligible.length) {
-      return [];
-    }
-
-
-    const picked = shuffle(
-
-      eligible,
-
-      hash(
-        SALT +
-        "|letter|" +
-        key
-      )
-
-    )[0];
-
-
-    output[
-      picked.index
-    ].question = picked.variant;
-
-
-    /*
-     * De volgorde ook
-     * dagelijks schudden.
-     */
-
-    return shuffle(
-
-      output,
-
-      hash(
-        SALT +
-        "|volgorde|" +
-        key
-      )
-
-    );
-
+    return true;
   }
 
+  const todayKey = dutchDate();
+  let startedKey = null;
+  let completed = null;
+  let endWasActive = false;
 
-  /* ========================================
-     LAATSTE 10 DAGEN CONTROLEREN
-
-     Dit is een echte controle,
-     niet alleen een logbericht.
-  ======================================== */
-
-  function checkHistory(key) {
-
-    const today =
-      select(key);
-
-    const todayKeys =
-      new Set(
-        today.map(
-          function (item) {
-
-            return item.key;
-
-          }
-        )
-      );
-
-
-    for (
-      let difference = 1;
-      difference <= BLOCK_DAYS;
-      difference++
-    ) {
-
-      const previous =
-        select(
-          nextDate(
-            key,
-            -difference
-          )
-        );
-
-
-      const repeated =
-        previous.some(
-          function (item) {
-
-            return todayKeys.has(
-              item.key
-            );
-
-          }
-        );
-
-
-      if (repeated) {
-        return false;
-      }
-
-    }
-
-
-    return today.length === PER_DAY;
-
-  }
-
-
-  /* ========================================
-     NEDERLANDSE KLOK
-  ======================================== */
-
-  function getClock() {
-
-    const data = {
-
-      hour: 0,
-
-      minute: 0,
-
-      second: 0
-
-    };
-
-
-    const parts =
-      new Intl.DateTimeFormat(
-        "nl-NL",
-        {
-          timeZone: TZ,
-
-          hour: "2-digit",
-
-          minute: "2-digit",
-
-          second: "2-digit",
-
-          hourCycle: "h23"
-        }
-      ).formatToParts(
-        new Date()
-      );
-
-
-    parts.forEach(
-      function (part) {
-
-        if (
-          part.type in data
-        ) {
-
-          data[part.type] =
-            Number(
-              part.value
-            );
-
-        }
-
-      }
-    );
-
-
-    return data;
-
-  }
-
-
-  /* ========================================
-     AFTELLER
-  ======================================== */
-
-  function countdown() {
-
-    const clock =
-      getClock();
-
-    let seconds =
-      86400 -
-
-      (
-        clock.hour * 3600 +
-        clock.minute * 60 +
-        clock.second
-      );
-
-
-    const hours =
-      Math.floor(
-        seconds / 3600
-      );
-
-    seconds %= 3600;
-
-    const minutes =
-      Math.floor(
-        seconds / 60
-      );
-
-    const rest =
-      seconds % 60;
-
-
-    return [
-      hours,
-      minutes,
-      rest
-    ]
-      .map(
-        function (number) {
-
-          return String(number)
-            .padStart(
-              2,
-              "0"
-            );
-
-        }
-      )
-      .join(":");
-
-  }
-
-
-  /* ========================================
-     RESULTAAT LADEN
-  ======================================== */
-
-  function getResult() {
-
+  function readCompletion() {
     try {
+      const r = JSON.parse(localStorage.getItem(STORAGE) || "null");
+      return r && r.date === todayKey ? r : null;
+    } catch (e) { return null; }
+  }
+  function isDone() { return Boolean(completed); }
 
-      const result =
-        JSON.parse(
-          localStorage.getItem(
-            STORAGE
-          )
-        );
-
-
-      if (
-        result &&
-        result.date === current &&
-        typeof result.score === "number" &&
-        typeof result.height === "string"
-      ) {
-
-        return result;
-
-      }
-
-
-      return null;
-
-    } catch (error) {
-
-      return null;
-
-    }
-
+  function clock() {
+    const result = { hour: 0, minute: 0, second: 0 };
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: TZ, hour: "2-digit", minute: "2-digit",
+      second: "2-digit", hourCycle: "h23"
+    }).formatToParts(new Date()).forEach(function (part) {
+      if (part.type in result) result[part.type] = Number(part.value);
+    });
+    return result;
   }
 
-
-  function isDone() {
-
-    return Boolean(
-      completed &&
-      completed.date === current
-    );
-
+  function timeRemaining() {
+    const c = clock();
+    let n = 86400 - c.hour * 3600 - c.minute * 60 - c.second;
+    return [Math.floor(n / 3600), Math.floor(n % 3600 / 60), n % 60]
+      .map(function (x) { return String(x).padStart(2, "0"); }).join(":");
   }
 
-
-  /* ========================================
-     KNOPTEKST
-  ======================================== */
-
-  function setButton(
-    button,
-    title
-  ) {
-
-    if (!button) {
-      return;
-    }
-
-
-    const text =
-      document.createElement(
-        "span"
-      );
-
-    text.textContent =
-      title;
-
-
-    const arrow =
-      document.createElement(
-        "span"
-      );
-
-    arrow.textContent =
-      "↗";
-
-
-    button.replaceChildren(
-      text,
-      arrow
-    );
-
+  function buttonText(button, value) {
+    if (!button) return;
+    button.replaceChildren(document.createTextNode(value + " "));
+    const arrow = document.createElement("span");
+    arrow.textContent = "↗";
+    button.appendChild(arrow);
   }
-
-
-  /* ========================================
-     STARTSCHERM BIJWERKEN
-  ======================================== */
 
   function updateHome() {
-
-    if (ui.date) {
-
-      ui.date.textContent =
-        new Intl.DateTimeFormat(
-          "nl-NL",
-          {
-            timeZone: TZ,
-
-            weekday: "long",
-
-            day: "numeric",
-
-            month: "long",
-
-            year: "numeric"
-          }
-        ).format(
-          new Date()
-        );
-
-    }
-
-
-    if (ui.countdown) {
-
-      ui.countdown.textContent =
-        countdown();
-
-    }
-
-
+    if (ui.date) ui.date.textContent = new Intl.DateTimeFormat("nl-NL", {
+      timeZone: TZ, weekday: "long", day: "numeric", month: "long", year: "numeric"
+    }).format(new Date());
+    if (ui.countdown) ui.countdown.textContent = timeRemaining();
     if (ui.status) {
-
-      ui.status.textContent =
-        isDone()
-          ? "VOLTOOID ✓"
-          : "BESCHIKBAAR";
-
-
-      ui.status.classList.toggle(
-        "completed",
-        isDone()
-      );
-
+      ui.status.textContent = isDone() ? "VOLTOOID ✓" : "BESCHIKBAAR";
+      ui.status.classList.toggle("completed", isDone());
     }
-
-
-    if (ui.desc) {
-
-      if (isDone()) {
-
-        ui.desc.textContent =
-          "Je hebt vandaag " +
-          completed.score +
-          " punten gehaald en bereikte " +
-          completed.height +
-          ". Morgen een nieuwe vlucht!";
-
-      } else {
-
-        ui.desc.textContent =
-          "Tien willekeurig gerouleerde " +
-          "vragen. Dezelfde basisvraag " +
-          "blijft tien dagen weg: " +
-          "9 gewone vragen en " +
-          "1 lettervraag.";
-
-      }
-
-    }
-
-
-    ui.start.disabled =
-      isDone() || !sufficient;
-
-
-    setButton(
-
-      ui.start,
-
-      isDone()
-        ? "MORGEN WEER VLIEGEN"
-        : "START DE DAGELIJKSE VLUCHT"
-
-    );
-
-
-    if (ui.restart) {
-
-      ui.restart.disabled =
-        isDone() || !sufficient;
-
-
-      setButton(
-
-        ui.restart,
-
-        isDone()
-          ? "MORGEN WEER SPELEN"
-          : "OPNIEUW VLIEGEN"
-
-      );
-
-    }
-
+    if (ui.description) ui.description.textContent = isDone()
+      ? "Vandaag gespeeld: " + (completed.score || 0) + " punten. Morgen nieuwe vragen!"
+      : "10 verrassende vragen uit 13 onderwerpen. Minstens 6 categorieën per dag en 10 dagen geen herhaling.";
+    ui.start.disabled = isDone();
+    if (ui.restart) ui.restart.disabled = isDone();
+    buttonText(ui.start, isDone() ? "MORGEN WEER SPELEN" : "START DE DAGELIJKSE VLUCHT");
+    buttonText(ui.restart, "MORGEN WEER SPELEN");
   }
 
-
-  /* ========================================
-     VOLTOOIING HERKENNEN
-  ======================================== */
-
-  function endCheck() {
-
-    const visible =
-      ui.end.classList.contains(
-        "active"
-      );
-
-
-    if (!visible) {
-
-      lastEnd = false;
-
-      return;
-
-    }
-
-
-    if (lastEnd) {
-      return;
-    }
-
-
-    lastEnd = true;
-
-
-    if (
-      startedDay !== current ||
-      isDone()
-    ) {
-      return;
-    }
-
-
-    const score =
-      Number(
-        (
-          ui.score?.textContent ||
-          ""
-        ).replace(
-          /[^\d]/g,
-          ""
-        )
-      );
-
-
-    if (
-      !Number.isFinite(
-        score
-      )
-    ) {
-      return;
-    }
-
-
+  function recordEnd() {
+    const active = ui.end.classList.contains("active");
+    if (!active) { endWasActive = false; return; }
+    if (endWasActive) return;
+    endWasActive = true;
+    if (startedKey !== todayKey || isDone()) return;
+    const scoreText = (ui.endScore.textContent || "").replace(/[^0-9]/g, "");
+    const score = Number(scoreText);
+    if (!Number.isFinite(score)) return;
     completed = {
-
-      date: current,
-
+      date: todayKey,
       score: score,
-
-      height:
-        (
-          ui.height?.textContent ||
-          ""
-        ).trim(),
-
-      correct:
-        (
-          ui.correct?.textContent ||
-          ""
-        ).trim(),
-
-      completedAt:
-        new Date().toISOString()
-
+      height: (ui.endHeight && ui.endHeight.textContent || "").trim(),
+      correct: (ui.endCorrect && ui.endCorrect.textContent || "").trim(),
+      completedAt: new Date().toISOString(),
+      dailyVersion: VERSION
     };
-
-
     try {
-
-      localStorage.setItem(
-
-        STORAGE,
-
-        JSON.stringify(
-          completed
-        )
-
-      );
-
-    } catch (error) {
-
-      console.warn(
-        "Daily resultaat kon " +
-        "niet worden opgeslagen.",
-        error
-      );
-
-    }
-
-
-    startedDay = null;
-
+      localStorage.setItem(STORAGE, JSON.stringify(completed));
+    } catch (e) { console.warn("Daily kon niet worden opgeslagen.", e); }
+    startedKey = null;
+    if (ui.endMessage) ui.endMessage.textContent =
+      "📅 Daily voltooid! Morgen om 00.00 uur Nederlandse tijd nieuwe vragen.";
     updateHome();
-
-
-    if (ui.endMessage) {
-
-      ui.endMessage.textContent =
-        "📅 Daily Challenge voltooid! " +
-        "Morgen om 00.00 uur " +
-        "Nederlandse tijd verschijnen " +
-        "nieuwe vragen.";
-
-    }
-
   }
 
-
-  /* ========================================
-     KLOK BIJWERKEN
-  ======================================== */
+  function startListener() {
+    if (!isDone()) startedKey = todayKey;
+  }
 
   function tick() {
-
-    if (
-      keyOfDate() !== current
-    ) {
-
+    if (dutchDate() !== todayKey) {
       window.location.reload();
-
       return;
-
     }
-
-
-    if (ui.countdown) {
-
-      ui.countdown.textContent =
-        countdown();
-
-    }
-
+    if (ui.countdown) ui.countdown.textContent = timeRemaining();
   }
-
-
-  /* ========================================
-     SPELSTART REGISTREREN
-  ======================================== */
-
-  function register() {
-
-    if (
-      !isDone() &&
-      sufficient
-    ) {
-
-      startedDay = current;
-
-      lastEnd = false;
-
-    }
-
-  }
-
-
-  /* ========================================
-     INITIALISEREN
-  ======================================== */
-
-  function initialize() {
-
-    if (
-      !ui.start ||
-      !ui.end ||
-      !ui.score
-    ) {
-
-      console.error(
-        "Daily V6: vereiste " +
-        "HTML-elementen ontbreken."
-      );
-
-      return;
-
-    }
-
-
-    /*
-     * Nooit stiekem oude
-     * vragen opnieuw gebruiken.
-     */
-
-    if (!sufficient) {
-
-      console.error(
-
-        "Daily V6: slechts " +
-        ordered.length +
-        " unieke basisvragen. " +
-        "Minimaal " +
-        REQUIRED +
-        " nodig."
-
-      );
-
-
-      if (ui.desc) {
-
-        ui.desc.textContent =
-          "De vragenbank bevat " +
-          ordered.length +
-          " basisvragen. Er zijn " +
-          REQUIRED +
-          " nodig voor tien " +
-          "dagen zonder herhaling.";
-
-      }
-
-
-      ui.start.disabled = true;
-
-      return;
-
-    }
-
-
-    /*
-     * Selectie én blokkade
-     * controleren.
-     */
-
-    const today =
-      select(current);
-
-
-    if (
-      today.length !== PER_DAY ||
-      !checkHistory(current)
-    ) {
-
-      console.error(
-        "Daily V6: controle van " +
-        "de tien-dagenroulatie mislukt."
-      );
-
-
-      ui.start.disabled = true;
-
-      return;
-
-    }
-
-
-    /*
-     * Exact de 10 vragen
-     * van vandaag beschikbaar
-     * maken voor het spel.
-     */
-
-    window.QUIZBALLON_EXPANDED_QUESTIONS =
-      today.map(
-        function (item) {
-
-          return item.question;
-
-        }
-      );
-
-
-    window.QUIZBALLON_DAILY_INFO = {
-
-      date:
-        current,
-
-      questionCount:
-        PER_DAY,
-
-      topics:
-        today.map(
-          function (item) {
-
-            return item.key;
-
-          }
-        ),
-
-      questions:
-        today.map(
-          function (item) {
-
-            return item.question.question;
-
-          }
-        ),
-
-      letterQuestionCount:
-        today.filter(
-          function (item) {
-
-            return hasLetterVariant(
-              item.question
-            );
-
-          }
-        ).length,
-
-      uniqueBaseQuestions:
-        ordered.length
-
-    };
-
-
-    completed =
-      getResult();
-
-
-    updateHome();
-
-
-    if (
-      isDone() &&
-      ui.endMessage
-    ) {
-
-      ui.endMessage.textContent =
-        "📅 Daily Challenge voltooid! " +
-        "Morgen verschijnen nieuwe vragen.";
-
-    }
-
-
-    /* START */
-
-    ui.start.addEventListener(
-      "click",
-      register,
-      true
-    );
-
-
-    /* OPNIEUW */
-
-    if (ui.restart) {
-
-      ui.restart.addEventListener(
-        "click",
-        register,
-        true
-      );
-
-    }
-
-
-    /* HOME */
-
-    if (ui.home) {
-
-      ui.home.addEventListener(
-        "click",
-        updateHome
-      );
-
-    }
-
-
-    /* STOPPEN */
-
-    if (ui.quit) {
-
-      ui.quit.addEventListener(
-        "click",
-        function () {
-
-          setTimeout(
-            function () {
-
-              if (
-                ui.startScreen &&
-                ui.startScreen.classList.contains(
-                  "active"
-                )
-              ) {
-
-                startedDay = null;
-
-              }
-
-            },
-            0
-          );
-
-        }
-      );
-
-    }
-
-
-    /* EINDSCHERM */
-
-    const observer =
-      new MutationObserver(
-        endCheck
-      );
-
-    observer.observe(
-      ui.end,
-      {
-        attributes: true,
-
-        attributeFilter: [
-          "class"
-        ]
-      }
-    );
-
-
-    /* TABBLAD */
-
-    document.addEventListener(
-      "visibilitychange",
-      function () {
-
-        if (
-          document.visibilityState ===
-          "visible"
-        ) {
-
-          tick();
-
-        }
-
-      }
-    );
-
-
-    /* KLOK */
-
-    setInterval(
-      tick,
-      1000
-    );
-
-
-    console.log(
-      "✅ QuizBallon Daily V6 — " +
-      "10 dagen zonder herhaling"
-    );
-
-
-    console.log(
-
-      "Unieke basisvragen:",
-      ordered.length,
-
-      "Lettervragen vandaag:",
-      window.QUIZBALLON_DAILY_INFO
-        .letterQuestionCount
-
-    );
-
-
-    console.table(
-      today.map(
-        function (item, index) {
-
-          return {
-
-            nummer:
-              index + 1,
-
-            basis:
-              item.key,
-
-            vraag:
-              item.question.question
-
-          };
-
-        }
-      )
-    );
-
-  }
-
-
-  /* ========================================
-     TESTFUNCTIES
-
-     Hiermee kun je ook zelf
-     andere datums controleren.
-  ======================================== */
 
   window.QUIZBALLON_DAILY_DEBUG = {
-
-    topicKey: topicKey,
-
-    totalUnique:
-      ordered.length,
-
-    required:
-      REQUIRED,
-
-    selectDate:
-      function (key) {
-
-        return select(key).map(
-          function (item) {
-
-            return {
-
-              topic:
-                item.key,
-
-              vraag:
-                item.question.question
-
-            };
-
-          }
-        );
-
-      },
-
-    compare:
-      function (
-        firstDate,
-        secondDate
-      ) {
-
-        const first =
-          new Set(
-            select(firstDate).map(
-              function (item) {
-
-                return item.key;
-
-              }
-            )
-          );
-
-
-        return select(secondDate)
-          .filter(
-            function (item) {
-
-              return first.has(
-                item.key
-              );
-
-            }
-          )
-          .map(
-            function (item) {
-
-              return item.key;
-
-            }
-          );
-
-      },
-
-    historyOK:
-      checkHistory
-
+    version: VERSION,
+    totalUnique: 650,
+    categories: 13,
+    selectDate: function (key) {
+      return select(key).map(function (x) {
+        return { category: x.category, id: x.id, question: x.question.question };
+      });
+    },
+    historyOK: verify,
+    compare: function (a, b) {
+      const first = new Set(select(a).map(function (x) { return x.id; }));
+      return select(b).filter(function (x) { return first.has(x.id); })
+        .map(function (x) { return x.id; });
+    },
+    simulate: function (startKey, days) {
+      const out = { tested: 0, errors: [] };
+      const first = numberOfDay(startKey);
+      for (let i = 0; i < days; i++) {
+        const key = keyOfDay(first + i);
+        if (!verify(key)) out.errors.push(key);
+        out.tested++;
+      }
+      return out;
+    }
   };
 
-
-  initialize();
-
+  try {
+    if (!verify(todayKey)) {
+      fail("Controle op verdeling of 10-dagenblokkade is mislukt.");
+      return;
+    }
+    const selected = select(todayKey);
+    window.QUIZBALLON_EXPANDED_QUESTIONS = selected.map(function (x) { return x.question; });
+    window.QUIZBALLON_DAILY_INFO = {
+      date: todayKey,
+      version: VERSION,
+      uniqueBaseQuestions: 650,
+      topics: selected.map(function (x) { return x.id; }),
+      questions: selected.map(function (x) { return x.question.question; }),
+      letterQuestionCount: selected.filter(function (x) { return x.question.isLetterQuestion; }).length,
+      categories: [...new Set(selected.map(function (x) { return x.category; }))]
+    };
+    completed = readCompletion();
+    updateHome();
+    ui.start.addEventListener("click", startListener, true);
+    if (ui.restart) ui.restart.addEventListener("click", startListener, true);
+    new MutationObserver(recordEnd).observe(ui.end, {
+      attributes: true, attributeFilter: ["class"]
+    });
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") tick();
+    });
+    setInterval(tick, 1000);
+    console.log("✅ QuizBallon Daily V7 actief: 650 vragen, 13 categorieën.");
+    console.log("✅ 10 dagen vraagblokkade en maximaal 2 vragen per categorie.");
+    console.table(window.QUIZBALLON_DAILY_DEBUG.selectDate(todayKey));
+  } catch (error) {
+    fail(error.message);
+  }
 })();
