@@ -1,14 +1,20 @@
 /* =====================================================
-   QUIZBALLON - DAILY CHALLENGE V4
+   QUIZBALLON - DAILY CHALLENGE V5
 
    NIEUW:
-   - PRECIES 1 LETTERVRAAG PER 10 VRAGEN
-   - 9 GEWONE KENNISVRAGEN
-   - MAXIMAAL 1 VRAAG PER ONDERWERP
-   - GOEDE AFWISSELING VAN CATEGORIEËN
+   - ECHT ANDERE ONDERWERPEN DAN GISTEREN
+   - TWEE AFWISSELENDE ONDERWERPGROEPEN
+   - GEEN HERHALING TUSSEN OPEENVOLGENDE
+     DAGEN ALS DE VRAGENBANK GROOT GENOEG IS
+   - DUIDELIJKE CONTROLE IN DE CONSOLE
 
    BEHOUDEN:
-   - DEZELFDE VRAGEN VOOR ALLE SPELERS
+   - 10 VRAGEN PER DAG
+   - PRECIES 1 LETTERVRAAG
+   - 9 GEWONE KENNISVRAGEN
+   - MAXIMAAL 1 VRAAG PER ONDERWERP
+   - MAXIMAAL 2 PER CATEGORIE INDIEN MOGELIJK
+   - DEZELFDE SELECTIE VOOR ALLE SPELERS
    - NIEUWE UITDAGING OM 00.00 UUR
    - NEDERLANDSE TIJDZONE
    - DAGELIJKSE AFTELLER
@@ -16,10 +22,18 @@
    - ANTWOORDENOVERZICHT
    - BESTAANDE PUNTENSCORES
    - RAKETANTWOORDEN
+
+   LET OP:
+   DEZE CODE VERANDERT DE VRAGENSELECTIE.
+
+   DE TIJD VAN 25 NAAR 20 SECONDEN
+   MOET NOG IN DE HUIDIGE script.js
+   WORDEN AANGEPAST.
 ===================================================== */
 
 (function () {
   "use strict";
+
 
   /* ========================================
      INSTELLINGEN
@@ -29,20 +43,7 @@
 
   const QUESTIONS_PER_DAY = 10;
 
-  /*
-   * Precies één vraag met een
-   * extra lettereis per dag.
-   *
-   * Dat is 10% van de vragen.
-   */
-
   const LETTER_QUESTIONS_PER_DAY = 1;
-
-  /*
-   * We proberen maximaal 2 vragen
-   * uit dezelfde hoofdcategorie
-   * te selecteren.
-   */
 
   const MAX_PER_CATEGORY = 2;
 
@@ -50,9 +51,18 @@
     "quizballon-daily-result-v1";
 
   const SELECTION_SALT =
-    "quizballon-daily-v4";
+    "quizballon-daily-v5-onderwerpen";
 
   const CLOCK_INTERVAL = 1000;
+
+  /*
+   * Voor twee volledig verschillende
+   * dagen hebben we minstens
+   * 20 onderwerpen nodig.
+   */
+
+  const MIN_TOPICS_FOR_GUARANTEE =
+    QUESTIONS_PER_DAY * 2;
 
 
   /* ========================================
@@ -64,7 +74,6 @@
   }
 
   const elements = {
-
     startScreen: byId("start-screen"),
 
     endScreen: byId("end-screen"),
@@ -92,7 +101,6 @@
     endHeight: byId("end-height"),
 
     endCorrect: byId("end-correct")
-
   };
 
 
@@ -109,8 +117,7 @@
   let lastEndVisible = false;
 
   /*
-   * Bewaar de volledige vragenbank
-   * voordat we er 10 selecteren.
+   * Bewaar de volledige vragenbank.
    */
 
   const allQuestions =
@@ -128,7 +135,6 @@
   ======================================== */
 
   function getDayKey(date = new Date()) {
-
     return new Intl.DateTimeFormat(
       "sv-SE",
       {
@@ -141,7 +147,6 @@
         day: "2-digit"
       }
     ).format(date);
-
   }
 
 
@@ -150,7 +155,6 @@
   ======================================== */
 
   function previousDayKey(dayKey) {
-
     const date = new Date(
       dayKey + "T12:00:00Z"
     );
@@ -162,7 +166,35 @@
     return date
       .toISOString()
       .slice(0, 10);
+  }
 
+
+  /* ========================================
+     DATUM OMZETTEN NAAR DAGNUMMER
+
+     Dit dagnummer bepaalt welke
+     onderwerpgroep vandaag speelt.
+
+     Even dagnummer: groep A
+     Oneven dagnummer: groep B
+  ======================================== */
+
+  function dayNumber(dayKey) {
+    const parts = dayKey
+      .split("-")
+      .map(Number);
+
+    const year = parts[0];
+    const month = parts[1];
+    const day = parts[2];
+
+    return Math.floor(
+      Date.UTC(
+        year,
+        month - 1,
+        day
+      ) / 86400000
+    );
   }
 
 
@@ -171,7 +203,6 @@
   ======================================== */
 
   function getDisplayDate() {
-
     return new Intl.DateTimeFormat(
       "nl-NL",
       {
@@ -186,7 +217,6 @@
         year: "numeric"
       }
     ).format(new Date());
-
   }
 
 
@@ -195,15 +225,10 @@
   ======================================== */
 
   function getClock() {
-
     const clock = {
-
       hour: 0,
-
       minute: 0,
-
       second: 0
-
     };
 
     const parts =
@@ -213,9 +238,7 @@
           timeZone: TIME_ZONE,
 
           hour: "2-digit",
-
           minute: "2-digit",
-
           second: "2-digit",
 
           hourCycle: "h23"
@@ -223,27 +246,21 @@
       ).formatToParts(new Date());
 
     parts.forEach(function (part) {
-
       if (part.type in clock) {
-
         clock[part.type] =
           Number(part.value);
-
       }
-
     });
 
     return clock;
-
   }
 
 
   /* ========================================
-     AFTELLER TOT 00.00
+     AFTELLER TOT 00.00 UUR
   ======================================== */
 
   function getCountdown() {
-
     const clock = getClock();
 
     const elapsed =
@@ -271,13 +288,10 @@
       seconds
     ]
       .map(function (value) {
-
         return String(value)
           .padStart(2, "0");
-
       })
       .join(":");
-
   }
 
 
@@ -286,7 +300,6 @@
   ======================================== */
 
   function normalize(value) {
-
     return String(value || "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
@@ -296,50 +309,30 @@
       .replace(/[^a-z0-9 ]/g, " ")
       .replace(/\s+/g, " ")
       .trim();
-
   }
 
 
   /* ========================================
      LETTERVRAGEN HERKENNEN
 
-     De 100 eerder toegevoegde
-     vraagvarianten gebruiken:
-
-     "Extra eis: ..."
-
-     Daardoor kunnen we ze
-     afzonderlijk herkennen.
+     De gegenereerde varianten
+     bevatten "Extra eis:".
   ======================================== */
 
   function isLetterQuestion(question) {
-
     return String(
       question.question || ""
     )
       .toLowerCase()
       .includes("extra eis:");
-
   }
 
 
   /* ========================================
      BASISVRAAG HERKENNEN
-
-     Bijvoorbeeld:
-
-     "Noem een hondenras."
-
-     En:
-
-     "Noem een hondenras.
-      Extra eis: minstens 6 letters."
-
-     Hebben hetzelfde onderwerp.
   ======================================== */
 
   function getBaseText(question) {
-
     let text = String(
       question.question || ""
     );
@@ -349,24 +342,45 @@
       .indexOf("extra eis:");
 
     if (position !== -1) {
-
       text = text.slice(
         0,
         position
       );
-
     }
 
     return normalize(text);
-
   }
 
 
   /* ========================================
      ONDERWERP BEPALEN
+
+     We behouden de onderwerpregels
+     van Daily Challenge V4.
+
+     Daarnaast ondersteunen we
+     expliciete topicId's.
+
+     Dat is handig als we later
+     een grotere vragenbank maken.
   ======================================== */
 
   function getTopic(question) {
+
+    /*
+     * Een expliciet topicId is
+     * het betrouwbaarst.
+     */
+
+    if (question.topicId != null) {
+      return normalize(question.topicId);
+    }
+
+    if (question.baseQuestionId != null) {
+      return normalize(
+        question.baseQuestionId
+      );
+    }
 
     const text = getBaseText(question);
 
@@ -384,11 +398,15 @@
       return "honden";
     }
 
-    if (text.includes("hoofdstad")) {
+    if (
+      text.includes("hoofdstad")
+    ) {
       return "hoofdsteden";
     }
 
-    if (text.includes("muziekinstrument")) {
+    if (
+      text.includes("muziekinstrument")
+    ) {
       return "muziekinstrumenten";
     }
 
@@ -406,44 +424,61 @@
       return "manen";
     }
 
-    if (text.includes("voetbalclub")) {
+    if (
+      text.includes("voetbalclub")
+    ) {
       return "voetbalclubs";
     }
 
-    if (text.includes("sterrenbeeld")) {
+    if (
+      text.includes("sterrenbeeld")
+    ) {
       return "sterrenbeelden";
     }
 
-    if (text.includes("scheikundig element")) {
+    if (
+      text.includes("scheikundig element")
+    ) {
       return "scheikundige-elementen";
     }
 
-    if (text.includes("zoogdier")) {
+    if (
+      text.includes("zoogdier")
+    ) {
       return "zoogdieren";
     }
 
-    if (text.includes("kaassoort")) {
+    if (
+      text.includes("kaassoort")
+    ) {
       return "kazen";
     }
 
-    if (text.includes("groente")) {
+    if (
+      text.includes("groente")
+    ) {
       return "groenten";
     }
 
-    if (text.includes("boomsoort")) {
+    if (
+      text.includes("boomsoort")
+    ) {
       return "bomen";
     }
 
-    if (text.includes("muziekgenre")) {
+    if (
+      text.includes("muziekgenre")
+    ) {
       return "muziekgenres";
     }
 
-    if (text.includes("grieks eiland")) {
+    if (
+      text.includes("grieks eiland")
+    ) {
       return "griekse-eilanden";
     }
 
     return text;
-
   }
 
 
@@ -452,7 +487,6 @@
   ======================================== */
 
   function getCategory(question) {
-
     const category = normalize(
       question.category
     );
@@ -462,7 +496,9 @@
     if (
       category.includes("aardrijkskunde") ||
       category.includes("wereld") ||
-      /land|stad|steden|hoofdstad|eiland|taal/.test(topic)
+      /land|stad|steden|hoofdstad|eiland|taal/.test(
+        topic
+      )
     ) {
       return "aardrijkskunde";
     }
@@ -470,7 +506,9 @@
     if (
       category.includes("dier") ||
       category.includes("natuur") ||
-      /vogel|honden|zoogdier|zeedier|bomen/.test(topic)
+      /vogel|honden|zoogdier|zeedier|bomen/.test(
+        topic
+      )
     ) {
       return "natuur";
     }
@@ -482,15 +520,21 @@
       return "eten";
     }
 
-    if (category.includes("sport")) {
+    if (
+      category.includes("sport")
+    ) {
       return "sport";
     }
 
-    if (category.includes("muziek")) {
+    if (
+      category.includes("muziek")
+    ) {
       return "muziek";
     }
 
-    if (category.includes("geschiedenis")) {
+    if (
+      category.includes("geschiedenis")
+    ) {
       return "geschiedenis";
     }
 
@@ -502,20 +546,18 @@
     }
 
     return category || "overig";
-
   }
 
 
   /* ========================================
      VASTE SEED
 
-     Hiermee krijgen alle spelers
-     met dezelfde vragenbank en datum
-     dezelfde selectie.
+     Alle spelers gebruiken dezelfde
+     berekening bij dezelfde datum
+     en dezelfde vragenbank.
   ======================================== */
 
   function seedFromString(value) {
-
     let hash = 2166136261;
 
     for (
@@ -523,18 +565,15 @@
       i < value.length;
       i++
     ) {
-
       hash ^= value.charCodeAt(i);
 
       hash = Math.imul(
         hash,
         16777619
       );
-
     }
 
     return hash >>> 0;
-
   }
 
 
@@ -543,11 +582,9 @@
   ======================================== */
 
   function seededRandom(seed) {
-
     let state = seed >>> 0;
 
     return function () {
-
       state += 0x6D2B79F5;
 
       let value = state;
@@ -566,9 +603,7 @@
         ((value ^ (value >>> 14)) >>> 0) /
         4294967296
       );
-
     };
-
   }
 
 
@@ -577,7 +612,6 @@
   ======================================== */
 
   function shuffle(items, seed) {
-
     const result = [...items];
 
     const random =
@@ -588,7 +622,6 @@
       i > 0;
       i--
     ) {
-
       const j = Math.floor(
         random() * (i + 1)
       );
@@ -600,65 +633,60 @@
         result[j],
         result[i]
       ];
-
     }
 
     return result;
-
   }
 
 
   /* ========================================
      VRAGEN GROEPEREN PER ONDERWERP
-
-     Ieder onderwerp heeft twee lijsten:
-
-     1. Gewone vragen
-     2. Vragen met extra lettereis
   ======================================== */
 
   function createTopicGroups() {
-
     const groups = new Map();
 
     allQuestions.forEach(
       function (question) {
+        const topic = getTopic(question);
 
-        const topic =
-          getTopic(question);
+        if (!topic) {
+          return;
+        }
 
         if (!groups.has(topic)) {
-
           groups.set(topic, {
-
             topic: topic,
 
             regular: [],
+            letter: [],
 
-            letter: []
-
+            category: getCategory(question)
           });
-
         }
 
         const group =
           groups.get(topic);
 
         if (isLetterQuestion(question)) {
-
           group.letter.push(question);
-
         } else {
-
           group.regular.push(question);
-
         }
-
       }
     );
 
-    return groups;
+    /*
+     * Een onderwerp zonder gewone
+     * vraag kan niet in de Daily
+     * worden gebruikt.
+     */
 
+    return [...groups.values()].filter(
+      function (group) {
+        return group.regular.length > 0;
+      }
+    );
   }
 
 
@@ -667,19 +695,370 @@
 
 
   /* ========================================
-     EEN GEWONE VRAAG PER ONDERWERP
+     ONDERWERPEN STABIEL SORTEREN
 
-     We kiezen uit de gewone vragen,
-     zodat de lettervarianten niet
-     voortdurend geselecteerd worden.
+     We gebruiken een vaste hash
+     zodat de bronvolgorde niet
+     bepaalt welk onderwerp eerst komt.
+  ======================================== */
+
+  function stableTopicSort(groups) {
+    return [...groups].sort(
+      function (a, b) {
+        const hashA = seedFromString(
+          SELECTION_SALT +
+          "|groep|" +
+          a.topic
+        );
+
+        const hashB = seedFromString(
+          SELECTION_SALT +
+          "|groep|" +
+          b.topic
+        );
+
+        if (hashA !== hashB) {
+          return hashA - hashB;
+        }
+
+        return a.topic.localeCompare(
+          b.topic
+        );
+      }
+    );
+  }
+
+
+  /* ========================================
+     TWEE AFWISSELENDE GROEPEN MAKEN
+
+     Dit is de belangrijkste wijziging.
+
+     We verdelen de onderwerpen
+     één keer op een vaste manier
+     over groep A en groep B.
+
+     Voorbeeld:
+
+     GROEP A:
+     - honden
+     - sterrenbeelden
+     - groenten
+     - muziekgenres
+     - enzovoort
+
+     GROEP B:
+     - zoogdieren
+     - hoofdsteden
+     - bomen
+     - voetbalclubs
+     - enzovoort
+
+     Vandaag gebruiken we A.
+     Morgen gebruiken we B.
+
+     Daardoor kunnen onderwerpen
+     niet op opeenvolgende dagen
+     terugkomen.
+
+     Wel moet iedere groep minstens
+     10 onderwerpen bevatten.
+  ======================================== */
+
+  function createAlternatingPools() {
+
+    const ordered =
+      stableTopicSort(topicGroups);
+
+    const poolA = [];
+    const poolB = [];
+
+    /*
+     * Bewaar het aantal onderwerpen
+     * per categorie in iedere groep.
+     */
+
+    const categoryA = new Map();
+    const categoryB = new Map();
+
+    function categoryCount(map, category) {
+      return map.get(category) || 0;
+    }
+
+    function addToPool(group, pool, counts) {
+      pool.push(group);
+
+      counts.set(
+        group.category,
+        categoryCount(
+          counts,
+          group.category
+        ) + 1
+      );
+    }
+
+    /*
+     * Zoek onderwerpen met
+     * beschikbare lettervarianten.
+     *
+     * Iedere groep moet minstens
+     * één onderwerp met een
+     * lettervariant krijgen.
+     */
+
+    const letterTopics = ordered.filter(
+      function (group) {
+        return group.letter.length > 0;
+      }
+    );
+
+    if (letterTopics.length >= 2) {
+      addToPool(
+        letterTopics[0],
+        poolA,
+        categoryA
+      );
+
+      addToPool(
+        letterTopics[1],
+        poolB,
+        categoryB
+      );
+    }
+
+    const alreadyAdded = new Set(
+      [
+        ...poolA,
+        ...poolB
+      ].map(function (group) {
+        return group.topic;
+      })
+    );
+
+    const remaining = ordered.filter(
+      function (group) {
+        return !alreadyAdded.has(
+          group.topic
+        );
+      }
+    );
+
+    /*
+     * Sorteer categorieën met veel
+     * onderwerpen eerst.
+
+     * Zo kunnen we brede categorieën
+     * beter verdelen over A en B.
+     */
+
+    const categoryTotals = new Map();
+
+    remaining.forEach(
+      function (group) {
+        categoryTotals.set(
+          group.category,
+          (categoryTotals.get(
+            group.category
+          ) || 0) + 1
+        );
+      }
+    );
+
+    remaining.sort(
+      function (a, b) {
+        const totalA =
+          categoryTotals.get(
+            a.category
+          ) || 0;
+
+        const totalB =
+          categoryTotals.get(
+            b.category
+          ) || 0;
+
+        if (totalA !== totalB) {
+          return totalB - totalA;
+        }
+
+        return seedFromString(
+          a.topic
+        ) - seedFromString(
+          b.topic
+        );
+      }
+    );
+
+    /*
+     * Plaats iedere overige groep
+     * bij voorkeur in de groep met
+     * minder onderwerpen uit
+     * dezelfde categorie.
+
+     * Houd ook beide groepsgroottes
+     * zoveel mogelijk gelijk.
+     */
+
+    remaining.forEach(
+      function (group) {
+        const countA = categoryCount(
+          categoryA,
+          group.category
+        );
+
+        const countB = categoryCount(
+          categoryB,
+          group.category
+        );
+
+        /*
+         * Voorkom dat één groep
+         * veel groter wordt.
+         */
+
+        if (
+          poolA.length >
+          poolB.length + 1
+        ) {
+          addToPool(
+            group,
+            poolB,
+            categoryB
+          );
+
+          return;
+        }
+
+        if (
+          poolB.length >
+          poolA.length + 1
+        ) {
+          addToPool(
+            group,
+            poolA,
+            categoryA
+          );
+
+          return;
+        }
+
+        /*
+         * Verdeel categorieën.
+         */
+
+        if (countA < countB) {
+          addToPool(
+            group,
+            poolA,
+            categoryA
+          );
+
+        } else if (countB < countA) {
+          addToPool(
+            group,
+            poolB,
+            categoryB
+          );
+
+        } else if (
+          poolA.length <= poolB.length
+        ) {
+          addToPool(
+            group,
+            poolA,
+            categoryA
+          );
+
+        } else {
+          addToPool(
+            group,
+            poolB,
+            categoryB
+          );
+        }
+      }
+    );
+
+    return {
+      A: poolA,
+      B: poolB
+    };
+  }
+
+
+  const alternatingPools =
+    createAlternatingPools();
+
+
+  /* ========================================
+     CONTROLEREN OF DE GARANTIE
+     MOGELIJK IS
+
+     Voor 10 onderwerpen vandaag
+     én 10 andere onderwerpen morgen
+     hebben we minstens 20 nodig.
+
+     Iedere groep moet ook minstens
+     één onderwerp met een
+     lettervariant bevatten.
+  ======================================== */
+
+  function canGuaranteeUniqueTopics() {
+
+    if (
+      topicGroups.length <
+      MIN_TOPICS_FOR_GUARANTEE
+    ) {
+      return false;
+    }
+
+    if (
+      alternatingPools.A.length <
+      QUESTIONS_PER_DAY
+    ) {
+      return false;
+    }
+
+    if (
+      alternatingPools.B.length <
+      QUESTIONS_PER_DAY
+    ) {
+      return false;
+    }
+
+    const letterA =
+      alternatingPools.A.some(
+        function (group) {
+          return group.letter.length > 0;
+        }
+      );
+
+    const letterB =
+      alternatingPools.B.some(
+        function (group) {
+          return group.letter.length > 0;
+        }
+      );
+
+    return letterA && letterB;
+  }
+
+
+  const uniqueTopicsGuaranteed =
+    canGuaranteeUniqueTopics();
+
+
+  /* ========================================
+     EEN GEWONE VRAAG KIEZEN
   ======================================== */
 
   function chooseRegularQuestion(
     group,
     dayKey
   ) {
-
-    if (group.regular.length === 0) {
+    if (
+      !group ||
+      group.regular.length === 0
+    ) {
       return null;
     }
 
@@ -696,23 +1075,21 @@
       group.regular,
       seed
     )[0];
-
   }
 
 
   /* ========================================
      EEN LETTERVRAAG KIEZEN
-
-     Alleen gebruikt voor het ene
-     speciale slot van de dag.
   ======================================== */
 
   function chooseLetterQuestion(
     group,
     dayKey
   ) {
-
-    if (group.letter.length === 0) {
+    if (
+      !group ||
+      group.letter.length === 0
+    ) {
       return null;
     }
 
@@ -729,105 +1106,498 @@
       group.letter,
       seed
     )[0];
-
   }
 
 
   /* ========================================
-     10 VERSCHILLENDE ONDERWERPEN KIEZEN
+     UIT EEN GROEP 10 ONDERWERPEN
+     SELECTEREN
 
-     Eerst onderwerpen die gisteren
-     niet gebruikt zijn.
+     We selecteren eerst precies
+     één onderwerp met een
+     lettervariant.
 
-     We proberen ook de categorieën
-     eerlijk te verdelen.
+     Daarna vullen we de andere
+     negen plekken met gewone
+     onderwerpen.
+
+     We proberen maximaal twee
+     onderwerpen uit dezelfde
+     categorie te kiezen.
   ======================================== */
 
-  function chooseTopics(
-    dayKey,
-    avoidedTopics = new Set()
+  function selectTenTopics(
+    availableGroups,
+    dayKey
   ) {
 
-    const candidates = [];
-
-    topicGroups.forEach(
-      function (group) {
-
-        if (group.regular.length === 0) {
-          return;
-        }
-
-        const regularQuestion =
-          chooseRegularQuestion(
-            group,
-            dayKey
-          );
-
-        candidates.push({
-
-          topic: group.topic,
-
-          category: getCategory(
-            regularQuestion
-          ),
-
-          regularQuestion: regularQuestion,
-
-          group: group
-
-        });
-
-      }
-    );
+    if (
+      availableGroups.length <
+      QUESTIONS_PER_DAY
+    ) {
+      return [];
+    }
 
     const shuffled = shuffle(
-      candidates,
+      availableGroups,
       seedFromString(
         SELECTION_SALT +
-        "|onderwerpen|" +
+        "|selecteer|" +
         dayKey
       )
     );
 
+    const letterCandidates =
+      shuffled.filter(
+        function (group) {
+          return group.letter.length > 0;
+        }
+      );
+
     /*
-     * Nieuwe onderwerpen krijgen
-     * voorrang op onderwerpen van
-     * gisteren.
+     * Zonder letterkandidaat is
+     * precies één lettervraag
+     * niet mogelijk.
      */
 
-    const preferred = shuffled.filter(
-      function (item) {
+    if (
+      letterCandidates.length === 0
+    ) {
+      return [];
+    }
 
-        return !avoidedTopics.has(
-          item.topic
+    /*
+     * Probeer verschillende
+     * letteronderwerpen.
+
+     * Neem de combinatie die
+     * de beste categorieafwisseling
+     * oplevert.
+     */
+
+    let bestSelection = null;
+
+    let bestPenalty = Infinity;
+
+    for (
+      const letterGroup of letterCandidates
+    ) {
+
+      const selected = [letterGroup];
+
+      const selectedTopics = new Set([
+        letterGroup.topic
+      ]);
+
+      const counts = new Map();
+
+      counts.set(
+        letterGroup.category,
+        1
+      );
+
+      /*
+       * Vul de overige negen
+       * plekken aan.
+       */
+
+      function addGroups(
+        enforceCategoryLimit
+      ) {
+
+        for (const group of shuffled) {
+
+          if (
+            selected.length >=
+            QUESTIONS_PER_DAY
+          ) {
+            break;
+          }
+
+          if (
+            selectedTopics.has(
+              group.topic
+            )
+          ) {
+            continue;
+          }
+
+          const count =
+            counts.get(
+              group.category
+            ) || 0;
+
+          if (
+            enforceCategoryLimit &&
+            count >= MAX_PER_CATEGORY
+          ) {
+            continue;
+          }
+
+          selected.push(group);
+
+          selectedTopics.add(
+            group.topic
+          );
+
+          counts.set(
+            group.category,
+            count + 1
+          );
+        }
+      }
+
+      /*
+       * Eerst maximaal twee
+       * per categorie.
+       */
+
+      addGroups(true);
+
+      /*
+       * Alleen indien nodig
+       * categoriegrens versoepelen.
+       */
+
+      if (
+        selected.length <
+        QUESTIONS_PER_DAY
+      ) {
+        addGroups(false);
+      }
+
+      if (
+        selected.length !==
+        QUESTIONS_PER_DAY
+      ) {
+        continue;
+      }
+
+      /*
+       * Strafpunten wanneer een
+       * categorie vaker dan twee
+       * keer voorkomt.
+       */
+
+      let penalty = 0;
+
+      counts.forEach(
+        function (count) {
+          penalty += Math.max(
+            0,
+            count - MAX_PER_CATEGORY
+          );
+        }
+      );
+
+      if (
+        penalty < bestPenalty
+      ) {
+        bestPenalty = penalty;
+
+        bestSelection = selected;
+      }
+
+      /*
+       * Perfecte categorieafwisseling
+       * gevonden.
+       */
+
+      if (penalty === 0) {
+        break;
+      }
+    }
+
+    return bestSelection || [];
+  }
+
+
+  /* ========================================
+     DE DAGELIJKSE ONDERWERPGROEP
+
+     Op even dagen: A.
+     Op oneven dagen: B.
+
+     Ook als we later meer
+     onderwerpen toevoegen, blijft
+     de selectie dagelijks wisselen.
+  ======================================== */
+
+  function getPoolForDay(dayKey) {
+    const number =
+      dayNumber(dayKey);
+
+    return number % 2 === 0
+      ? alternatingPools.A
+      : alternatingPools.B;
+  }
+
+
+  /* ========================================
+     SELECTIE VOOR EEN DAG MAKEN
+
+     1. Kies de onderwerpgroep.
+     2. Kies tien onderwerpen.
+     3. Gebruik één lettervariant.
+     4. Gebruik negen gewone vragen.
+     5. Schud de volgorde met
+        een vaste dagelijkse seed.
+  ======================================== */
+
+  function makeDailySelection(dayKey) {
+
+    let selectedGroups = [];
+
+    if (uniqueTopicsGuaranteed) {
+
+      /*
+       * Gegarandeerd gescheiden
+       * groepen voor opeenvolgende
+       * kalenderdagen.
+       */
+
+      selectedGroups =
+        selectTenTopics(
+          getPoolForDay(dayKey),
+          dayKey
         );
 
+    } else {
+
+      /*
+       * Als de vragenbank te klein
+       * is, gebruiken we alle
+       * beschikbare onderwerpen.
+
+       * We proberen nog steeds
+       * elke dag een nieuwe selectie
+       * te maken.
+       */
+
+      selectedGroups =
+        selectTenTopics(
+          topicGroups,
+          dayKey
+        );
+
+    }
+
+    if (
+      selectedGroups.length !==
+      QUESTIONS_PER_DAY
+    ) {
+      return [];
+    }
+
+    /*
+     * Kies één letteronderwerp
+     * uit de geselecteerde groepen.
+     */
+
+    const letterCandidates =
+      selectedGroups.filter(
+        function (group) {
+          return group.letter.length > 0;
+        }
+      );
+
+    if (
+      letterCandidates.length === 0
+    ) {
+      return [];
+    }
+
+    const chosenLetterGroup = shuffle(
+      letterCandidates,
+      seedFromString(
+        SELECTION_SALT +
+        "|letteronderwerp|" +
+        dayKey
+      )
+    )[0];
+
+    /*
+     * Maak de uiteindelijke
+     * tien vragen.
+     */
+
+    const result = selectedGroups.map(
+      function (group) {
+
+        const isLetter =
+          group.topic ===
+          chosenLetterGroup.topic;
+
+        const question = isLetter
+          ? chooseLetterQuestion(
+              group,
+              dayKey
+            )
+          : chooseRegularQuestion(
+              group,
+              dayKey
+            );
+
+        return {
+          topic: group.topic,
+
+          category: group.category,
+
+          letter: isLetter,
+
+          question: question
+        };
       }
     );
 
-    const fallback = shuffled.filter(
-      function (item) {
+    /*
+     * Vaste volgorde voor
+     * dezelfde datum.
+     */
 
-        return avoidedTopics.has(
-          item.topic
+    return shuffle(
+      result,
+      seedFromString(
+        SELECTION_SALT +
+        "|volgorde|" +
+        dayKey
+      )
+    );
+  }
+
+
+  /* ========================================
+     GISTEREN VERMIJDEN WANNEER
+     DE GARANTIE NIET MOGELIJK IS
+
+     Met minder dan 20 onderwerpen
+     is volledige afwisseling
+     onmogelijk.
+
+     In dat geval proberen we
+     toch zo veel mogelijk
+     andere onderwerpen te tonen.
+  ======================================== */
+
+  function makeFallbackSelection(dayKey) {
+
+    const yesterday =
+      previousDayKey(dayKey);
+
+    const yesterdaySelection =
+      makeDailySelection(yesterday);
+
+    const usedYesterday = new Set(
+      yesterdaySelection.map(
+        function (item) {
+          return item.topic;
+        }
+      )
+    );
+
+    const unused = topicGroups.filter(
+      function (group) {
+        return !usedYesterday.has(
+          group.topic
         );
-
       }
     );
 
-    const selected = [];
+    const repeated = topicGroups.filter(
+      function (group) {
+        return usedYesterday.has(
+          group.topic
+        );
+      }
+    );
 
-    const selectedTopics = new Set();
+    /*
+     * Nieuwe onderwerpen staan
+     * vooraan.
 
-    const categoryCounts = new Map();
+     * Omdat er mogelijk minder
+     * dan 10 zijn, moeten we soms
+     * onderwerpen herhalen.
+     */
 
+    const ordered = [
+      ...shuffle(
+        unused,
+        seedFromString(
+          SELECTION_SALT +
+          "|nieuw|" +
+          dayKey
+        )
+      ),
+
+      ...shuffle(
+        repeated,
+        seedFromString(
+          SELECTION_SALT +
+          "|herhaling|" +
+          dayKey
+        )
+      )
+    ];
+
+    /*
+     * Kies eerst één onderwerp
+     * dat een lettervariant heeft.
+
+     * Geef een nieuw onderwerp
+     * daarbij voorrang.
+     */
+
+    const letterGroup =
+      ordered.find(
+        function (group) {
+          return (
+            !usedYesterday.has(
+              group.topic
+            ) &&
+            group.letter.length > 0
+          );
+        }
+      ) ||
+      ordered.find(
+        function (group) {
+          return group.letter.length > 0;
+        }
+      );
+
+    if (!letterGroup) {
+      return [];
+    }
+
+    const selected = [
+      letterGroup
+    ];
+
+    const selectedTopics = new Set([
+      letterGroup.topic
+    ]);
+
+    const counts = new Map();
+
+    counts.set(
+      letterGroup.category,
+      1
+    );
+
+    /*
+     * Eerst nieuwe onderwerpen
+     * met categoriebeperking.
+     *
+     * Daarna vullen we aan
+     * indien dat nodig is.
+     */
 
     function addFrom(
       items,
       enforceCategoryLimit
     ) {
 
-      for (const item of items) {
+      for (const group of items) {
 
         if (
           selected.length >=
@@ -838,15 +1608,15 @@
 
         if (
           selectedTopics.has(
-            item.topic
+            group.topic
           )
         ) {
           continue;
         }
 
         const count =
-          categoryCounts.get(
-            item.category
+          counts.get(
+            group.category
           ) || 0;
 
         if (
@@ -856,221 +1626,205 @@
           continue;
         }
 
-        selected.push(item);
+        selected.push(group);
 
         selectedTopics.add(
-          item.topic
+          group.topic
         );
 
-        categoryCounts.set(
-          item.category,
+        counts.set(
+          group.category,
           count + 1
         );
-
       }
-
     }
 
+    addFrom(unused, true);
+    addFrom(unused, false);
 
-    /*
-     * Eerste ronde:
-     * nieuwe onderwerpen,
-     * maximaal twee per categorie.
-     */
-
-    addFrom(preferred, true);
-
-    /*
-     * Tweede ronde:
-     * overige nieuwe onderwerpen.
-     */
-
-    addFrom(preferred, false);
-
-    /*
-     * Alleen indien nodig:
-     * onderwerpen van gisteren.
-     */
+    addFrom(repeated, true);
+    addFrom(repeated, false);
 
     if (
-      selected.length <
+      selected.length !==
       QUESTIONS_PER_DAY
     ) {
-
-      addFrom(fallback, true);
-
-      addFrom(fallback, false);
-
+      return [];
     }
 
-    return selected.slice(
-      0,
-      QUESTIONS_PER_DAY
-    );
+    const result = selected.map(
+      function (group) {
 
-  }
-
-
-  /* ========================================
-     LETTERVRAAG TOEVOEGEN
-
-     We hebben nu 10 onderwerpen.
-
-     Voor negen onderwerpen gebruiken
-     we een normale kennisvraag.
-
-     Bij precies één onderwerp kiezen
-     we een lettervariant.
-
-     De andere negen blijven gewoon.
-  ======================================== */
-
-  function applyLetterQuestion(
-    selectedTopics,
-    dayKey
-  ) {
-
-    const result = selectedTopics.map(
-      function (item) {
+        const letter =
+          group.topic ===
+          letterGroup.topic;
 
         return {
+          topic: group.topic,
 
-          ...item,
+          category: group.category,
 
-          question: item.regularQuestion
+          letter: letter,
 
+          question: letter
+            ? chooseLetterQuestion(
+                group,
+                dayKey
+              )
+            : chooseRegularQuestion(
+                group,
+                dayKey
+              )
         };
-
       }
     );
-
-    const eligible = result.filter(
-      function (item) {
-
-        return item.group.letter.length > 0;
-
-      }
-    );
-
-    if (eligible.length === 0) {
-
-      console.warn(
-        "QuizBallon: vandaag geen geschikte lettervariant beschikbaar."
-      );
-
-      return result;
-
-    }
-
-    /*
-     * Kies iedere dag een ander
-     * onderwerp voor de lettervraag.
-     */
-
-    const shuffledEligible = shuffle(
-      eligible,
-      seedFromString(
-        SELECTION_SALT +
-        "|letteronderwerp|" +
-        dayKey
-      )
-    );
-
-    const chosen = shuffledEligible[0];
-
-    chosen.question =
-      chooseLetterQuestion(
-        chosen.group,
-        dayKey
-      );
-
-    return result;
-
-  }
-
-
-  /* ========================================
-     VRAGEN VOOR ÉÉN DAG MAKEN
-  ======================================== */
-
-  function makeDailySelection(
-    dayKey,
-    avoidedTopics = new Set()
-  ) {
-
-    const topics = chooseTopics(
-      dayKey,
-      avoidedTopics
-    );
-
-    const withLetterQuestion =
-      applyLetterQuestion(
-        topics,
-        dayKey
-      );
-
-    /*
-     * Vaste volgorde voor de selectie.
-     */
 
     return shuffle(
-      withLetterQuestion,
+      result,
       seedFromString(
         SELECTION_SALT +
-        "|volgorde|" +
+        "|fallbackvolgorde|" +
         dayKey
       )
     );
-
   }
 
 
   /* ========================================
-     GISTEREN ZO VEEL MOGELIJK VERMIJDEN
+     VRAGEN VAN VANDAAG KIEZEN
   ======================================== */
 
   function chooseDailyQuestions(dayKey) {
 
-    const yesterday =
-      previousDayKey(dayKey);
+    let selection;
 
-    /*
-     * Bepaal de basisselectie van
-     * gisteren op dezelfde manier.
-     */
+    if (uniqueTopicsGuaranteed) {
+      selection =
+        makeDailySelection(dayKey);
 
-    const previousSelection =
-      makeDailySelection(yesterday);
+    } else {
+      selection =
+        makeFallbackSelection(dayKey);
+    }
 
-    const yesterdayTopics =
-      new Set(
-        previousSelection.map(
-          function (item) {
-
-            return item.topic;
-
-          }
-        )
-      );
-
-    /*
-     * Geef vandaag voorrang aan
-     * andere onderwerpen.
-     */
-
-    const todaySelection =
-      makeDailySelection(
-        dayKey,
-        yesterdayTopics
-      );
-
-    return todaySelection.map(
+    return selection.map(
       function (item) {
-
         return item.question;
-
       }
     );
+  }
+
+
+  /* ========================================
+     ONDERWERPEN VAN ÉÉN DAG TONEN
+
+     Handig om de selectie te
+     controleren in de console.
+  ======================================== */
+
+  function getTopicsForDay(dayKey) {
+    return chooseDailyQuestions(
+      dayKey
+    ).map(getTopic);
+  }
+
+
+  /* ========================================
+     TWEE DAGEN VERGELIJKEN
+
+     Hiermee controleren we hoeveel
+     onderwerpen beide dagen delen.
+  ======================================== */
+
+  function compareDays(
+    firstDay,
+    secondDay
+  ) {
+
+    const firstTopics = new Set(
+      getTopicsForDay(firstDay)
+    );
+
+    const secondTopics = new Set(
+      getTopicsForDay(secondDay)
+    );
+
+    return [...firstTopics].filter(
+      function (topic) {
+        return secondTopics.has(
+          topic
+        );
+      }
+    );
+  }
+
+
+  /* ========================================
+     CONTROLE VAN VANDAAG EN MORGEN
+  ======================================== */
+
+  function nextDayKey(dayKey) {
+
+    const date = new Date(
+      dayKey + "T12:00:00Z"
+    );
+
+    date.setUTCDate(
+      date.getUTCDate() + 1
+    );
+
+    return date
+      .toISOString()
+      .slice(0, 10);
+  }
+
+
+  function validateUpcomingDays() {
+
+    const tomorrow =
+      nextDayKey(currentDay);
+
+    const todayTopics =
+      getTopicsForDay(currentDay);
+
+    const tomorrowTopics =
+      getTopicsForDay(tomorrow);
+
+    const overlap =
+      compareDays(
+        currentDay,
+        tomorrow
+      );
+
+    console.log(
+      "📅 Onderwerpen vandaag:",
+      todayTopics
+    );
+
+    console.log(
+      "📅 Onderwerpen morgen:",
+      tomorrowTopics
+    );
+
+    if (
+      overlap.length === 0 &&
+      todayTopics.length === 10 &&
+      tomorrowTopics.length === 10
+    ) {
+
+      console.log(
+        "✅ Morgen zijn alle 10 " +
+        "onderwerpen anders dan vandaag!"
+      );
+
+    } else {
+
+      console.warn(
+        "⚠️ Onderwerpen die terugkomen:",
+        overlap
+      );
+
+    }
 
   }
 
@@ -1106,9 +1860,7 @@
       return result;
 
     } catch (error) {
-
       return null;
-
     }
 
   }
@@ -1132,7 +1884,8 @@
     } catch (error) {
 
       console.warn(
-        "QuizBallon: resultaat kon niet worden opgeslagen."
+        "QuizBallon: resultaat kon " +
+        "niet worden opgeslagen."
       );
 
     }
@@ -1157,8 +1910,7 @@
   /* ========================================
      DAGELIJKSE KAART STYLING
 
-     Zelfde ontwerp als de vorige
-     versie van QuizBallon.
+     Behouden uit V4.
   ======================================== */
 
   function addDailyStyles() {
@@ -1359,17 +2111,13 @@
   function updateHome() {
 
     if (elements.dailyDate) {
-
       elements.dailyDate.textContent =
         getDisplayDate();
-
     }
 
     if (elements.dailyCountdown) {
-
       elements.dailyCountdown.textContent =
         getCountdown();
-
     }
 
     if (isCompleted()) {
@@ -1500,7 +2248,9 @@
   function applySelection() {
 
     const selected =
-      chooseDailyQuestions(currentDay);
+      chooseDailyQuestions(
+        currentDay
+      );
 
     if (
       selected.length !==
@@ -1508,7 +2258,8 @@
     ) {
 
       console.error(
-        "QuizBallon: onvoldoende verschillende onderwerpen."
+        "QuizBallon: onvoldoende " +
+        "verschillende onderwerpen."
       );
 
       elements.startButton.disabled = true;
@@ -1518,29 +2269,61 @@
     }
 
     /*
-     * Controleer hoeveel vragen
-     * een extra lettereis hebben.
+     * Controleer dat de onderwerpen
+     * binnen de dag uniek zijn.
      */
 
-    const letterCount = selected.filter(
-      isLetterQuestion
-    ).length;
+    const topics =
+      selected.map(getTopic);
+
+    const uniqueTopics =
+      new Set(topics);
+
+    if (
+      uniqueTopics.size !==
+      QUESTIONS_PER_DAY
+    ) {
+
+      console.error(
+        "QuizBallon: een onderwerp " +
+        "komt dubbel voor."
+      );
+
+      elements.startButton.disabled = true;
+
+      return false;
+
+    }
+
+    /*
+     * Controleer de lettervragen.
+     */
+
+    const letterCount =
+      selected.filter(
+        isLetterQuestion
+      ).length;
 
     if (
       letterCount !==
       LETTER_QUESTIONS_PER_DAY
     ) {
 
-      console.warn(
-        "QuizBallon: verwacht 1 lettervraag, gevonden:",
+      console.error(
+        "QuizBallon: verwacht precies " +
+        "1 lettervraag, gevonden:",
         letterCount
       );
+
+      elements.startButton.disabled = true;
+
+      return false;
 
     }
 
     /*
-     * De spelcode krijgt uitsluitend
-     * de 10 vragen van vandaag.
+     * Geef de spelcode alleen
+     * de tien vragen van vandaag.
      */
 
     window.QUIZBALLON_EXPANDED_QUESTIONS =
@@ -1550,17 +2333,27 @@
 
       date: currentDay,
 
-      questionCount: selected.length,
+      questionCount:
+        selected.length,
 
-      letterQuestionCount: letterCount,
+      letterQuestionCount:
+        letterCount,
 
-      questions: selected.map(
-        function (question) {
+      uniqueTopics:
+        uniqueTopics.size,
 
-          return question.question;
+      differentFromYesterday:
+        uniqueTopicsGuaranteed,
 
-        }
-      )
+      questions:
+        selected.map(
+          function (question) {
+            return question.question;
+          }
+        ),
+
+      topics:
+        topics
 
     };
 
@@ -1575,16 +2368,51 @@
     );
 
     console.log(
+      "🧠 Verschillende onderwerpen:",
+      topicGroups.length
+    );
+
+    console.log(
       "🔤 Lettervragen vandaag:",
       letterCount
     );
+
+    console.log(
+      "🎈 Groep A:",
+      alternatingPools.A.length,
+      "onderwerpen"
+    );
+
+    console.log(
+      "🎈 Groep B:",
+      alternatingPools.B.length,
+      "onderwerpen"
+    );
+
+    if (uniqueTopicsGuaranteed) {
+
+      console.log(
+        "✅ Afwisselende onderwerpgroepen " +
+        "zijn beschikbaar."
+      );
+
+    } else {
+
+      console.warn(
+        "⚠️ De vragenbank heeft " +
+        "nog niet genoeg geschikte " +
+        "onderwerpen om volledige " +
+        "dagelijkse afwisseling " +
+        "te garanderen."
+      );
+
+    }
 
     console.table(
       selected.map(
         function (question, index) {
 
           return {
-
             nummer: index + 1,
 
             categorie:
@@ -1598,12 +2426,18 @@
 
             vraag:
               question.question
-
           };
 
         }
       )
     );
+
+    /*
+     * Controleer welke onderwerpen
+     * morgen geselecteerd worden.
+     */
+
+    validateUpcomingDays();
 
     return true;
 
@@ -1710,7 +2544,9 @@
 
   function checkClock() {
 
-    if (getDayKey() !== currentDay) {
+    if (
+      getDayKey() !== currentDay
+    ) {
 
       window.location.reload();
 
@@ -1718,7 +2554,9 @@
 
     }
 
-    if (elements.dailyCountdown) {
+    if (
+      elements.dailyCountdown
+    ) {
 
       elements.dailyCountdown.textContent =
         getCountdown();
@@ -1765,7 +2603,8 @@
 
     currentDay = getDayKey();
 
-    completedResult = loadResult();
+    completedResult =
+      loadResult();
 
     addDailyStyles();
 
@@ -1862,7 +2701,9 @@
       {
         attributes: true,
 
-        attributeFilter: ["class"]
+        attributeFilter: [
+          "class"
+        ]
       }
     );
 
@@ -1898,10 +2739,54 @@
     );
 
     console.log(
-      "✅ QuizBallon Daily Challenge v4 actief!"
+      "✅ QuizBallon Daily Challenge V5 actief!"
     );
 
   }
+
+
+  /* ========================================
+     CONTROLEFUNCTIES BESCHIKBAAR MAKEN
+
+     Hiermee kun je eventueel in
+     de browserconsole controleren
+     welke onderwerpen vandaag en
+     morgen geselecteerd worden.
+  ======================================== */
+
+  window.QUIZBALLON_DAILY_TOPICS = {
+
+    getTopic: getTopic,
+
+    getDayKey: getDayKey,
+
+    getTopicsForDay:
+      getTopicsForDay,
+
+    compareDays:
+      compareDays,
+
+    hasGuaranteedRotation:
+      uniqueTopicsGuaranteed,
+
+    totalTopics:
+      topicGroups.length,
+
+    poolA:
+      alternatingPools.A.map(
+        function (group) {
+          return group.topic;
+        }
+      ),
+
+    poolB:
+      alternatingPools.B.map(
+        function (group) {
+          return group.topic;
+        }
+      )
+
+  };
 
 
   initialize();
