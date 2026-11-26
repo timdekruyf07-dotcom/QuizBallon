@@ -2,7 +2,6 @@
 <html lang="nl">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -17,19 +16,22 @@
 
   <meta
     name="description"
-    content="Speel iedere dag QuizBallon! Geef zeldzame antwoorden en vlieg met je luchtballon steeds hoger."
+    content="Speel iedere dag QuizBallon. Geef zeldzame antwoorden, vlieg hoger en bekijk na afloop alle antwoorden!"
   >
 
   <title>QuizBallon 🎈 | Dagelijkse uitdaging</title>
 
+  <!-- BASISONTWERP -->
   <link rel="stylesheet" href="style.css">
 
+  <!-- VERBETERDE STARTKNOP -->
   <link rel="stylesheet" href="verbeteringen.css">
 
-  <link
-    rel="manifest"
-    href="manifest.webmanifest"
-  >
+  <!-- NIEUW: ANTWOORDENOVERZICHT -->
+  <link rel="stylesheet" href="resultaten.css">
+
+  <!-- WEBAPP -->
+  <link rel="manifest" href="manifest.webmanifest">
 
 </head>
 
@@ -37,7 +39,9 @@
 
   <div class="app" id="app">
 
-    <!-- ACHTERGROND -->
+    <!-- =====================================
+         ACHTERGROND
+    ====================================== -->
 
     <div class="world zone-earth" id="world">
 
@@ -111,7 +115,9 @@
     </div>
 
 
-    <!-- HEADER -->
+    <!-- =====================================
+         HEADER
+    ====================================== -->
 
     <header class="site-header">
 
@@ -146,7 +152,9 @@
     </header>
 
 
-    <!-- STARTSCHERM -->
+    <!-- =====================================
+         STARTSCHERM
+    ====================================== -->
 
     <main
       class="screen start-screen active"
@@ -246,11 +254,8 @@
             <span>🧠</span>
 
             <div>
-
               <strong>10 vragen</strong>
-
               <small>Iedere dag</small>
-
             </div>
 
           </div>
@@ -260,11 +265,8 @@
             <span>⏱️</span>
 
             <div>
-
               <strong>25 seconden</strong>
-
               <small>Per vraag</small>
-
             </div>
 
           </div>
@@ -274,11 +276,8 @@
             <span>🚀</span>
 
             <div>
-
               <strong>Raketantwoord</strong>
-
               <small>100 punten</small>
-
             </div>
 
           </div>
@@ -306,12 +305,25 @@
 
         </div>
 
+
+        <!-- HIER KOMT NA HET SPELEN
+             AUTOMATISCH DE KNOP OM
+             ANTWOORDEN TE BEKIJKEN -->
+
+        <div
+          id="results-home-slot"
+          class="results-home-slot"
+          hidden
+        ></div>
+
       </div>
 
     </main>
 
 
-    <!-- SPELSCHERM -->
+    <!-- =====================================
+         SPELSCHERM
+    ====================================== -->
 
     <main
       class="screen game-screen"
@@ -319,6 +331,8 @@
     >
 
       <div class="game-layout">
+
+        <!-- STATISTIEKEN -->
 
         <div class="game-stats">
 
@@ -394,15 +408,10 @@
               class="question-category"
               id="question-category"
             >
-
               🌍 ALGEMENE KENNIS
-
             </div>
 
-            <div
-              class="timer"
-              id="timer"
-            >
+            <div class="timer" id="timer">
 
               <span>⏱</span>
 
@@ -422,15 +431,11 @@
           <div class="question-content">
 
             <div class="question-label">
-
               GEEF EEN ZELDZAAM ANTWOORD
-
             </div>
 
             <h2 id="question-text">
-
               Hier verschijnt je vraag.
-
             </h2>
 
             <p
@@ -457,9 +462,7 @@
               class="input-label"
               for="answer-input"
             >
-
               JOUW ANTWOORD
-
             </label>
 
             <input
@@ -488,7 +491,7 @@
           </form>
 
 
-          <!-- ANTWOORDRESULTAAT -->
+          <!-- RESULTAAT PER VRAAG -->
 
           <div
             class="answer-result"
@@ -518,9 +521,7 @@
               class="result-points"
               id="result-points"
             >
-
               +50 PUNTEN
-
             </div>
 
             <button
@@ -556,9 +557,7 @@
             class="text-button"
             type="button"
           >
-
             Stop vlucht
-
           </button>
 
         </div>
@@ -568,7 +567,9 @@
     </main>
 
 
-    <!-- EINDSCHERM -->
+    <!-- =====================================
+         EINDSCHERM
+    ====================================== -->
 
     <main
       class="screen end-screen"
@@ -582,9 +583,7 @@
         </div>
 
         <div class="end-eyebrow">
-
           DAILY CHALLENGE VOLTOOID
-
         </div>
 
         <h2>
@@ -649,9 +648,7 @@
           class="end-record"
           id="end-record"
         >
-
           🎈 Goed gevlogen!
-
         </div>
 
 
@@ -666,6 +663,15 @@
           voor 10 nieuwe vragen!
 
         </div>
+
+
+        <!-- NIEUW: ANTWOORDENOVERZICHT -->
+
+        <div
+          id="results-end-slot"
+          class="results-end-slot"
+          hidden
+        ></div>
 
 
         <!-- KNOPPEN -->
@@ -687,9 +693,7 @@
           id="home-button"
           type="button"
         >
-
           TERUG NAAR BEGIN
-
         </button>
 
       </div>
@@ -697,7 +701,9 @@
     </main>
 
 
-    <!-- FOOTER -->
+    <!-- =====================================
+         FOOTER
+    ====================================== -->
 
     <footer class="site-footer">
 
@@ -715,7 +721,7 @@
   <!-- =====================================
        JAVASCRIPT
 
-       VOLGORDE IS BELANGRIJK
+       VOLGORDE IS BELANGRIJK!
   ====================================== -->
 
   <!-- 1. BASISVRAGEN -->
@@ -727,11 +733,14 @@
   <!-- 3. ANTWOORDUITBREIDING -->
   <script src="antwoorduitbreiding.js"></script>
 
-  <!-- 4. NIEUWE GESCHIEDENISVRAAG -->
+  <!-- 4. GESCHIEDENIS -->
   <script src="geschiedenis.js"></script>
 
   <!-- 5. DAILY CHALLENGE -->
   <script src="daily.js"></script>
+
+  <!-- 6. NIEUW: ANTWOORDENOVERZICHT -->
+  <script src="resultaten.js"></script>
 
 </body>
 </html>
