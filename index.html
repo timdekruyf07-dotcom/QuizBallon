@@ -2,79 +2,30 @@
 <html lang="nl">
 
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <meta
-    name="theme-color"
-    content="#70c8ff"
-  >
-
-  <meta
-    name="description"
-    content="QuizBallon: elke dag tien nieuwe vragen of speel Duel."
-  >
-
-  <title>
-    QuizBallon 🎈 | Daily Challenge & Duel
-  </title>
-
-
-  <!-- BESTAANDE STIJLEN -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#70c8ff">
+  <meta name="description" content="Speel QuizBallon! Elke dag 10 verrassende vragen uit 13 categorieën, of daag een vriend uit voor een Duel.">
+  <title>QuizBallon 🎈 | Daily Challenge & Duel</title>
 
   <link rel="stylesheet" href="style.css">
-
-  <link
-    rel="stylesheet"
-    href="verbeteringen.css"
-  >
-
-  <link
-    rel="stylesheet"
-    href="resultaten.css"
-  >
-
-  <link
-    rel="stylesheet"
-    href="ruimtereis.css"
-  >
-
-  <link
-    rel="stylesheet"
-    href="duel-home.css"
-  >
-
-  <link
-    rel="manifest"
-    href="manifest.webmanifest"
-  >
-
-
-  <!-- DAILY-KAART STYLING -->
+  <link rel="stylesheet" href="verbeteringen.css">
+  <link rel="stylesheet" href="resultaten.css">
+  <link rel="stylesheet" href="ruimtereis.css">
+  <link rel="stylesheet" href="duel-home.css">
+  <link rel="manifest" href="manifest.webmanifest">
 
   <style>
-
     .daily-card {
       width: min(100%, 560px);
       margin: 0 0 30px;
       padding: 23px;
-
       border: 1px solid rgba(255,255,255,.9);
       border-radius: 20px;
-
       background: rgba(255,255,255,.87);
-
-      box-shadow:
-        0 16px 40px rgba(36,82,143,.10);
-
+      box-shadow: 0 16px 40px rgba(36,82,143,.10);
       backdrop-filter: blur(15px);
     }
-
     .daily-card-top {
       display: flex;
       align-items: center;
@@ -83,99 +34,72 @@
       gap: 12px;
       margin-bottom: 15px;
     }
-
     .daily-label {
       color: #477dff;
       font-size: 11px;
       font-weight: 900;
       letter-spacing: .12em;
     }
-
     .daily-status {
       display: inline-block;
       padding: 8px 11px;
       border-radius: 100px;
-
       background: #e6f8ee;
       color: #209a5c;
-
       font-size: 10px;
       font-weight: 900;
     }
-
     .daily-status.completed {
       background: #edf0ff;
       color: #5559c9;
     }
-
     .daily-card h2 {
       margin: 0 0 10px;
       color: #17213d;
-
-      font-family:
-        Outfit, Arial, sans-serif;
-
+      font-family: Outfit, Arial, sans-serif;
       font-size: clamp(23px, 4vw, 29px);
       font-weight: 900;
       line-height: 1.2;
     }
-
     .daily-card p {
       margin: 0;
       color: #64728d;
       font-size: 13px;
       line-height: 1.7;
     }
-
     .daily-countdown-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 15px;
-
       margin-top: 20px;
       padding-top: 18px;
-
-      border-top:
-        1px solid rgba(32,53,99,.1);
+      border-top: 1px solid rgba(32,53,99,.1);
     }
-
     .daily-countdown-row span {
       color: #62728f;
       font-size: 12px;
       font-weight: 700;
     }
-
     .daily-countdown-row strong {
       color: #315ce0;
-
-      font-family:
-        Outfit, Arial, sans-serif;
-
+      font-family: Outfit, Arial, sans-serif;
       font-size: 19px;
       font-weight: 900;
-
-      font-variant-numeric:
-        tabular-nums;
-
+      font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
-
     .daily-end-message {
       margin: 0 0 20px;
       padding: 16px;
-
       border: 1px solid #d7e3ff;
       border-radius: 13px;
-
       background: #eef4ff;
       color: #3157a9;
-
       font-size: 13px;
       font-weight: 800;
       line-height: 1.65;
     }
-
     .start-button:disabled,
     .restart-button:disabled {
       opacity: .7;
@@ -183,1035 +107,241 @@
       background: #667ca5;
       box-shadow: none;
     }
-
   </style>
-
 </head>
 
-
 <body>
-
   <div class="app" id="app">
 
-
-    <!-- ==================================
-         ACHTERGROND
-    =================================== -->
-
-    <div
-      class="world zone-earth"
-      id="world"
-    >
-
+    <!-- ACHTERGROND -->
+    <div class="world zone-earth" id="world">
       <div class="world-gradient"></div>
-
       <div class="sun"></div>
-
-      <div
-        class="stars"
-        id="stars"
-      ></div>
-
+      <div class="stars" id="stars"></div>
       <div class="cloud cloud-one"></div>
       <div class="cloud cloud-two"></div>
       <div class="cloud cloud-three"></div>
       <div class="cloud cloud-four"></div>
       <div class="cloud cloud-five"></div>
-
-      <div
-        class="planet moon"
-        id="moon"
-      ></div>
-
-      <div
-        class="planet mars"
-        id="mars"
-      ></div>
-
-      <div
-        class="planet jupiter"
-        id="jupiter"
-      ></div>
-
-      <div
-        class="ground"
-        id="ground"
-      >
-
+      <div class="planet moon" id="moon"></div>
+      <div class="planet mars" id="mars"></div>
+      <div class="planet jupiter" id="jupiter"></div>
+      <div class="ground" id="ground">
         <div class="hill hill-one"></div>
-
         <div class="hill hill-two"></div>
-
         <div class="hill hill-three"></div>
-
       </div>
-
-
-      <!-- LUCHTBALLON -->
-
-      <div
-        class="balloon-container"
-        id="balloon-container"
-      >
-
+      <div class="balloon-container" id="balloon-container">
         <div class="balloon-shadow"></div>
-
-        <div
-          class="balloon"
-          id="balloon"
-        >
-
+        <div class="balloon" id="balloon">
           <div class="balloon-top">
-
-            <div
-              class="balloon-stripe stripe-one"
-            ></div>
-
-            <div
-              class="balloon-stripe stripe-two"
-            ></div>
-
-            <div
-              class="balloon-stripe stripe-three"
-            ></div>
-
-            <div
-              class="balloon-stripe stripe-four"
-            ></div>
-
+            <div class="balloon-stripe stripe-one"></div>
+            <div class="balloon-stripe stripe-two"></div>
+            <div class="balloon-stripe stripe-three"></div>
+            <div class="balloon-stripe stripe-four"></div>
           </div>
-
-          <div class="balloon-ropes">
-
-            <span></span>
-
-            <span></span>
-
-          </div>
-
-          <div class="balloon-basket">
-
-            <span>QB</span>
-
-          </div>
-
+          <div class="balloon-ropes"><span></span><span></span></div>
+          <div class="balloon-basket"><span>QB</span></div>
         </div>
-
-        <div class="balloon-name">
-
-          QUIZBALLON
-
-        </div>
-
+        <div class="balloon-name">QUIZBALLON</div>
       </div>
-
-      <div
-        class="flight-particles"
-        id="flight-particles"
-      ></div>
-
+      <div class="flight-particles" id="flight-particles"></div>
     </div>
 
-
-    <!-- ==================================
-         HEADER
-    =================================== -->
-
+    <!-- HEADER -->
     <header class="site-header">
-
-      <a
-        href="index.html"
-        class="logo"
-        aria-label="QuizBallon homepage"
-      >
-
-        <span class="logo-icon">
-
-          🎈
-
-        </span>
-
-        <span>
-
-          Quiz<span class="logo-accent">Ballon</span>
-
-        </span>
-
+      <a href="index.html" class="logo" aria-label="QuizBallon homepage">
+        <span class="logo-icon">🎈</span>
+        <span>Quiz<span class="logo-accent">Ballon</span></span>
       </a>
-
-
       <div class="header-right">
-
         <div class="record-badge">
-
           <span>🏆 RECORD</span>
-
-          <strong id="header-record">
-
-            0 km
-
-          </strong>
-
+          <strong id="header-record">0 km</strong>
         </div>
-
       </div>
-
     </header>
 
-
-    <!-- ==================================
-         STARTSCHERM
-    =================================== -->
-
-    <main
-      class="screen start-screen active"
-      id="start-screen"
-    >
-
+    <!-- STARTSCHERM -->
+    <main class="screen start-screen active" id="start-screen">
       <div class="start-content">
-
         <div class="eyebrow">
-
           <span class="eyebrow-dot"></span>
-
           ELKE DAG EEN NIEUWE UITDAGING
-
         </div>
-
-
-        <h1>
-
-          DENK SLIM.<br>
-
-          ANTWOORD ZELDZAAM.<br>
-
-          <span>VLIEG HOGER.</span>
-
-        </h1>
-
-
+        <h1>DENK SLIM.<br>ANTWOORD ZELDZAAM.<br><span>VLIEG HOGER.</span></h1>
         <p class="start-description">
-
-          Iedere dag krijg je 10 vragen.
-
-          Bedenk antwoorden waar andere spelers
-          niet meteen aan denken.
-
-          Hoe zeldzamer je antwoord,
-          hoe hoger jouw luchtballon vliegt!
-
+          Iedere dag krijg je 10 vragen. Bedenk antwoorden waar andere spelers niet
+          meteen aan denken. Hoe zeldzamer je antwoord, hoe hoger jouw luchtballon vliegt!
         </p>
-
 
         <!-- DAILY CHALLENGE -->
-
-        <section
-          class="daily-card"
-          id="daily-card"
-          aria-label="Dagelijkse uitdaging"
-        >
-
+        <section class="daily-card" id="daily-card" aria-label="Dagelijkse uitdaging">
           <div class="daily-card-top">
-
-            <span class="daily-label">
-
-              📅 DAILY CHALLENGE
-
-            </span>
-
-            <span
-              class="daily-status"
-              id="daily-status"
-            >
-
-              BESCHIKBAAR
-
-            </span>
-
+            <span class="daily-label">📅 DAILY CHALLENGE</span>
+            <span class="daily-status" id="daily-status">BESCHIKBAAR</span>
           </div>
-
-
-          <h2 id="daily-date">
-
-            Uitdaging van vandaag
-
-          </h2>
-
-
-          <p id="daily-description">
-
-            Vandaag staan er 10 vragen
-            voor je klaar.
-
-          </p>
-
-
+          <h2 id="daily-date">Uitdaging van vandaag</h2>
+          <p id="daily-description">Vandaag staan er 10 vragen voor je klaar.</p>
           <div class="daily-countdown-row">
-
-            <span>
-
-              ⏰ Nieuwe uitdaging over
-
-            </span>
-
-            <strong
-              id="daily-countdown"
-              aria-live="off"
-            >
-
-              00:00:00
-
-            </strong>
-
+            <span>⏰ Nieuwe uitdaging over</span>
+            <strong id="daily-countdown" aria-live="off">00:00:00</strong>
           </div>
-
         </section>
-
 
         <!-- SPELINFORMATIE -->
-
         <div class="start-features">
-
-          <div class="feature">
-
-            <span>🧠</span>
-
-            <div>
-
-              <strong>10 vragen</strong>
-
-              <small>Iedere dag</small>
-
-            </div>
-
-          </div>
-
-
-          <div class="feature">
-
-            <span>⏱️</span>
-
-            <div>
-
-              <strong>25 seconden</strong>
-
-              <small>Per vraag</small>
-
-            </div>
-
-          </div>
-
-
-          <div class="feature">
-
-            <span>🚀</span>
-
-            <div>
-
-              <strong>Raketantwoord</strong>
-
-              <small>100 punten</small>
-
-            </div>
-
-          </div>
-
+          <div class="feature"><span>🧠</span><div><strong>10 vragen</strong><small>Iedere dag</small></div></div>
+          <div class="feature"><span>⏱️</span><div><strong>25 seconden</strong><small>Per vraag</small></div></div>
+          <div class="feature"><span>🚀</span><div><strong>Raketantwoord</strong><small>100 punten</small></div></div>
         </div>
 
-
-        <!-- STARTKNOP -->
-
-        <button
-          class="primary-button start-button"
-          id="start-button"
-          type="button"
-        >
-
-          START DE DAGELIJKSE VLUCHT
-
-          <span>↗</span>
-
+        <button class="primary-button start-button" id="start-button" type="button">
+          START DE DAGELIJKSE VLUCHT <span>↗</span>
         </button>
-
-
-        <!-- DUEL -->
-
-        <a
-          href="duel.html"
-          id="duel-home-link"
-          class="duel-home-link"
-        >
-
-          <span
-            class="duel-home-icon"
-            aria-hidden="true"
-          >
-
-            ⚔️
-
-          </span>
-
-          <span class="duel-home-text">
-
-            SPEEL TEGEN EEN VRIEND
-
-          </span>
-
-          <span
-            class="duel-home-arrow"
-            aria-hidden="true"
-          >
-
-            →
-
-          </span>
-
+        <a href="duel.html" id="duel-home-link" class="duel-home-link">
+          <span class="duel-home-icon" aria-hidden="true">⚔️</span>
+          <span class="duel-home-text">SPEEL TEGEN EEN VRIEND</span>
+          <span class="duel-home-arrow" aria-hidden="true">→</span>
         </a>
-
-
-        <div class="start-small">
-
-          GRATIS SPELEN · ELKE DAG NIEUWE VRAGEN
-
-        </div>
-
-
-        <div
-          id="results-home-slot"
-          class="results-home-slot"
-          hidden
-        ></div>
-
+        <div class="start-small">GRATIS SPELEN · ELKE DAG NIEUWE VRAGEN</div>
+        <div id="results-home-slot" class="results-home-slot" hidden></div>
       </div>
-
     </main>
 
-
-    <!-- ==================================
-         SPELSCHERM
-    =================================== -->
-
-    <main
-      class="screen game-screen"
-      id="game-screen"
-    >
-
+    <!-- SPELSCHERM -->
+    <main class="screen game-screen" id="game-screen">
       <div class="game-layout">
-
-
-        <!-- STATISTIEKEN -->
-
         <div class="game-stats">
-
-          <div class="stat-box">
-
-            <span>VRAAG</span>
-
-            <strong>
-
-              <span id="question-number">1</span>/10
-
-            </strong>
-
-          </div>
-
-
-          <div class="stat-box">
-
-            <span>HOOGTE</span>
-
-            <strong id="height-display">
-
-              0 km
-
-            </strong>
-
-          </div>
-
-
-          <div class="stat-box">
-
-            <span>PUNTEN</span>
-
-            <strong id="score-display">
-
-              0
-
-            </strong>
-
-          </div>
-
+          <div class="stat-box"><span>VRAAG</span><strong><span id="question-number">1</span>/10</strong></div>
+          <div class="stat-box"><span>HOOGTE</span><strong id="height-display">0 km</strong></div>
+          <div class="stat-box"><span>PUNTEN</span><strong id="score-display">0</strong></div>
         </div>
-
-
-        <!-- VOORTGANGSBALK -->
-
         <div class="progress-section">
-
-          <div class="progress-header">
-
-            <span>JOUW VLUCHT</span>
-
-            <span id="zone-name">
-
-              De aarde 🌍
-
-            </span>
-
-          </div>
-
-          <div class="progress-track">
-
-            <div
-              class="progress-fill"
-              id="progress-fill"
-            ></div>
-
-          </div>
-
+          <div class="progress-header"><span>JOUW VLUCHT</span><span id="zone-name">De aarde 🌍</span></div>
+          <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
         </div>
-
-
-        <!-- VRAAG -->
-
-        <section
-          class="question-card"
-          id="question-card"
-        >
-
+        <section class="question-card" id="question-card">
           <div class="question-top">
-
-            <div
-              class="question-category"
-              id="question-category"
-            >
-
-              🌍 ALGEMENE KENNIS
-
-            </div>
-
-            <div
-              class="timer"
-              id="timer"
-            >
-
-              <span>⏱</span>
-
-              <strong id="timer-display">
-
-                25
-
-              </strong>
-
-              <small>SEC</small>
-
-            </div>
-
+            <div class="question-category" id="question-category">🌍 ALGEMENE KENNIS</div>
+            <div class="timer" id="timer"><span>⏱</span><strong id="timer-display">25</strong><small>SEC</small></div>
           </div>
-
-
           <div class="question-content">
-
-            <div class="question-label">
-
-              GEEF EEN ZELDZAAM ANTWOORD
-
-            </div>
-
-            <h2 id="question-text">
-
-              Hier verschijnt je vraag.
-
-            </h2>
-
-            <p
-              class="question-hint"
-              id="question-hint"
-            >
-
-              Hoe minder voor de hand liggend,
-              hoe beter.
-
-            </p>
-
+            <div class="question-label">GEEF EEN ZELDZAAM ANTWOORD</div>
+            <h2 id="question-text">Hier verschijnt je vraag.</h2>
+            <p class="question-hint" id="question-hint">Hoe minder voor de hand liggend, hoe beter.</p>
           </div>
-
-
-          <!-- ANTWOORDVELD -->
-
-          <form
-            id="answer-form"
-            autocomplete="off"
-          >
-
-            <label
-              class="input-label"
-              for="answer-input"
-            >
-
-              JOUW ANTWOORD
-
-            </label>
-
-
-            <input
-              type="text"
-              id="answer-input"
-              name="answer"
-              placeholder="Typ hier je antwoord..."
-              maxlength="100"
-              autocomplete="off"
-              spellcheck="false"
-              required
-            >
-
-
-            <button
-              type="submit"
-              class="primary-button answer-button"
-              id="answer-button"
-            >
-
-              CONTROLEER ANTWOORD
-
-              <span>→</span>
-
+          <form id="answer-form" autocomplete="off">
+            <label class="input-label" for="answer-input">JOUW ANTWOORD</label>
+            <input type="text" id="answer-input" name="answer" placeholder="Typ hier je antwoord..."
+              maxlength="100" autocomplete="off" spellcheck="false" required>
+            <button type="submit" class="primary-button answer-button" id="answer-button">
+              CONTROLEER ANTWOORD <span>→</span>
             </button>
-
           </form>
-
-
-          <!-- RESULTAAT -->
-
-          <div
-            class="answer-result"
-            id="answer-result"
-            aria-live="polite"
-            hidden
-          >
-
-            <div
-              class="result-icon"
-              id="result-icon"
-            >
-
-              ⭐
-
-            </div>
-
-            <h3 id="result-title">
-
-              Goed antwoord!
-
-            </h3>
-
-            <p id="result-description">
-
-              Je luchtballon stijgt!
-
-            </p>
-
-            <div
-              class="result-points"
-              id="result-points"
-            >
-
-              +50 PUNTEN
-
-            </div>
-
-
-            <button
-              type="button"
-              class="primary-button next-button"
-              id="next-button"
-            >
-
-              VOLGENDE VRAAG
-
-              <span>→</span>
-
+          <div class="answer-result" id="answer-result" aria-live="polite" hidden>
+            <div class="result-icon" id="result-icon">⭐</div>
+            <h3 id="result-title">Goed antwoord!</h3>
+            <p id="result-description">Je luchtballon stijgt!</p>
+            <div class="result-points" id="result-points">+50 PUNTEN</div>
+            <button type="button" class="primary-button next-button" id="next-button">
+              VOLGENDE VRAAG <span>→</span>
             </button>
-
           </div>
-
         </section>
-
-
-        <!-- ONDERKANT -->
-
         <div class="game-bottom">
-
-          <div class="flight-tip">
-
-            💡 Een verrassend correct antwoord
-            levert meestal meer punten op.
-
-          </div>
-
-
-          <button
-            id="quit-button"
-            class="text-button"
-            type="button"
-          >
-
-            Stop vlucht
-
-          </button>
-
+          <div class="flight-tip">💡 Een verrassend correct antwoord levert meestal meer punten op.</div>
+          <button id="quit-button" class="text-button" type="button">Stop vlucht</button>
         </div>
-
       </div>
-
     </main>
 
-
-    <!-- ==================================
-         EINDSCHERM
-    =================================== -->
-
-    <main
-      class="screen end-screen"
-      id="end-screen"
-    >
-
+    <!-- EINDSCHERM -->
+    <main class="screen end-screen" id="end-screen">
       <div class="end-card">
-
-        <div class="end-icon">
-
-          🏆
-
-        </div>
-
-
-        <div class="end-eyebrow">
-
-          DAILY CHALLENGE VOLTOOID
-
-        </div>
-
-
-        <h2>
-
-          WAT EEN<br>
-
-          <span>VLUCHT!</span>
-
-        </h2>
-
-
-        <p
-          class="end-description"
-          id="end-description"
-        >
-
-          Je hebt de dagelijkse
-          uitdaging voltooid!
-
-        </p>
-
-
-        <!-- EINDSCORES -->
-
+        <div class="end-icon">🏆</div>
+        <div class="end-eyebrow">DAILY CHALLENGE VOLTOOID</div>
+        <h2>WAT EEN<br><span>VLUCHT!</span></h2>
+        <p class="end-description" id="end-description">Je hebt de dagelijkse uitdaging voltooid!</p>
         <div class="end-stats">
-
-          <div class="end-stat">
-
-            <span>TOTALE HOOGTE</span>
-
-            <strong id="end-height">
-
-              0 km
-
-            </strong>
-
-          </div>
-
-
-          <div class="end-stat">
-
-            <span>TOTALE PUNTEN</span>
-
-            <strong id="end-score">
-
-              0
-
-            </strong>
-
-          </div>
-
-
-          <div class="end-stat">
-
-            <span>GOEDE ANTWOORDEN</span>
-
-            <strong id="end-correct">
-
-              0/10
-
-            </strong>
-
-          </div>
-
+          <div class="end-stat"><span>TOTALE HOOGTE</span><strong id="end-height">0 km</strong></div>
+          <div class="end-stat"><span>TOTALE PUNTEN</span><strong id="end-score">0</strong></div>
+          <div class="end-stat"><span>GOEDE ANTWOORDEN</span><strong id="end-correct">0/10</strong></div>
         </div>
-
-
-        <div
-          class="end-record"
-          id="end-record"
-        >
-
-          🎈 Goed gevlogen!
-
+        <div class="end-record" id="end-record">🎈 Goed gevlogen!</div>
+        <div class="daily-end-message" id="daily-end-message">
+          📅 Kom morgen terug voor 10 nieuwe vragen!
         </div>
-
-
-        <div
-          class="daily-end-message"
-          id="daily-end-message"
-        >
-
-          📅 Kom morgen terug
-          voor 10 nieuwe vragen!
-
-        </div>
-
-
-        <div
-          id="results-end-slot"
-          class="results-end-slot"
-          hidden
-        ></div>
-
-
-        <!-- KNOPPEN -->
-
-        <button
-          class="primary-button restart-button"
-          id="restart-button"
-          type="button"
-        >
-
-          MORGEN WEER SPELEN
-
-          <span>↗</span>
-
+        <div id="results-end-slot" class="results-end-slot" hidden></div>
+        <button class="primary-button restart-button" id="restart-button" type="button">
+          MORGEN WEER SPELEN <span>↗</span>
         </button>
-
-
-        <button
-          class="secondary-button"
-          id="home-button"
-          type="button"
-        >
-
-          TERUG NAAR BEGIN
-
-        </button>
-
+        <button class="secondary-button" id="home-button" type="button">TERUG NAAR BEGIN</button>
       </div>
-
     </main>
-
-
-    <!-- FOOTER -->
 
     <footer class="site-footer">
-
       <span>🎈 QUIZBALLON</span>
-
-      <span>
-        ELKE DAG EEN NIEUWE VLUCHT
-      </span>
-
+      <span>ELKE DAG EEN NIEUWE VLUCHT</span>
     </footer>
-
   </div>
 
-
-  <!-- ==================================
-       JAVASCRIPT
-
-       DE VOLGORDE IS BELANGRIJK
-  =================================== -->
-
-
-  <!-- 1. BASISVRAGEN -->
-
+  <!-- BESTAANDE VRAGENBANK: BEHOUDEN VOOR DUEL EN UITBREIDINGEN -->
   <script src="vragen.js"></script>
-
-
-  <!-- 2. BESTAANDE SPELLOGICA -->
-
   <script src="script.js"></script>
-
-
-  <!-- 3. OUDE ANTWOORDUITBREIDING -->
-
   <script src="antwoorduitbreiding.js"></script>
-
-
-  <!-- 4. GESCHIEDENIS -->
-
   <script src="geschiedenis.js"></script>
-
-
-  <!-- 5. EXTRA KENNISVRAGEN -->
-
   <script src="vragen-uitbreiding.js"></script>
-
-
-  <!-- 6. 50 MODEVRAGEN -->
-
   <script src="mode-vragen.js"></script>
-
-
-  <!-- 7. 56 NIEUWE KENNISVRAGEN -->
-
   <script src="vragen-nieuw.js"></script>
-
-
-  <!-- 8. GROTERE ANTWOORDENBANK -->
-
   <script src="quizballon-antwoorden-extra.js"></script>
-
-
-  <!-- 9. BESTAANDE LETTERVARIANTEN -->
-
   <script src="vragen-100.js"></script>
 
+  <!-- NIEUW: EXACT 650 LOSSE VRAGEN + CATEGORIEGEBALANCEERDE DAILY -->
+  <script src="vragen-650.js?v=2026-11-27-1"></script>
+  <script src="daily.js?v=2026-11-27-1"></script>
 
-  <!-- 10. NIEUWE DAILY V6 -->
-
-  <script src="daily.js"></script>
-
-
-  <!-- 11. ANTWOORDENOVERZICHT -->
-
+  <!-- RESULTATEN EN ANIMATIES -->
   <script src="resultaten.js"></script>
-
-
-  <!-- 12. RUIMTEREIS -->
-
   <script src="ruimtereis.js"></script>
 
-
-  <!-- ==================================
-       DUEL-KNOP POSITIONEREN
-  =================================== -->
-
+  <!-- DUEL-KNOP POSITIONEREN (ONVERANDERDE WERKING) -->
   <script>
-
     (function () {
-
       "use strict";
+      const startButton = document.getElementById("start-button");
+      const duelLink = document.getElementById("duel-home-link");
+      if (!startButton || !duelLink) return;
 
-      const start =
-        document.getElementById(
-          "start-button"
-        );
-
-      const duel =
-        document.getElementById(
-          "duel-home-link"
-        );
-
-      if (!start || !duel) {
-        return;
-      }
-
-
-      function position() {
-
-        const style =
-          getComputedStyle(
-            start
-          );
-
-
-        if (
-          innerWidth < 900 ||
-          (
-            style.position !== "absolute" &&
-            style.position !== "fixed"
-          )
-        ) {
-
-          duel.classList.remove(
-            "is-positioned"
-          );
-
-          duel.style.left = "";
-          duel.style.top = "";
-          duel.style.width = "";
-
-          return;
-
-        }
-
-
-        const rect =
-          start.getBoundingClientRect();
-
-
-        if (
-          !rect.width ||
-          !rect.height
-        ) {
+      function positionDuelButton() {
+        if (window.innerWidth < 900) {
+          duelLink.classList.remove("is-positioned");
+          duelLink.style.left = "";
+          duelLink.style.top = "";
+          duelLink.style.width = "";
           return;
         }
-
-
-        const width =
-          Math.min(
-            rect.width,
-            innerWidth - 32
-          );
-
-
-        const left =
-          Math.max(
-            16,
-            Math.min(
-              rect.left,
-              innerWidth - width - 16
-            )
-          );
-
-
-        duel.classList.add(
-          "is-positioned"
-        );
-
-
-        duel.style.left =
-          left + "px";
-
-        duel.style.top =
-          rect.bottom + 14 + "px";
-
-        duel.style.width =
-          width + "px";
-
+        const style = window.getComputedStyle(startButton);
+        if (style.position !== "absolute" && style.position !== "fixed") {
+          duelLink.classList.remove("is-positioned");
+          duelLink.style.left = "";
+          duelLink.style.top = "";
+          duelLink.style.width = "";
+          return;
+        }
+        const rect = startButton.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const width = Math.min(rect.width, window.innerWidth - 32);
+        const left = Math.max(16, Math.min(rect.left, window.innerWidth - width - 16));
+        duelLink.classList.add("is-positioned");
+        duelLink.style.left = left + "px";
+        duelLink.style.top = rect.bottom + 14 + "px";
+        duelLink.style.width = width + "px";
       }
-
-
-      addEventListener(
-        "load",
-        position
-      );
-
-      addEventListener(
-        "resize",
-        position
-      );
-
-      position();
-
+      window.addEventListener("load", positionDuelButton);
+      window.addEventListener("resize", positionDuelButton);
+      positionDuelButton();
     })();
-
   </script>
-
 </body>
 </html>
