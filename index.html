@@ -43,7 +43,7 @@
     href="ruimtereis.css"
   >
 
-  <!-- NIEUW: DUEL-KNOP -->
+  <!-- DUEL-KNOP -->
 
   <link
     rel="stylesheet"
@@ -369,7 +369,7 @@
 
 
         <!-- ===================================
-             NIEUW: DUEL-KNOP
+             DUEL-KNOP
         ==================================== -->
 
         <a
@@ -816,34 +816,109 @@
 
   <!-- =====================================
        JAVASCRIPT
-       LAAD DE BESTANDEN IN DEZE VOLGORDE
+
+       BELANGRIJK:
+       BESTANDEN IN DEZE VOLGORDE LADEN
   ====================================== -->
 
-  <!-- BASISVRAGEN -->
+
+  <!-- =====================================
+       1. BASISVRAGEN
+  ====================================== -->
+
   <script src="vragen.js"></script>
 
-  <!-- SPELLOGICA -->
+
+  <!-- =====================================
+       2. SPELLOGICA
+
+       Dit bestand maakt de eerste
+       uitgebreide antwoordenbank.
+  ====================================== -->
+
   <script src="script.js"></script>
 
-  <!-- UITGEBREIDE ANTWOORDEN -->
+
+  <!-- =====================================
+       3. BESTAANDE ANTWOORDUITBREIDING
+  ====================================== -->
+
   <script src="antwoorduitbreiding.js"></script>
 
-  <!-- GESCHIEDENIS -->
+
+  <!-- =====================================
+       4. GESCHIEDENIS
+  ====================================== -->
+
   <script src="geschiedenis.js"></script>
 
-  <!-- EXTRA VRAGEN -->
+
+  <!-- =====================================
+       5. EXTRA KENNISVRAGEN
+  ====================================== -->
+
   <script src="vragen-uitbreiding.js"></script>
 
-  <!-- 100 VRAAGVARIANTEN -->
+
+  <!-- =====================================
+       6. NIEUW: 50 MODEVRAGEN
+
+       Deze vragen worden toegevoegd
+       aan de gewone vragenbank.
+
+       Ze krijgen ieder een eigen
+       onderwerp voor de Daily.
+  ====================================== -->
+
+  <script src="mode-vragen.js"></script>
+
+
+  <!-- =====================================
+       7. NIEUW: CENTRALE ANTWOORDENBANK
+
+       Deze wordt toegepast voordat
+       de 100 lettervarianten
+       worden gegenereerd.
+
+       Daardoor gebruiken die varianten
+       de ruimere antwoordenlijsten.
+  ====================================== -->
+
+  <script src="quizballon-antwoorden-extra.js"></script>
+
+
+  <!-- =====================================
+       8. 100 LETTERVARIANTEN
+
+       De lettervragen worden gemaakt
+       nadat alle gewone antwoorden
+       zijn uitgebreid.
+  ====================================== -->
+
   <script src="vragen-100.js"></script>
 
-  <!-- DAGELIJKSE UITDAGING -->
+
+  <!-- =====================================
+       9. DAILY CHALLENGE
+
+       Selecteert 10 onderwerpen
+       uit alle geladen vragen.
+  ====================================== -->
+
   <script src="daily.js"></script>
 
-  <!-- ANTWOORDENOVERZICHT -->
+
+  <!-- =====================================
+       10. ANTWOORDENOVERZICHT
+  ====================================== -->
+
   <script src="resultaten.js"></script>
 
-  <!-- RUIMTEREIS -->
+
+  <!-- =====================================
+       11. RUIMTEREIS
+  ====================================== -->
+
   <script src="ruimtereis.js"></script>
 
 
@@ -875,6 +950,7 @@
       }
 
       function positionDuelButton() {
+
         /*
          * Klein scherm:
          * normale opmaak gebruiken.
