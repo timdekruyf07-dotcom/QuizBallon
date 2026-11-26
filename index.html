@@ -9,42 +9,77 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <meta
-    name="theme-color"
-    content="#70c8ff"
-  >
+  <meta name="theme-color" content="#70c8ff">
 
   <meta
     name="description"
-    content="Speel iedere dag QuizBallon! Denk zeldzaam, scoor punten en vlieg door de ruimte."
+    content="Speel QuizBallon! Beantwoord zeldzame vragen of daag een vriend uit voor een spannend duel."
   >
 
-  <title>QuizBallon 🎈 | Daily Challenge</title>
+  <title>QuizBallon 🎈 | Daily Challenge & Duel</title>
+
+  <!-- BASISONTWERP -->
 
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="verbeteringen.css">
-  <link rel="stylesheet" href="resultaten.css">
-  <link rel="stylesheet" href="ruimtereis.css">
+
+  <!-- VERBETERDE STARTKNOP -->
+
+  <link
+    rel="stylesheet"
+    href="verbeteringen.css"
+  >
+
+  <!-- ANTWOORDENOVERZICHT -->
+
+  <link
+    rel="stylesheet"
+    href="resultaten.css"
+  >
+
+  <!-- RUIMTEREIS -->
+
+  <link
+    rel="stylesheet"
+    href="ruimtereis.css"
+  >
+
+  <!-- NIEUW: DUEL-KNOP -->
+
+  <link
+    rel="stylesheet"
+    href="duel-home.css"
+  >
+
+  <!-- WEBAPP -->
 
   <link
     rel="manifest"
     href="manifest.webmanifest"
   >
+
 </head>
 
 <body>
 
   <div class="app" id="app">
 
-    <!-- ACHTERGROND -->
+    <!-- =====================================
+         ACHTERGROND
+    ====================================== -->
 
-    <div class="world zone-earth" id="world">
+    <div
+      class="world zone-earth"
+      id="world"
+    >
 
       <div class="world-gradient"></div>
 
       <div class="sun"></div>
 
-      <div class="stars" id="stars"></div>
+      <div
+        class="stars"
+        id="stars"
+      ></div>
 
       <div class="cloud cloud-one"></div>
       <div class="cloud cloud-two"></div>
@@ -52,18 +87,36 @@
       <div class="cloud cloud-four"></div>
       <div class="cloud cloud-five"></div>
 
-      <div class="planet moon" id="moon"></div>
-      <div class="planet mars" id="mars"></div>
-      <div class="planet jupiter" id="jupiter"></div>
+      <div
+        class="planet moon"
+        id="moon"
+      ></div>
 
-      <div class="ground" id="ground">
+      <div
+        class="planet mars"
+        id="mars"
+      ></div>
+
+      <div
+        class="planet jupiter"
+        id="jupiter"
+      ></div>
+
+      <div
+        class="ground"
+        id="ground"
+      >
+
         <div class="hill hill-one"></div>
         <div class="hill hill-two"></div>
         <div class="hill hill-three"></div>
+
       </div>
 
 
-      <!-- RODE LUCHTBALLON -->
+      <!-- ===================================
+           RODE QB-LUCHTBALLON
+      ==================================== -->
 
       <div
         class="balloon-container"
@@ -72,13 +125,29 @@
 
         <div class="balloon-shadow"></div>
 
-        <div class="balloon" id="balloon">
+        <div
+          class="balloon"
+          id="balloon"
+        >
 
           <div class="balloon-top">
-            <div class="balloon-stripe stripe-one"></div>
-            <div class="balloon-stripe stripe-two"></div>
-            <div class="balloon-stripe stripe-three"></div>
-            <div class="balloon-stripe stripe-four"></div>
+
+            <div
+              class="balloon-stripe stripe-one"
+            ></div>
+
+            <div
+              class="balloon-stripe stripe-two"
+            ></div>
+
+            <div
+              class="balloon-stripe stripe-three"
+            ></div>
+
+            <div
+              class="balloon-stripe stripe-four"
+            ></div>
+
           </div>
 
           <div class="balloon-ropes">
@@ -98,6 +167,7 @@
 
       </div>
 
+
       <div
         class="flight-particles"
         id="flight-particles"
@@ -106,7 +176,9 @@
     </div>
 
 
-    <!-- HEADER -->
+    <!-- =====================================
+         HEADER
+    ====================================== -->
 
     <header class="site-header">
 
@@ -115,24 +187,35 @@
         class="logo"
         aria-label="QuizBallon homepage"
       >
+
         <span class="logo-icon">🎈</span>
 
         <span>
           Quiz<span class="logo-accent">Ballon</span>
         </span>
+
       </a>
 
       <div class="header-right">
+
         <div class="record-badge">
+
           <span>🏆 RECORD</span>
-          <strong id="header-record">0 km</strong>
+
+          <strong id="header-record">
+            0 km
+          </strong>
+
         </div>
+
       </div>
 
     </header>
 
 
-    <!-- STARTSCHERM -->
+    <!-- =====================================
+         STARTSCHERM
+    ====================================== -->
 
     <main
       class="screen start-screen active"
@@ -142,17 +225,25 @@
       <div class="start-content">
 
         <div class="eyebrow">
+
           <span class="eyebrow-dot"></span>
+
           ELKE DAG EEN NIEUWE UITDAGING
+
         </div>
 
         <h1>
+
           DENK SLIM.<br>
+
           ANTWOORD ZELDZAAM.<br>
+
           <span>VLIEG HOGER.</span>
+
         </h1>
 
         <p class="start-description">
+
           Iedere dag krijg je 10 vragen.
 
           Bedenk antwoorden waar andere spelers
@@ -160,10 +251,13 @@
 
           Hoe zeldzamer je antwoord,
           hoe hoger jouw luchtballon vliegt!
+
         </p>
 
 
-        <!-- DAILY CHALLENGE -->
+        <!-- ===================================
+             DAILY CHALLENGE
+        ==================================== -->
 
         <section
           class="daily-card"
@@ -191,7 +285,10 @@
           </h2>
 
           <p id="daily-description">
-            Vandaag staan er 10 vragen voor je klaar.
+
+            Vandaag staan er 10 vragen
+            voor je klaar.
+
           </p>
 
           <div class="daily-countdown-row">
@@ -212,54 +309,106 @@
         </section>
 
 
-        <!-- SPELINFORMATIE -->
+        <!-- ===================================
+             SPELINFORMATIE
+        ==================================== -->
 
         <div class="start-features">
 
           <div class="feature">
+
             <span>🧠</span>
+
             <div>
               <strong>10 vragen</strong>
               <small>Iedere dag</small>
             </div>
+
           </div>
 
           <div class="feature">
+
             <span>⏱️</span>
+
             <div>
               <strong>25 seconden</strong>
               <small>Per vraag</small>
             </div>
+
           </div>
 
           <div class="feature">
+
             <span>🚀</span>
+
             <div>
               <strong>Raketantwoord</strong>
               <small>100 punten</small>
             </div>
+
           </div>
 
         </div>
 
 
-        <!-- STARTKNOP RECHTS -->
+        <!-- ===================================
+             DAGELIJKSE STARTKNOP
+        ==================================== -->
 
         <button
           class="primary-button start-button"
           id="start-button"
           type="button"
         >
+
           START DE DAGELIJKSE VLUCHT
+
           <span>↗</span>
+
         </button>
 
+
+        <!-- ===================================
+             NIEUW: DUEL-KNOP
+        ==================================== -->
+
+        <a
+          href="duel.html"
+          id="duel-home-link"
+          class="duel-home-link"
+        >
+
+          <span
+            class="duel-home-icon"
+            aria-hidden="true"
+          >
+            ⚔️
+          </span>
+
+          <span class="duel-home-text">
+            SPEEL TEGEN EEN VRIEND
+          </span>
+
+          <span
+            class="duel-home-arrow"
+            aria-hidden="true"
+          >
+            →
+          </span>
+
+        </a>
+
+
         <div class="start-small">
+
           GRATIS SPELEN · ELKE DAG NIEUWE VRAGEN
+
         </div>
 
 
-        <!-- ANTWOORDEN NA AFLOOP -->
+        <!-- ===================================
+             ANTWOORDEN NA AFLOOP
+        ==================================== -->
 
         <div
           id="results-home-slot"
@@ -272,7 +421,9 @@
     </main>
 
 
-    <!-- SPELSCHERM -->
+    <!-- =====================================
+         SPELSCHERM
+    ====================================== -->
 
     <main
       class="screen game-screen"
@@ -281,23 +432,38 @@
 
       <div class="game-layout">
 
+        <!-- STATISTIEKEN -->
+
         <div class="game-stats">
 
           <div class="stat-box">
+
             <span>VRAAG</span>
+
             <strong>
               <span id="question-number">1</span>/10
             </strong>
+
           </div>
 
           <div class="stat-box">
+
             <span>HOOGTE</span>
-            <strong id="height-display">0 km</strong>
+
+            <strong id="height-display">
+              0 km
+            </strong>
+
           </div>
 
           <div class="stat-box">
+
             <span>PUNTEN</span>
-            <strong id="score-display">0</strong>
+
+            <strong id="score-display">
+              0
+            </strong>
+
           </div>
 
         </div>
@@ -308,21 +474,30 @@
         <div class="progress-section">
 
           <div class="progress-header">
+
             <span>JOUW VLUCHT</span>
-            <span id="zone-name">De aarde 🌍</span>
+
+            <span id="zone-name">
+              De aarde 🌍
+            </span>
+
           </div>
 
           <div class="progress-track">
+
             <div
               class="progress-fill"
               id="progress-fill"
             ></div>
+
           </div>
 
         </div>
 
 
-        <!-- VRAAGKAART -->
+        <!-- ===================================
+             VRAAGKAART
+        ==================================== -->
 
         <section
           class="question-card"
@@ -338,10 +513,19 @@
               🌍 ALGEMENE KENNIS
             </div>
 
-            <div class="timer" id="timer">
+            <div
+              class="timer"
+              id="timer"
+            >
+
               <span>⏱</span>
-              <strong id="timer-display">25</strong>
+
+              <strong id="timer-display">
+                25
+              </strong>
+
               <small>SEC</small>
+
             </div>
 
           </div>
@@ -370,7 +554,9 @@
           </div>
 
 
-          <!-- ANTWOORD -->
+          <!-- =================================
+               ANTWOORDVELD
+          ================================== -->
 
           <form
             id="answer-form"
@@ -407,7 +593,9 @@
           </form>
 
 
-          <!-- RESULTAAT PER VRAAG -->
+          <!-- =================================
+               RESULTAAT PER VRAAG
+          ================================== -->
 
           <div
             class="answer-result"
@@ -452,13 +640,17 @@
         </section>
 
 
-        <!-- ONDERKANT -->
+        <!-- ===================================
+             ONDERKANT
+        ==================================== -->
 
         <div class="game-bottom">
 
           <div class="flight-tip">
+
             💡 Een verrassend correct antwoord
             levert meestal meer punten op.
+
           </div>
 
           <button
@@ -476,7 +668,9 @@
     </main>
 
 
-    <!-- EINDSCHERM -->
+    <!-- =====================================
+         EINDSCHERM
+    ====================================== -->
 
     <main
       class="screen end-screen"
@@ -485,15 +679,20 @@
 
       <div class="end-card">
 
-        <div class="end-icon">🏆</div>
+        <div class="end-icon">
+          🏆
+        </div>
 
         <div class="end-eyebrow">
           DAILY CHALLENGE VOLTOOID
         </div>
 
         <h2>
+
           WAT EEN<br>
+
           <span>VLUCHT!</span>
+
         </h2>
 
         <p
@@ -505,23 +704,40 @@
         </p>
 
 
-        <!-- EINDSTATISTIEKEN -->
+        <!-- ===================================
+             EINDSTATISTIEKEN
+        ==================================== -->
 
         <div class="end-stats">
 
           <div class="end-stat">
+
             <span>TOTALE HOOGTE</span>
-            <strong id="end-height">0 km</strong>
+
+            <strong id="end-height">
+              0 km
+            </strong>
+
           </div>
 
           <div class="end-stat">
+
             <span>TOTALE PUNTEN</span>
-            <strong id="end-score">0</strong>
+
+            <strong id="end-score">
+              0
+            </strong>
+
           </div>
 
           <div class="end-stat">
+
             <span>GOEDE ANTWOORDEN</span>
-            <strong id="end-correct">0/10</strong>
+
+            <strong id="end-correct">
+              0/10
+            </strong>
+
           </div>
 
         </div>
@@ -537,7 +753,7 @@
         </div>
 
 
-        <!-- DAILY MELDING -->
+        <!-- DAGELIJKSE MELDING -->
 
         <div
           class="daily-end-message"
@@ -581,35 +797,173 @@
     </main>
 
 
-    <!-- FOOTER -->
+    <!-- =====================================
+         FOOTER
+    ====================================== -->
 
     <footer class="site-footer">
+
       <span>🎈 QUIZBALLON</span>
-      <span>ELKE DAG EEN NIEUWE VLUCHT</span>
+
+      <span>
+        ELKE DAG EEN NIEUWE VLUCHT
+      </span>
+
     </footer>
 
   </div>
 
 
-  <!-- JAVASCRIPT: VOLGORDE IS BELANGRIJK -->
+  <!-- =====================================
+       JAVASCRIPT
+       LAAD DE BESTANDEN IN DEZE VOLGORDE
+  ====================================== -->
 
+  <!-- BASISVRAGEN -->
   <script src="vragen.js"></script>
 
+  <!-- SPELLOGICA -->
   <script src="script.js"></script>
 
+  <!-- UITGEBREIDE ANTWOORDEN -->
   <script src="antwoorduitbreiding.js"></script>
 
+  <!-- GESCHIEDENIS -->
   <script src="geschiedenis.js"></script>
 
+  <!-- EXTRA VRAGEN -->
   <script src="vragen-uitbreiding.js"></script>
 
+  <!-- 100 VRAAGVARIANTEN -->
   <script src="vragen-100.js"></script>
 
+  <!-- DAGELIJKSE UITDAGING -->
   <script src="daily.js"></script>
 
+  <!-- ANTWOORDENOVERZICHT -->
   <script src="resultaten.js"></script>
 
+  <!-- RUIMTEREIS -->
   <script src="ruimtereis.js"></script>
+
+
+  <!-- =====================================
+       DUEL-KNOP ONDER STARTKNOP
+
+       Op desktop meten we waar de
+       bestaande dagelijkse startknop staat.
+
+       De Duel-knop wordt daaronder
+       geplaatst.
+
+       Op mobiele schermen blijft
+       de normale paginavolgorde gelden.
+  ====================================== -->
+
+  <script>
+    (function () {
+      "use strict";
+
+      const startButton =
+        document.getElementById("start-button");
+
+      const duelLink =
+        document.getElementById("duel-home-link");
+
+      if (!startButton || !duelLink) {
+        return;
+      }
+
+      function positionDuelButton() {
+        /*
+         * Klein scherm:
+         * normale opmaak gebruiken.
+         */
+
+        if (window.innerWidth < 900) {
+          duelLink.classList.remove(
+            "is-positioned"
+          );
+
+          duelLink.style.left = "";
+          duelLink.style.top = "";
+          duelLink.style.width = "";
+
+          return;
+        }
+
+        const buttonStyle =
+          window.getComputedStyle(startButton);
+
+        /*
+         * Alleen absoluut/fixed geplaatste
+         * startknoppen hebben een aparte
+         * positionering nodig.
+         */
+
+        if (
+          buttonStyle.position !== "absolute" &&
+          buttonStyle.position !== "fixed"
+        ) {
+          duelLink.classList.remove(
+            "is-positioned"
+          );
+
+          duelLink.style.left = "";
+          duelLink.style.top = "";
+          duelLink.style.width = "";
+
+          return;
+        }
+
+        const rect =
+          startButton.getBoundingClientRect();
+
+        if (!rect.width || !rect.height) {
+          return;
+        }
+
+        const width = Math.min(
+          rect.width,
+          window.innerWidth - 32
+        );
+
+        const left = Math.max(
+          16,
+          Math.min(
+            rect.left,
+            window.innerWidth - width - 16
+          )
+        );
+
+        duelLink.classList.add(
+          "is-positioned"
+        );
+
+        duelLink.style.left =
+          left + "px";
+
+        duelLink.style.top =
+          rect.bottom + 14 + "px";
+
+        duelLink.style.width =
+          width + "px";
+      }
+
+      window.addEventListener(
+        "load",
+        positionDuelButton
+      );
+
+      window.addEventListener(
+        "resize",
+        positionDuelButton
+      );
+
+      positionDuelButton();
+
+    })();
+  </script>
 
 </body>
 </html>
