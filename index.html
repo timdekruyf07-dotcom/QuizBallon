@@ -2,6 +2,7 @@
 <html lang="nl">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -16,12 +17,16 @@
 
   <meta
     name="description"
-    content="Speel iedere dag de QuizBallon Daily Challenge! Geef zeldzame antwoorden en vlieg zo hoog mogelijk."
+    content="Speel iedere dag QuizBallon! Geef zeldzame antwoorden en vlieg met je luchtballon steeds hoger."
   >
 
-  <title>QuizBallon 🎈 | Daily Challenge</title>
+  <title>QuizBallon 🎈 | Dagelijkse uitdaging</title>
 
+  <!-- BESTAANDE STYLING -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- NIEUWE STYLING -->
+  <link rel="stylesheet" href="verbeteringen.css">
 
   <link
     rel="manifest"
@@ -34,9 +39,11 @@
 
   <div class="app" id="app">
 
-    <!-- ACHTERGROND -->
+    <!-- ===================================
+         ACHTERGROND
+    ==================================== -->
 
-    <div class="world" id="world">
+    <div class="world zone-earth" id="world">
 
       <div class="world-gradient"></div>
 
@@ -55,13 +62,17 @@
       <div class="planet jupiter" id="jupiter"></div>
 
       <div class="ground" id="ground">
+
         <div class="hill hill-one"></div>
         <div class="hill hill-two"></div>
         <div class="hill hill-three"></div>
+
       </div>
 
 
-      <!-- LUCHTBALLON -->
+      <!-- ===================================
+           LUCHTBALLON
+      ==================================== -->
 
       <div
         class="balloon-container"
@@ -106,7 +117,9 @@
     </div>
 
 
-    <!-- HEADER -->
+    <!-- ===================================
+         HEADER
+    ==================================== -->
 
     <header class="site-header">
 
@@ -115,11 +128,13 @@
         class="logo"
         aria-label="QuizBallon homepage"
       >
+
         <span class="logo-icon">🎈</span>
 
         <span>
           Quiz<span class="logo-accent">Ballon</span>
         </span>
+
       </a>
 
       <div class="header-right">
@@ -139,7 +154,9 @@
     </header>
 
 
-    <!-- STARTSCHERM -->
+    <!-- ===================================
+         STARTSCHERM
+    ==================================== -->
 
     <main
       class="screen start-screen active"
@@ -152,7 +169,7 @@
 
           <span class="eyebrow-dot"></span>
 
-          DE DAGELIJKSE NEDERLANDSE KENNISQUIZ
+          ELKE DAG EEN NIEUWE UITDAGING
 
         </div>
 
@@ -179,7 +196,9 @@
         </p>
 
 
-        <!-- DAILY CHALLENGE KAART -->
+        <!-- ===================================
+             DAILY CHALLENGE
+        ==================================== -->
 
         <section
           class="daily-card"
@@ -208,14 +227,15 @@
 
           <p id="daily-description">
 
-            Vandaag staan er 10 vragen
-            voor je klaar.
+            Vandaag staan er 10 vragen voor je klaar.
 
           </p>
 
           <div class="daily-countdown-row">
 
-            <span>⏰ Nieuwe uitdaging over</span>
+            <span>
+              ⏰ Nieuwe uitdaging over
+            </span>
 
             <strong
               id="daily-countdown"
@@ -229,7 +249,9 @@
         </section>
 
 
-        <!-- SPELONDERDELEN -->
+        <!-- ===================================
+             SPELINFORMATIE
+        ==================================== -->
 
         <div class="start-features">
 
@@ -278,13 +300,20 @@
         </div>
 
 
+        <!-- ===================================
+             STARTKNOP
+
+             Op computer rechts in beeld.
+             Op mobiel onder de uitleg.
+        ==================================== -->
+
         <button
           class="primary-button start-button"
           id="start-button"
           type="button"
         >
 
-          START DAILY CHALLENGE
+          START DE DAGELIJKSE VLUCHT
 
           <span>↗</span>
 
@@ -292,7 +321,7 @@
 
         <div class="start-small">
 
-          GRATIS SPELEN · DAGELIJKS NIEUWE UITDAGING
+          GRATIS SPELEN · ELKE DAG NIEUWE VRAGEN
 
         </div>
 
@@ -301,7 +330,9 @@
     </main>
 
 
-    <!-- SPELSCHERM -->
+    <!-- ===================================
+         SPELSCHERM
+    ==================================== -->
 
     <main
       class="screen game-screen"
@@ -311,7 +342,7 @@
       <div class="game-layout">
 
 
-        <!-- SCORE -->
+        <!-- SPELSTATISTIEKEN -->
 
         <div class="game-stats">
 
@@ -320,7 +351,9 @@
             <span>VRAAG</span>
 
             <strong>
+
               <span id="question-number">1</span>/10
+
             </strong>
 
           </div>
@@ -348,7 +381,7 @@
         </div>
 
 
-        <!-- VOORTGANG -->
+        <!-- VOORTGANGSBALK -->
 
         <div class="progress-section">
 
@@ -374,7 +407,9 @@
         </div>
 
 
-        <!-- VRAAGKAART -->
+        <!-- ===================================
+             VRAAGKAART
+        ==================================== -->
 
         <section
           class="question-card"
@@ -439,7 +474,7 @@
           </div>
 
 
-          <!-- ANTWOORDVELD -->
+          <!-- ANTWOORD -->
 
           <form
             id="answer-form"
@@ -481,7 +516,7 @@
           </form>
 
 
-          <!-- RESULTAAT -->
+          <!-- ANTWOORDRESULTAAT -->
 
           <div
             class="answer-result"
@@ -494,15 +529,11 @@
               class="result-icon"
               id="result-icon"
             >
-
               ⭐
-
             </div>
 
             <h3 id="result-title">
-
               Goed antwoord!
-
             </h3>
 
             <p id="result-description">
@@ -565,7 +596,9 @@
     </main>
 
 
-    <!-- EINDSCHERM -->
+    <!-- ===================================
+         EINDSCHERM
+    ==================================== -->
 
     <main
       class="screen end-screen"
@@ -652,7 +685,7 @@
         </div>
 
 
-        <!-- DAILY MELDING -->
+        <!-- DAILY CHALLENGE MELDING -->
 
         <div
           class="daily-end-message"
@@ -665,7 +698,7 @@
         </div>
 
 
-        <!-- BESTAANDE KNOPPEN -->
+        <!-- KNOPPEN -->
 
         <button
           class="primary-button restart-button"
@@ -694,7 +727,9 @@
     </main>
 
 
-    <!-- FOOTER -->
+    <!-- ===================================
+         FOOTER
+    ==================================== -->
 
     <footer class="site-footer">
 
@@ -709,15 +744,22 @@
   </div>
 
 
-  <!-- JAVASCRIPT -->
+  <!-- =====================================
+       JAVASCRIPT
 
-  <!-- 1. VRAGENBANK -->
+       DE VOLGORDE IS BELANGRIJK!
+  ====================================== -->
+
+  <!-- 1. BASISVRAGEN -->
   <script src="vragen.js"></script>
 
-  <!-- 2. BESTAANDE SPELLOGICA -->
+  <!-- 2. SPELLOGICA -->
   <script src="script.js"></script>
 
-  <!-- 3. NIEUWE DAILY CHALLENGE -->
+  <!-- 3. NIEUWE ANTWOORDUITBREIDING -->
+  <script src="antwoorduitbreiding.js"></script>
+
+  <!-- 4. DAGELIJKSE UITDAGING -->
   <script src="daily.js"></script>
 
 </body>
