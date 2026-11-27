@@ -1,0 +1,1125 @@
+{
+  "version": "9.1.0",
+  "timings": {
+    "antwoorden/dieren.js": 39.755,
+    "antwoorden/dieren-aanvulling.js": 1.1
+  },
+  "summary": {
+    "uniqueAnimals": 17123,
+    "questionCount": 50,
+    "answerCount": 62945,
+    "rocketCount": 676,
+    "completedQuestions": 14,
+    "progress": 51.31,
+    "totalBytes": 5272293,
+    "averageQuestionBytes": 105446,
+    "passedTests": 122,
+    "totalTests": 122,
+    "passedRocketTests": 30,
+    "totalRocketTests": 30
+  },
+  "tests": [
+    {
+      "nummer": 1,
+      "invoer": "Goudvis",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 1,
+      "invoer": "Dolfijn",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 1,
+      "invoer": "Leeuw",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 2,
+      "invoer": "Huismus",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 2,
+      "invoer": "Vleermuis",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 2,
+      "invoer": "Struisvogel",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 2,
+      "invoer": "Pinguïn",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 2,
+      "invoer": "Vliegende eekhoorn",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 4,
+      "invoer": "Hond",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 4,
+      "invoer": "Kat",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 4,
+      "invoer": "Hazelworm",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 4,
+      "invoer": "Slang",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 7,
+      "invoer": "Kip",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 7,
+      "invoer": "Vogelbekdier",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 7,
+      "invoer": "Haan",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 7,
+      "invoer": "Schorpioen",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 7,
+      "invoer": "Hond",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 8,
+      "invoer": "Hamster",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 8,
+      "invoer": "Goudvis",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 11,
+      "invoer": "Walvishaai",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 11,
+      "invoer": "Mossel",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 11,
+      "invoer": "Goudvis",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 14,
+      "invoer": "Dolfijn",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 14,
+      "invoer": "Otter",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 14,
+      "invoer": "Mossel",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 15,
+      "invoer": "Reuzenmiereneter",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 15,
+      "invoer": "Kameleon",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 16,
+      "invoer": "Giraf",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 16,
+      "invoer": "Koe",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 16,
+      "invoer": "Leeuw",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 17,
+      "invoer": "Leeuw",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 17,
+      "invoer": "Miereneter",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 18,
+      "invoer": "Kat",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 18,
+      "invoer": "Gorilla",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 18,
+      "invoer": "Kikker",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 19,
+      "invoer": "Geit",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 19,
+      "invoer": "Neushoorn",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 19,
+      "invoer": "Edelhert",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 20,
+      "invoer": "Reuzenpanda",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 20,
+      "invoer": "Kat",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 20,
+      "invoer": "Slang",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 21,
+      "invoer": "Slang",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 21,
+      "invoer": "Schubdier",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 22,
+      "invoer": "Pinguïn",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 22,
+      "invoer": "Struisvogel",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 22,
+      "invoer": "Vleermuis",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 23,
+      "invoer": "Koala",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 23,
+      "invoer": "Kangoeroe",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 23,
+      "invoer": "IJsbeer",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 24,
+      "invoer": "IJsbeer",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 24,
+      "invoer": "Poolvos",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 25,
+      "invoer": "Dromedaris",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 25,
+      "invoer": "Doornduivel",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 25,
+      "invoer": "IJsbeer",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 26,
+      "invoer": "Ree",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 26,
+      "invoer": "Huismus",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 26,
+      "invoer": "Dodo",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 28,
+      "invoer": "Egel",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 29,
+      "invoer": "Jachtluipaard",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 29,
+      "invoer": "Cheeta",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 30,
+      "invoer": "Luiaard",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 30,
+      "invoer": "Landschildpad",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 31,
+      "invoer": "Koala",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 31,
+      "invoer": "Orang-oetan",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 32,
+      "invoer": "Mol",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 32,
+      "invoer": "Regenworm",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 33,
+      "invoer": "Schildpad",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 33,
+      "invoer": "Gordeldier",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 34,
+      "invoer": "Kangoeroe",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 34,
+      "invoer": "Kikker",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 35,
+      "invoer": "Kat",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 35,
+      "invoer": "Steenbok",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 36,
+      "invoer": "Giraf",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 36,
+      "invoer": "Diplodocus",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 37,
+      "invoer": "Snoek",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 37,
+      "invoer": "Nijlpaard",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 38,
+      "invoer": "Karper",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 38,
+      "invoer": "Baars",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 39,
+      "invoer": "Strandkrab",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 40,
+      "invoer": "Mier",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 40,
+      "invoer": "Wolf",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 41,
+      "invoer": "Ooievaar",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 41,
+      "invoer": "Ekster",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 41,
+      "invoer": "Keizerspinguïn",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 42,
+      "invoer": "Kameleon",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 42,
+      "invoer": "Octopus",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 43,
+      "invoer": "Dodo",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 43,
+      "invoer": "Mammoet",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 43,
+      "invoer": "Megalodon",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 43,
+      "invoer": "Tasmaanse tijger",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 43,
+      "invoer": "Tasmaanse duivel",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 43,
+      "invoer": "Axolotl",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 43,
+      "invoer": "Reuzenpanda",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 44,
+      "invoer": "Groenlandse haai",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 44,
+      "invoer": "Groenlandse walvis",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 45,
+      "invoer": "Schorpioen",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 45,
+      "invoer": "Zwarte mamba",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 46,
+      "invoer": "Koe",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 46,
+      "invoer": "Kip",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 47,
+      "invoer": "Pauw",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 47,
+      "invoer": "Panterkameleon",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 48,
+      "invoer": "Zebra",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 48,
+      "invoer": "Tijger",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 49,
+      "invoer": "Jachtluipaard",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 49,
+      "invoer": "Lieveheersbeestje",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 50,
+      "invoer": "Leeuw",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 50,
+      "invoer": "Olifant",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 7,
+      "invoer": "Struisvogel",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 22,
+      "invoer": "Emoe",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 22,
+      "invoer": "Kiwi",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 22,
+      "invoer": "Kasuaris",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 22,
+      "invoer": "Kakapo",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 22,
+      "invoer": "Zebravink",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 8,
+      "invoer": "Zebravink",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 2,
+      "invoer": "Kakapo",
+      "verwacht": false,
+      "resultaat": false,
+      "geslaagd": true
+    },
+    {
+      "nummer": 23,
+      "invoer": "Emoe",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 38,
+      "invoer": "Baikalrob",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 37,
+      "invoer": "Amazone-rivierdolfijn",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 33,
+      "invoer": "Muskusschildpad",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 43,
+      "invoer": "Sauroposeidon",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 39,
+      "invoer": "Wadpier",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    },
+    {
+      "nummer": 48,
+      "invoer": "Pyjamawants",
+      "verwacht": true,
+      "resultaat": true,
+      "geslaagd": true
+    }
+  ],
+  "rocketTests": [
+    {
+      "antwoorden": 0,
+      "verwacht": 0,
+      "resultaat": 0,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 1,
+      "verwacht": 1,
+      "resultaat": 1,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 25,
+      "verwacht": 1,
+      "resultaat": 1,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 50,
+      "verwacht": 1,
+      "resultaat": 1,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 51,
+      "verwacht": 2,
+      "resultaat": 2,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 100,
+      "verwacht": 2,
+      "resultaat": 2,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 150,
+      "verwacht": 2,
+      "resultaat": 2,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 151,
+      "verwacht": 3,
+      "resultaat": 3,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 250,
+      "verwacht": 3,
+      "resultaat": 3,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 251,
+      "verwacht": 4,
+      "resultaat": 4,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 350,
+      "verwacht": 4,
+      "resultaat": 4,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 351,
+      "verwacht": 5,
+      "resultaat": 5,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 450,
+      "verwacht": 5,
+      "resultaat": 5,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 451,
+      "verwacht": 6,
+      "resultaat": 6,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 550,
+      "verwacht": 6,
+      "resultaat": 6,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 551,
+      "verwacht": 7,
+      "resultaat": 7,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 650,
+      "verwacht": 7,
+      "resultaat": 7,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 651,
+      "verwacht": 8,
+      "resultaat": 8,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 750,
+      "verwacht": 8,
+      "resultaat": 8,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 751,
+      "verwacht": 9,
+      "resultaat": 9,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 850,
+      "verwacht": 9,
+      "resultaat": 9,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 851,
+      "verwacht": 10,
+      "resultaat": 10,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 950,
+      "verwacht": 10,
+      "resultaat": 10,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 951,
+      "verwacht": 11,
+      "resultaat": 11,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 1000,
+      "verwacht": 11,
+      "resultaat": 11,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 1050,
+      "verwacht": 11,
+      "resultaat": 11,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 1051,
+      "verwacht": 12,
+      "resultaat": 12,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 1500,
+      "verwacht": 16,
+      "resultaat": 16,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 2000,
+      "verwacht": 21,
+      "resultaat": 21,
+      "geslaagd": true
+    },
+    {
+      "antwoorden": 5000,
+      "verwacht": 51,
+      "resultaat": 51,
+      "geslaagd": true
+    }
+  ],
+  "missingNames": [
+    "Hampshire",
+    "Zebraneonhaai"
+  ],
+  "conflicts": [
+    {
+      "vraagnummer": 1,
+      "invoer": "koningsvis",
+      "mogelijkeDieren": [
+        "Opah",
+        "Koningsvis"
+      ]
+    },
+    {
+      "vraagnummer": 1,
+      "invoer": "nonnetje",
+      "mogelijkeDieren": [
+        "Nonnetje (vogel)",
+        "Nonnetje (schelpdier)"
+      ]
+    },
+    {
+      "vraagnummer": 11,
+      "invoer": "koningsvis",
+      "mogelijkeDieren": [
+        "Opah",
+        "Koningsvis"
+      ]
+    },
+    {
+      "vraagnummer": 14,
+      "invoer": "koningsvis",
+      "mogelijkeDieren": [
+        "Opah",
+        "Koningsvis"
+      ]
+    },
+    {
+      "vraagnummer": 50,
+      "invoer": "discus",
+      "mogelijkeDieren": [
+        "Discus",
+        "Discusvis"
+      ]
+    },
+    {
+      "vraagnummer": 50,
+      "invoer": "koningsvis",
+      "mogelijkeDieren": [
+        "Koningsvis",
+        "Opah"
+      ]
+    },
+    {
+      "vraagnummer": 50,
+      "invoer": "nonnetje",
+      "mogelijkeDieren": [
+        "Nonnetje (vogel)",
+        "Nonnetje (schelpdier)"
+      ]
+    }
+  ],
+  "skippedConflicts": [],
+  "exportErrors": [],
+  "contentVerified": false,
+  "totalBuildSeconds": 40.994
+}
