@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="nl">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-  <title>QuizBallon V9 - Dieren Testcentrum</title>
+  <title>QuizBallon V9.1 - Dieren Testcentrum</title>
 
   <style>
 
@@ -35,7 +37,7 @@
     }
 
     .container {
-      max-width: 1500px;
+      max-width: 1600px;
       margin: auto;
       padding: 24px;
     }
@@ -46,8 +48,8 @@
     }
 
     h1 {
-      font-size: clamp(26px, 5vw, 42px);
-      margin: 0 0 12px;
+      font-size: clamp(26px, 5vw, 44px);
+      margin: 15px 0;
     }
 
     h2 {
@@ -56,7 +58,7 @@
     }
 
     h3 {
-      font-size: 16px;
+      font-size: 17px;
     }
 
     p {
@@ -67,9 +69,29 @@
       color: var(--muted);
     }
 
+    .green {
+      color: var(--green);
+    }
+
+    .orange {
+      color: var(--orange);
+    }
+
+    .red {
+      color: var(--red);
+    }
+
+    .purple {
+      color: var(--purple);
+    }
+
+    .blue {
+      color: var(--blue);
+    }
+
     .badge {
       display: inline-block;
-      padding: 8px 15px;
+      padding: 9px 17px;
       border-radius: 30px;
       background: #312e81;
       color: #ddd6fe;
@@ -97,12 +119,16 @@
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 22px;
+      padding: 22px 12px;
       text-align: center;
     }
 
+    .stat-icon {
+      font-size: 25px;
+    }
+
     .stat-value {
-      font-size: 34px;
+      font-size: 32px;
       font-weight: bold;
       color: var(--blue);
       margin: 10px 0;
@@ -113,24 +139,14 @@
       color: var(--muted);
     }
 
-    .green {
-      color: var(--green);
-    }
-
-    .orange {
-      color: var(--orange);
-    }
-
-    .red {
-      color: var(--red);
-    }
-
-    .purple {
-      color: var(--purple);
+    .stat-change {
+      font-size: 14px;
+      margin-top: 10px;
+      font-weight: bold;
     }
 
     .notice {
-      padding: 16px;
+      padding: 17px;
       border-radius: 12px;
       margin-bottom: 20px;
       line-height: 1.6;
@@ -173,7 +189,7 @@
     }
 
     .large-progress {
-      height: 22px;
+      height: 24px;
       margin: 15px 0;
     }
 
@@ -245,12 +261,12 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 850px;
+      min-width: 900px;
     }
 
     th,
     td {
-      padding: 15px 12px;
+      padding: 14px 12px;
       border-bottom: 1px solid var(--border);
       text-align: left;
       font-size: 14px;
@@ -259,17 +275,10 @@
     th {
       background: #101827;
       color: var(--muted);
-      position: sticky;
-      top: 0;
     }
 
     tr:hover td {
       background: #1c263b;
-    }
-
-    .number-cell {
-      color: var(--muted);
-      width: 55px;
     }
 
     .question-cell {
@@ -277,7 +286,7 @@
     }
 
     .progress-cell {
-      min-width: 120px;
+      min-width: 130px;
     }
 
     .small-button {
@@ -291,6 +300,7 @@
       margin-top: 18px;
       background: #0c1323;
       border: 1px solid var(--border);
+      overflow-wrap: anywhere;
     }
 
     .result.valid {
@@ -306,13 +316,13 @@
     .result-score {
       font-size: 38px;
       font-weight: bold;
-      margin: 12px 0;
+      margin: 15px 0;
     }
 
     .answer-list {
       display: grid;
       grid-template-columns:
-        repeat(auto-fill, minmax(240px, 1fr));
+        repeat(auto-fill, minmax(230px, 1fr));
       gap: 10px;
       max-height: 650px;
       overflow-y: auto;
@@ -350,30 +360,31 @@
       color: var(--muted);
       font-size: 12px;
       line-height: 1.5;
-      margin-top: 7px;
-    }
-
-    .error-card {
-      padding: 14px;
-      border-radius: 10px;
-      background: #27141d;
-      border: 1px solid #7f1d1d;
-      margin: 10px 0;
-      overflow-wrap: anywhere;
-    }
-
-    .conflict-card {
-      padding: 14px;
-      border-radius: 10px;
-      background: #302413;
-      border: 1px solid #854d0e;
-      margin: 10px 0;
-      overflow-wrap: anywhere;
+      margin-top: 8px;
     }
 
     .issue-list {
       max-height: 500px;
       overflow-y: auto;
+    }
+
+    .issue-card {
+      padding: 14px;
+      border-radius: 10px;
+      background: #0c1323;
+      border: 1px solid var(--border);
+      margin: 10px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .error-card {
+      background: #27141d;
+      border-color: #7f1d1d;
+    }
+
+    .conflict-card {
+      background: #302413;
+      border-color: #854d0e;
     }
 
     .letter-grid {
@@ -389,14 +400,10 @@
       border-radius: 12px;
       padding: 13px;
       text-align: center;
-      cursor: pointer;
       color: white;
     }
 
-    .letter-card:hover {
-      border-color: var(--blue);
-    }
-
+    .letter-card:hover,
     .letter-card.active {
       background: #172554;
       border-color: var(--blue);
@@ -414,13 +421,6 @@
       color: var(--muted);
     }
 
-    footer {
-      text-align: center;
-      color: var(--muted);
-      padding: 30px;
-      line-height: 1.8;
-    }
-
     .hidden {
       display: none !important;
     }
@@ -434,6 +434,13 @@
       font-size: 13px;
       line-height: 1.6;
       color: #cbd5e1;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px;
+      line-height: 1.8;
     }
 
     @media (max-width: 650px) {
@@ -457,7 +464,7 @@
       }
 
       .stat-value {
-        font-size: 26px;
+        font-size: 25px;
       }
 
       .controls > * {
@@ -471,6 +478,9 @@
   <script>
 
     window.QB_TEST_ERRORS = [];
+
+    window.QB_TEST_START =
+      performance.now();
 
     window.addEventListener(
       "error",
@@ -520,9 +530,6 @@
       }
     );
 
-    window.QB_TEST_START =
-      performance.now();
-
   </script>
 
 </head>
@@ -533,16 +540,17 @@
 
   <header>
 
-    <span class="badge">
-      QUIZBALLON V9
+    <span class="badge" id="versionBadge">
+      QUIZBALLON V9.1
     </span>
 
-    <h1>
-      🐾 Dieren Testcentrum
-    </h1>
+    <h1>🐾 Dieren Testcentrum</h1>
 
     <p class="muted">
-      Antwoordendatabase · 50 vragen · Punten · Raketten
+
+      50 vragen · Antwoordendatabase · Uitbreidingen ·
+      Punten · Raketten
+
     </p>
 
   </header>
@@ -550,7 +558,7 @@
   <div id="loading"
        class="notice notice-info">
 
-    ⏳ De dierendatabase wordt geladen...
+    ⏳ De oorspronkelijke database en aanvulling worden geladen...
 
   </div>
 
@@ -561,133 +569,28 @@
   <main id="dashboard"
         class="hidden">
 
-    <div id="generalStatus">
-    </div>
+    <div id="generalStatus"></div>
 
     <!-- STATISTIEKEN -->
 
-    <div class="stats">
-
-      <div class="stat">
-
-        <div>🐾</div>
-
-        <div class="stat-value"
-             id="totalAnimals">0</div>
-
-        <div class="stat-label">
-          Bruikbare dierrecords
-        </div>
-
-      </div>
-
-      <div class="stat">
-
-        <div>❓</div>
-
-        <div class="stat-value"
-             id="totalQuestions">0</div>
-
-        <div class="stat-label">
-          Vragen
-        </div>
-
-      </div>
-
-      <div class="stat">
-
-        <div>💬</div>
-
-        <div class="stat-value"
-             id="totalAnswers">0</div>
-
-        <div class="stat-label">
-          Vraag-antwoordkoppelingen
-        </div>
-
-      </div>
-
-      <div class="stat">
-
-        <div>🚀</div>
-
-        <div class="stat-value purple"
-             id="totalRockets">0</div>
-
-        <div class="stat-label">
-          Raketten
-        </div>
-
-      </div>
-
-      <div class="stat">
-
-        <div>📊</div>
-
-        <div class="stat-value"
-             id="averageAnswers">0</div>
-
-        <div class="stat-label">
-          Gemiddeld per vraag
-        </div>
-
-      </div>
-
-      <div class="stat">
-
-        <div>🎯</div>
-
-        <div class="stat-value green"
-             id="completedQuestions">0</div>
-
-        <div class="stat-label">
-          Vragen met 1.000+ antwoorden
-        </div>
-
-      </div>
-
-      <div class="stat">
-
-        <div>⚠️</div>
-
-        <div class="stat-value orange"
-             id="totalConflicts">0</div>
-
-        <div class="stat-label">
-          Naamconflicten
-        </div>
-
-      </div>
-
-      <div class="stat">
-
-        <div>❌</div>
-
-        <div class="stat-value red"
-             id="totalErrors">0</div>
-
-        <div class="stat-label">
-          Technische fouten
-        </div>
-
-      </div>
-
+    <div id="stats"
+         class="stats">
     </div>
 
-    <!-- TOTALE VOORTGANG -->
+    <!-- VOORTGANG -->
 
     <section class="panel">
 
-      <h2>🎯 Voortgang richting het doel</h2>
+      <h2>🎯 Totale voortgang</h2>
 
       <p class="muted">
-        Streefdoel: 1.000 antwoorden per vraag,
+
+        Het streefdoel is 1.000 antwoorden per vraag,
         voor zover biologisch mogelijk.
+
       </p>
 
-      <h3 id="progressText">
-        0%
-      </h3>
+      <h3 id="progressText">0%</h3>
 
       <div class="progress large-progress">
 
@@ -698,12 +601,52 @@
 
       </div>
 
+      <p id="progressDifference"></p>
+
       <p id="remainingText"
          class="muted">
       </p>
 
-      <p id="extremeQuestions">
+      <p id="extremeQuestions"></p>
+
+    </section>
+
+    <!-- VERGELIJKING -->
+
+    <section class="panel">
+
+      <h2>📈 Vergelijking V9.0 en huidige versie</h2>
+
+      <p class="muted">
+
+        De oorspronkelijke resultaten zijn afkomstig
+        uit het eerste uitgevoerde testrapport.
+
       </p>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Onderdeel</th>
+              <th>V9.0.0</th>
+              <th>Huidige versie</th>
+              <th>Verschil</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="comparisonTable">
+          </tbody>
+
+        </table>
+
+      </div>
 
     </section>
 
@@ -732,6 +675,10 @@
             Minste antwoorden
           </option>
 
+          <option value="growth">
+            Grootste uitbreiding
+          </option>
+
           <option value="rockets">
             Meeste raketten
           </option>
@@ -749,15 +696,23 @@
           </option>
 
           <option value="complete">
-            1.000 of meer
+            1.000 of meer antwoorden
           </option>
 
           <option value="incomplete">
-            Minder dan 1.000
+            Minder dan 1.000 antwoorden
           </option>
 
           <option value="low">
-            Minder dan 100
+            Minder dan 100 antwoorden
+          </option>
+
+          <option value="improved">
+            Uitgebreide vragen
+          </option>
+
+          <option value="decreased">
+            Vragen met minder antwoorden
           </option>
 
           <option value="empty">
@@ -768,8 +723,8 @@
 
       </div>
 
-      <p class="muted"
-         id="visibleQuestionCount">
+      <p id="visibleQuestionCount"
+         class="muted">
       </p>
 
       <div class="table-wrap">
@@ -781,17 +736,13 @@
             <tr>
 
               <th>Nr.</th>
-
               <th>Vraag</th>
-
-              <th>Antwoorden</th>
-
+              <th>V9.0</th>
+              <th>Nu</th>
+              <th>Verschil</th>
               <th>Raketten</th>
-
               <th>Tekort</th>
-
               <th>Voortgang</th>
-
               <th>Bekijken</th>
 
             </tr>
@@ -807,38 +758,34 @@
 
     </section>
 
-    <!-- ANTWOORD TESTEN -->
+    <!-- ANTWOORDTESTER -->
 
     <section class="panel"
              id="answerTester">
 
       <h2>🔍 Test zelf een antwoord</h2>
 
-      <p class="muted">
-        Controleer of een dier wordt geaccepteerd
-        en hoeveel punten het oplevert.
-      </p>
-
       <div class="controls">
 
-        <select id="testQuestion">
-        </select>
+        <select id="testQuestion"></select>
 
       </div>
 
       <div class="controls">
 
         <input id="testAnswer"
-               placeholder="Typ bijvoorbeeld: goudvis"
+               placeholder="Typ bijvoorbeeld: struisvogel"
                autocomplete="off">
 
         <button id="testButton">
           Test antwoord
         </button>
 
-        <button class="secondary"
-                id="randomAnswerButton">
+        <button id="randomAnswerButton"
+                class="secondary">
+
           Willekeurig antwoord
+
         </button>
 
       </div>
@@ -852,7 +799,7 @@
 
     </section>
 
-    <!-- ANTWOORDEN BEKIJKEN -->
+    <!-- ALLE ANTWOORDEN -->
 
     <section class="panel"
              id="answerBrowser">
@@ -861,15 +808,14 @@
 
       <div class="controls">
 
-        <select id="browseQuestion">
-        </select>
+        <select id="browseQuestion"></select>
 
       </div>
 
       <div class="controls">
 
         <input id="answerSearch"
-               placeholder="Zoek dier of synoniem...">
+               placeholder="Zoek een dier of synoniem...">
 
         <select id="answerSort">
 
@@ -926,23 +872,22 @@
 
     </section>
 
-    <!-- LETTERVARIANTEN -->
+    <!-- LETTERREGELS -->
 
-    <section class="panel"
-             id="letterSection">
+    <section class="panel">
 
       <h2>🔤 Letterregels testen</h2>
 
       <p class="muted">
-        Bekijk hoeveel antwoorden er per beginletter
-        beschikbaar zijn en hoeveel raketten
-        iedere lettervariant krijgt.
+
+        Bekijk de beschikbare beginletters,
+        antwoordenaantallen en raketten per letter.
+
       </p>
 
       <div class="controls">
 
-        <select id="letterQuestion">
-        </select>
+        <select id="letterQuestion"></select>
 
       </div>
 
@@ -956,17 +901,68 @@
 
     </section>
 
-    <!-- AUTOMATISCHE TESTS -->
+    <!-- TESTRESULTATEN -->
 
     <section class="panel">
 
-      <h2>✅ Automatische tests</h2>
+      <h2>✅ Automatische antwoordtests</h2>
 
-      <div id="automatedTestSummary">
-      </div>
+      <div id="automatedTestSummary"></div>
 
       <div id="failedTests"
            class="issue-list">
+      </div>
+
+      <div class="controls">
+
+        <button id="showAllTests"
+                class="secondary">
+
+          Toon alle antwoordtests
+
+        </button>
+
+      </div>
+
+      <div id="allTestResults"
+           class="issue-list hidden">
+      </div>
+
+    </section>
+
+    <!-- ONTBREKENDE DIEREN -->
+
+    <section class="panel">
+
+      <h2>🐾 Nog ontbrekende diernamen</h2>
+
+      <div id="missingSummary"></div>
+
+      <p class="muted">
+
+        Een naam wordt hier als gevonden beschouwd wanneer
+        deze bij minimaal één vraag wordt geaccepteerd.
+        Dat bewijst nog niet dat alle passende
+        vraagkoppelingen aanwezig zijn.
+
+      </p>
+
+      <div class="controls">
+
+        <input id="missingSearch"
+               placeholder="Zoek een ontbrekende diernaam...">
+
+        <button id="showMissing"
+                class="secondary">
+
+          Toon ontbrekende namen
+
+        </button>
+
+      </div>
+
+      <div id="missingList"
+           class="issue-list hidden">
       </div>
 
     </section>
@@ -978,13 +974,13 @@
       <h2>⚠️ Dubbele en dubbelzinnige namen</h2>
 
       <p class="muted">
-        Sommige invoernamen kunnen naar meerdere
-        dierrecords verwijzen. Dat kan een geldig
-        naamconflict zijn of een dubbele soort.
+
+        Een naamconflict kan een dubbele soort betekenen,
+        maar ook een diernaam met meerdere geldige betekenissen.
+
       </p>
 
-      <div id="conflictSummary">
-      </div>
+      <div id="conflictSummary"></div>
 
       <div class="controls">
 
@@ -1003,14 +999,46 @@
 
     </section>
 
+    <!-- OVERGESLAGEN TOEVOEGINGEN -->
+
+    <section class="panel">
+
+      <h2>🔎 Overgeslagen toevoegingen</h2>
+
+      <p class="muted">
+
+        Wanneer een nieuwe naam bij meerdere bestaande
+        dierrecords past, kan de aanvulling deze overslaan
+        om onjuiste samenvoegingen te voorkomen.
+
+      </p>
+
+      <div id="skippedSummary"></div>
+
+      <div class="controls">
+
+        <button id="showSkipped"
+                class="secondary">
+
+          Toon overgeslagen toevoegingen
+
+        </button>
+
+      </div>
+
+      <div id="skippedList"
+           class="issue-list hidden">
+      </div>
+
+    </section>
+
     <!-- TECHNISCHE FOUTEN -->
 
     <section class="panel">
 
       <h2>🛠️ Technische controles</h2>
 
-      <div id="technicalSummary">
-      </div>
+      <div id="technicalSummary"></div>
 
       <div id="technicalErrors"
            class="issue-list">
@@ -1018,7 +1046,7 @@
 
     </section>
 
-    <!-- SNELHEID -->
+    <!-- SNELHEIDSTEST -->
 
     <section class="panel">
 
@@ -1029,8 +1057,9 @@
       </p>
 
       <p class="muted">
-        Voer 10.000 lokale antwoordcontroles uit
-        om te meten hoe snel de zoekindex werkt.
+
+        Test 10.000 lokale antwoordcontroles.
+
       </p>
 
       <button id="speedTestButton">
@@ -1050,9 +1079,10 @@
       <h2>📄 Volledig testrapport</h2>
 
       <p class="muted">
-        Kopieer het rapport en stuur het naar ChatGPT.
-        Hiermee kunnen we bepalen welke vragen
-        als eerste uitgebreid of gecorrigeerd moeten worden.
+
+        Kopieer het volledige rapport om de resultaten
+        van deze uitbreiding te kunnen beoordelen.
+
       </p>
 
       <div class="controls">
@@ -1073,8 +1103,7 @@
 
       </div>
 
-      <p id="copyStatus">
-      </p>
+      <p id="copyStatus"></p>
 
       <pre id="reportText"
            class="hidden">
@@ -1086,25 +1115,36 @@
 
   <footer>
 
-    🎈 QuizBallon V9 Testcentrum
+    🎈 QuizBallon V9 Dieren Testcentrum
 
     <br>
 
-    Deze pagina verandert niets aan QuizBallon V8.
+    QuizBallon V8 blijft ongewijzigd.
 
     <br>
 
-    Een technische test bewijst niet dat alle
-    biologische antwoorden correct zijn.
+    Technische controles zijn geen volledige
+    biologische inhoudscontrole.
 
   </footer>
 
 </div>
 
-<!-- LAAD UITSLUITEND DE V9 DIERENDATABASE -->
+<!-- ======================================================== -->
+<!-- LAAD EERST DE OORSPRONKELIJKE DATABASE                   -->
+<!-- ======================================================== -->
 
-<script src="antwoorden/dieren.js?v=9-1">
-</script>
+<script src="antwoorden/dieren.js?v=9-1"></script>
+
+<!-- ======================================================== -->
+<!-- LAAD DAARNA DE NIEUWE AANVULLING                         -->
+<!-- ======================================================== -->
+
+<script src="antwoorden/dieren-aanvulling.js?v=9-1"></script>
+
+<!-- ======================================================== -->
+<!-- START HET TESTCENTRUM                                    -->
+<!-- ======================================================== -->
 
 <script>
 
@@ -1127,12 +1167,112 @@
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
 
-  const normaliseer = tekst =>
-    String(tekst ?? "")
-      .normalize("NFD")
+  function normaal(tekst) {
+
+    return String(tekst ?? "")
+      .normalize("NFKD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
+      .replace(/ß/g, "ss")
+      .replace(/æ/g, "ae")
+      .replace(/œ/g, "oe")
       .replace(/[^a-z0-9]/g, "");
+
+  }
+
+  function signed(aantal) {
+
+    if (aantal > 0) {
+      return "+" + format(aantal);
+    }
+
+    return format(aantal);
+
+  }
+
+  function verschilKleur(aantal, lagerIsBeter = false) {
+
+    if (aantal === 0) {
+      return "muted";
+    }
+
+    const positief =
+      lagerIsBeter
+        ? aantal < 0
+        : aantal > 0;
+
+    return positief ? "green" : "red";
+
+  }
+
+  function expectedRockets(aantal) {
+
+    if (aantal <= 0) return 0;
+
+    return Math.min(
+      aantal,
+      Math.max(
+        1,
+        Math.ceil((aantal + 50) / 100)
+      )
+    );
+
+  }
+
+  // ========================================================
+  // OORSPRONKELIJK TESTRAPPORT V9.0.0
+  // ========================================================
+
+  const basis = {
+
+    versie: "9.0.0",
+
+    dierrecords: 17032,
+
+    bruikbareDieren: 16941,
+
+    vragen: 50,
+
+    koppelingen: 61199,
+
+    raketten: 665,
+
+    gemiddeld: 1224,
+
+    voltooideVragen: 13,
+
+    voortgang: 49.66,
+
+    ontbrekendeKoppelingen: 25168,
+
+    naamconflicten: 7,
+
+    ontbrekendeNamen: 272,
+
+    geslaagdeTests: 106,
+
+    totaalTests: 107
+
+  };
+
+  const basisAntwoorden = [
+
+    2678, 2694, 287, 2552, 417,
+    254, 7372, 460, 192, 999,
+    1623, 176, 199, 1814, 1675,
+    876, 3541, 4938, 134, 1548,
+    830, 1866, 255, 78, 120,
+    664, 373, 75, 61, 459,
+    357, 284, 196, 550, 568,
+    114, 94, 57, 81, 634,
+    578, 68, 5040, 47, 486,
+    175, 328, 137, 169, 12026
+
+  ];
+
+  // ========================================================
+  // DATABASE CONTROLEREN
+  // ========================================================
 
   const category =
     window.QB_V9_CATEGORIEEN?.Dieren;
@@ -1145,10 +1285,6 @@
 
   $("loading").classList.add("hidden");
 
-  // ==========================================================
-  // CONTROLE: IS DE DATABASE GELADEN?
-  // ==========================================================
-
   if (
     !category ||
     !Array.isArray(category.questions)
@@ -1157,101 +1293,58 @@
     $("fatalError")
       .classList.remove("hidden");
 
-    let bericht =
-      "❌ De dierendatabase kon niet worden geladen.";
-
-    bericht +=
-      "\n\nVerwachte locatie:" +
-      "\nantwoorden/dieren.js";
-
-    bericht +=
-      "\n\nControleer of alle tien delen " +
-      "in het bestand staan en zijn opgeslagen.";
-
-    if (capturedErrors.length) {
-
-      bericht +=
-        "\n\nGEVONDEN JAVASCRIPT-FOUTEN:\n";
-
-      for (const error of capturedErrors) {
-
-        bericht +=
-          "\n" +
-          error.message +
-          "\nBestand: " +
-          error.filename +
-          "\nRegel: " +
-          error.line +
-          "\nKolom: " +
-          error.column +
-          "\n";
-
-      }
-
-    } else {
-
-      bericht +=
-        "\n\nEr is geen bruikbare V9-export gevonden.";
-
-    }
-
     $("fatalError").textContent =
-      bericht;
+
+      "❌ De dierendatabase kon niet worden geladen." +
+
+      "\n\nVerwachte bestanden:" +
+
+      "\nantwoorden/dieren.js" +
+
+      "\nantwoorden/dieren-aanvulling.js" +
+
+      "\n\nGevonden fouten:\n" +
+
+      (
+        capturedErrors.length
+
+          ? capturedErrors.map(
+              error =>
+
+                error.message +
+
+                "\nBestand: " +
+                error.filename +
+
+                "\nRegel: " +
+                error.line +
+
+                "\nKolom: " +
+                error.column
+
+            ).join("\n\n")
+
+          : "Geen V9-export gevonden."
+      );
 
     return;
 
   }
 
-  // ==========================================================
-  // GEGEVENS OPHALEN
-  // ==========================================================
+  const version =
+    String(category.version || "Onbekend");
+
+  const aanvullingGeladen =
+    /^9\.(?:[1-9]\d*)\./.test(version);
+
+  $("versionBadge").textContent =
+    "QUIZBALLON " + version;
 
   const questions =
     category.questions;
 
   const summary =
     category.summary || {};
-
-  const report =
-    questions.map((question, index) => {
-
-      const answers =
-        Array.isArray(question.answers)
-          ? question.answers
-          : [];
-
-      const count =
-        answers.length;
-
-      const rockets =
-        answers.filter(
-          answer => answer.isRocket
-        ).length;
-
-      return {
-
-        nummer:
-          question.questionNumber ||
-          index + 1,
-
-        vraag:
-          question.question,
-
-        antwoorden:
-          count,
-
-        raketten:
-          rockets,
-
-        ontbrekend:
-          Math.max(0, 1000 - count),
-
-        percentage:
-          Math.min(100, count / 10)
-
-      };
-
-    });
 
   function safeDebug(method) {
 
@@ -1293,11 +1386,14 @@
 
   }
 
+  const allTests =
+    safeDebug("tests");
+
   const failedTests =
     safeDebug("mislukteTests");
 
-  const allTests =
-    safeDebug("tests");
+  const rocketTests =
+    safeDebug("raketTests");
 
   const exportErrors =
     safeDebug("fouten");
@@ -1305,43 +1401,72 @@
   const conflicts =
     safeDebug("naamconflicten");
 
-  const rocketTests =
-    safeDebug("raketTests");
-
   const missingNames =
     safeDebug("ontbrekendeNamen");
 
-  const independentErrors = [];
+  const skippedConflicts =
+    safeDebug("overgeslagenConflicten");
 
-  // ==========================================================
-  // ONAFHANKELIJKE TECHNISCHE CONTROLE
-  // ==========================================================
+  // ========================================================
+  // ONAFHANKELIJKE STRUCTURELE CONTROLES
+  // ========================================================
+
+  const independentErrors = [];
 
   const questionIds = new Set();
 
-  function expectedRockets(count) {
-
-    if (count === 0) return 0;
-
-    return Math.min(
-      count,
-      Math.max(
-        1,
-        Math.ceil((count + 50) / 100)
-      )
-    );
-
-  }
+  const questionNumbers = new Set();
 
   if (questions.length !== 50) {
 
     independentErrors.push({
 
-      fout:
-        "Er zijn geen exact 50 vragen.",
+      fout: "Er zijn niet exact 50 vragen.",
 
-      werkelijk:
-        questions.length
+      werkelijk: questions.length
+
+    });
+
+  }
+
+  if (typeof category.check !== "function") {
+
+    independentErrors.push({
+
+      fout: "De antwoordcontrole ontbreekt."
+
+    });
+
+  }
+
+  if (
+    typeof category.letterAnswers !== "function" ||
+    typeof category.availableLetters !== "function"
+  ) {
+
+    independentErrors.push({
+
+      fout: "De letterfuncties ontbreken."
+
+    });
+
+  }
+
+  if (!allTests.length) {
+
+    independentErrors.push({
+
+      fout: "Geen automatische antwoordtests beschikbaar."
+
+    });
+
+  }
+
+  if (!rocketTests.length) {
+
+    independentErrors.push({
+
+      fout: "Geen raketformuletests beschikbaar."
 
     });
 
@@ -1351,6 +1476,36 @@
 
     const number =
       question.questionNumber;
+
+    if (
+      !Number.isInteger(number) ||
+      number < 1 ||
+      number > 50
+    ) {
+
+      independentErrors.push({
+
+        vraag: number,
+
+        fout: "Ongeldig vraagnummer"
+
+      });
+
+    }
+
+    if (questionNumbers.has(number)) {
+
+      independentErrors.push({
+
+        vraag: number,
+
+        fout: "Dubbel vraagnummer"
+
+      });
+
+    }
+
+    questionNumbers.add(number);
 
     if (questionIds.has(question.id)) {
 
@@ -1366,15 +1521,13 @@
 
     questionIds.add(question.id);
 
-    if (
-      !Array.isArray(question.answers)
-    ) {
+    if (!Array.isArray(question.answers)) {
 
       independentErrors.push({
 
         vraag: number,
 
-        fout: "Antwoorden ontbreken"
+        fout: "Antwoordlijst ontbreekt"
 
       });
 
@@ -1382,47 +1535,52 @@
 
     }
 
-    const names = new Set();
+    if (!question.answers.length) {
 
-    const rocketCount =
+      independentErrors.push({
+
+        vraag: number,
+
+        fout: "Geen antwoorden"
+
+      });
+
+    }
+
+    const count =
+      question.answers.length;
+
+    const actualRockets =
       question.answers.filter(
         answer => answer.isRocket
       ).length;
 
     if (
-      rocketCount !==
-      expectedRockets(
-        question.answers.length
-      )
+      actualRockets !== expectedRockets(count)
     ) {
 
       independentErrors.push({
 
         vraag: number,
 
-        fout:
-          "Verkeerd aantal raketten",
+        fout: "Verkeerd aantal raketten",
 
-        verwacht:
-          expectedRockets(
-            question.answers.length
-          ),
+        verwacht: expectedRockets(count),
 
-        werkelijk:
-          rocketCount
+        werkelijk: actualRockets
 
       });
 
     }
 
-    for (
-      const answer of question.answers
-    ) {
+    const names = new Set();
 
-      const key =
-        normaliseer(answer.answer);
+    for (const answer of question.answers) {
 
-      if (!key) {
+      const sleutel =
+        normaal(answer.answer);
+
+      if (!sleutel) {
 
         independentErrors.push({
 
@@ -1434,7 +1592,7 @@
 
       }
 
-      if (names.has(key)) {
+      if (names.has(sleutel)) {
 
         independentErrors.push({
 
@@ -1442,13 +1600,13 @@
 
           antwoord: answer.answer,
 
-          fout: "Dubbel antwoord"
+          fout: "Dubbele canonieke naam"
 
         });
 
       }
 
-      names.add(key);
+      names.add(sleutel);
 
       if (
         !Number.isInteger(answer.points) ||
@@ -1462,16 +1620,15 @@
 
           antwoord: answer.answer,
 
-          fout:
-            "Ongeldige puntenwaarde"
+          fout: "Ongeldige puntenwaarde"
 
         });
 
       }
 
       if (
-        answer.isRocket &&
-        answer.points !== 100
+        Boolean(answer.isRocket) !==
+        (answer.points === 100)
       ) {
 
         independentErrors.push({
@@ -1480,17 +1637,13 @@
 
           antwoord: answer.answer,
 
-          fout:
-            "Raket heeft geen 100 punten"
+          fout: "Punten en raketstatus komen niet overeen"
 
         });
 
       }
 
-      if (
-        !answer.isRocket &&
-        answer.points === 100
-      ) {
+      if (!Array.isArray(answer.aliases)) {
 
         independentErrors.push({
 
@@ -1498,8 +1651,7 @@
 
           antwoord: answer.answer,
 
-          fout:
-            "Normaal antwoord heeft 100 punten"
+          fout: "Synoniemenlijst ontbreekt"
 
         });
 
@@ -1509,18 +1661,164 @@
 
   }
 
-  const technicalErrorCount =
-    capturedErrors.length +
-    exportErrors.length +
-    independentErrors.length +
-    failedTests.length +
+  // ========================================================
+  // EXTRA ONAFHANKELIJKE ANTWOORDTESTS
+  // ========================================================
+
+  const extraTestgevallen = [
+
+    [22, "Struisvogel", true],
+
+    [2, "Struisvogel", false],
+
+    [7, "Struisvogel", true],
+
+    [22, "Emoe", true],
+
+    [22, "Kiwi", true],
+
+    [22, "Kasuaris", true],
+
+    [22, "Kakapo", true],
+
+    [22, "Zebravink", true],
+
+    [8, "Zebravink", true],
+
+    [2, "Kakapo", false],
+
+    [2, "Vliegende eekhoorn", false],
+
+    [23, "Emoe", true],
+
+    [38, "Baikalrob", true],
+
+    [37, "Amazone-rivierdolfijn", true],
+
+    [33, "Muskusschildpad", true],
+
+    [43, "Sauroposeidon", true],
+
+    [39, "Wadpier", true],
+
+    [48, "Pyjamawants", true],
+
+    [11, "Goudvis", false],
+
+    [43, "Struisvogel", false],
+
+    [43, "Axolotl", false],
+
+    [43, "Tasmaanse duivel", false]
+
+  ];
+
+  const extraTests =
+    extraTestgevallen.map(
+      ([nummer, invoer, verwacht]) => {
+
+        let resultaat = null;
+        let fout = null;
+
+        try {
+
+          resultaat =
+            category.check(
+              nummer,
+              invoer
+            ).valid;
+
+        } catch (error) {
+
+          fout = error.message;
+
+        }
+
+        return {
+
+          nummer,
+          invoer,
+          verwacht,
+          resultaat,
+          fout,
+
+          geslaagd:
+            fout === null &&
+            resultaat === verwacht
+
+        };
+
+      }
+    );
+
+  const failedExtraTests =
+    extraTests.filter(
+      test => !test.geslaagd
+    );
+
+  const failedRocketTests =
     rocketTests.filter(
       test => !test.geslaagd
-    ).length;
+    );
 
-  // ==========================================================
-  // STATISTIEKEN
-  // ==========================================================
+  const combinedErrors = [
+
+    ...capturedErrors,
+
+    ...exportErrors,
+
+    ...independentErrors,
+
+    ...failedRocketTests
+
+  ];
+
+  // ========================================================
+  // VRAAGSTATISTIEKEN
+  // ========================================================
+
+  const report =
+    questions.map((question, index) => {
+
+      const nummer =
+        question.questionNumber || index + 1;
+
+      const answers =
+        question.answers || [];
+
+      const aantal =
+        answers.length;
+
+      const eerder =
+        basisAntwoorden[nummer - 1] || 0;
+
+      return {
+
+        nummer,
+
+        vraag: question.question,
+
+        antwoorden: aantal,
+
+        eerder,
+
+        verschil:
+          aantal - eerder,
+
+        raketten:
+          answers.filter(
+            answer => answer.isRocket
+          ).length,
+
+        ontbrekend:
+          Math.max(0, 1000 - aantal),
+
+        percentage:
+          Math.min(100, aantal / 10)
+
+      };
+
+    });
 
   const totalAnswers =
     report.reduce(
@@ -1538,8 +1836,7 @@
 
   const completed =
     report.filter(
-      question =>
-        question.antwoorden >= 1000
+      question => question.antwoorden >= 1000
     ).length;
 
   const totalMissing =
@@ -1560,67 +1857,339 @@
     );
 
   const progress =
-    questions.length
-      ? creditedAnswers /
-        (questions.length * 1000) * 100
-      : 0;
+    creditedAnswers / 50000 * 100;
+
+  const average =
+    Math.round(
+      totalAnswers /
+      Math.max(1, questions.length)
+    );
+
+  const uniqueNames = new Set();
+
+  for (const question of questions) {
+
+    for (const answer of question.answers || []) {
+
+      const sleutel = normaal(answer.answer);
+
+      if (sleutel) {
+        uniqueNames.add(sleutel);
+      }
+
+    }
+
+  }
+
+  const usableAnimals =
+    uniqueNames.size;
+
+  const passedTests =
+    allTests.filter(
+      test => test.geslaagd
+    ).length;
+
+  const passedExtraTests =
+    extraTests.filter(
+      test => test.geslaagd
+    ).length;
+
+  const passedRocketTests =
+    rocketTests.filter(
+      test => test.geslaagd
+    ).length;
+
+  const technicalErrorCount =
+    combinedErrors.length +
+    failedTests.length +
+    failedExtraTests.length;
 
   const loadDuration =
     performance.now() -
     window.QB_TEST_START;
 
+  // ========================================================
+  // DASHBOARD ZICHTBAAR MAKEN
+  // ========================================================
+
   $("dashboard")
     .classList.remove("hidden");
 
-  $("totalAnimals").textContent =
-    summary.bruikbareDierrecords == null
-      ? "?"
-      : format(
-          summary.bruikbareDierrecords
-        );
+  const notices = [];
 
-  $("totalQuestions").textContent =
-    format(questions.length);
+  if (aanvullingGeladen) {
 
-  $("totalAnswers").textContent =
-    format(totalAnswers);
+    notices.push({
 
-  $("totalRockets").textContent =
-    format(totalRockets);
+      type: "success",
 
-  $("averageAnswers").textContent =
-    format(
-      Math.round(
-        totalAnswers /
-        Math.max(1, questions.length)
-      )
-    );
+      tekst:
 
-  $("completedQuestions").textContent =
-    completed + "/" + questions.length;
+        "✅ De aanvulling is geladen. " +
 
-  $("totalConflicts").textContent =
-    format(
-      summary.naamconflicten ??
-      conflicts.length
-    );
+        "Actieve testversie: " + version
 
-  $("totalErrors").textContent =
-    format(technicalErrorCount);
+    });
+
+  } else {
+
+    notices.push({
+
+      type: "error",
+
+      tekst:
+
+        "❌ De aanvulling lijkt niet geladen te zijn. " +
+
+        "De actieve versie is " + version + ". " +
+
+        "Controleer antwoorden/dieren-aanvulling.js."
+
+    });
+
+  }
+
+  if (
+    technicalErrorCount === 0 &&
+    category.technicallyReady === true &&
+    aanvullingGeladen
+  ) {
+
+    notices.push({
+
+      type: "success",
+
+      tekst:
+
+        "✅ Alle beschikbare technische controles " +
+
+        "en antwoordtests zijn geslaagd."
+
+    });
+
+  } else {
+
+    notices.push({
+
+      type: "warning",
+
+      tekst:
+
+        "⚠️ Er zijn nog controles die aandacht nodig hebben. " +
+
+        "Bekijk de foutmeldingen onderaan."
+
+    });
+
+  }
+
+  notices.push({
+
+    type: "info",
+
+    tekst:
+
+      "ℹ️ De database bevat opgeslagen antwoorden. " +
+
+      "De biologische juistheid en volledigheid " +
+
+      "zijn nog niet onafhankelijk geverifieerd."
+
+  });
+
+  $("generalStatus").innerHTML =
+    notices.map(notice => `
+
+      <div class="notice notice-${notice.type}">
+
+        ${escapeHtml(notice.tekst)}
+
+      </div>
+
+    `).join("");
+
+  // ========================================================
+  // STATISTIEKKAARTEN
+  // ========================================================
+
+  function statCard(
+    icon,
+    label,
+    waarde,
+    verschil = null,
+    lagerIsBeter = false
+  ) {
+
+    return `
+
+      <div class="stat">
+
+        <div class="stat-icon">
+          ${icon}
+        </div>
+
+        <div class="stat-value">
+
+          ${escapeHtml(waarde)}
+
+        </div>
+
+        <div class="stat-label">
+
+          ${escapeHtml(label)}
+
+        </div>
+
+        ${verschil === null
+
+          ? ""
+
+          : `
+
+            <div class="stat-change
+              ${verschilKleur(
+                verschil,
+                lagerIsBeter
+              )}">
+
+              ${signed(verschil)} sinds V9.0
+
+            </div>
+
+          `
+
+        }
+
+      </div>
+
+    `;
+
+  }
+
+  $("stats").innerHTML = [
+
+    statCard(
+      "🐾",
+      "Bruikbare canonieke diernamen",
+      format(usableAnimals),
+      usableAnimals - basis.bruikbareDieren
+    ),
+
+    statCard(
+      "❓",
+      "Vragen",
+      format(questions.length)
+    ),
+
+    statCard(
+      "💬",
+      "Vraag-antwoordkoppelingen",
+      format(totalAnswers),
+      totalAnswers - basis.koppelingen
+    ),
+
+    statCard(
+      "🚀",
+      "Raketten",
+      format(totalRockets),
+      totalRockets - basis.raketten
+    ),
+
+    statCard(
+      "📊",
+      "Gemiddeld per vraag",
+      format(average),
+      average - basis.gemiddeld
+    ),
+
+    statCard(
+      "🎯",
+      "Vragen met 1.000+ antwoorden",
+      completed + "/50",
+      completed - basis.voltooideVragen
+    ),
+
+    statCard(
+      "⚠️",
+      "Naamconflicten",
+      format(conflicts.length),
+      conflicts.length - basis.naamconflicten,
+      true
+    ),
+
+    statCard(
+      "🔍",
+      "Nog ontbrekende namen",
+      format(missingNames.length),
+      missingNames.length -
+        basis.ontbrekendeNamen,
+      true
+    ),
+
+    statCard(
+      "✅",
+      "Automatische antwoordtests",
+      passedTests + "/" + allTests.length
+    ),
+
+    statCard(
+      "🧪",
+      "Extra dashboardtests",
+      passedExtraTests + "/" + extraTests.length
+    ),
+
+    statCard(
+      "❌",
+      "Fouten en mislukte tests",
+      format(technicalErrorCount)
+    ),
+
+    statCard(
+      "📈",
+      "Totale voortgang",
+      progress.toFixed(2) + "%"
+    )
+
+  ].join("");
+
+  // ========================================================
+  // VOORTGANGSBALK
+  // ========================================================
 
   $("progressText").textContent =
-    progress.toFixed(1) +
+
+    progress.toFixed(2) +
+
     "% van het streefdoel";
 
   $("overallProgress").style.width =
-    progress + "%";
+
+    Math.min(100, progress) + "%";
+
+  const progressDifference =
+    progress - basis.voortgang;
+
+  $("progressDifference").textContent =
+
+    (progressDifference > 0 ? "+" : "") +
+
+    progressDifference.toFixed(2) +
+
+    " procentpunt sinds V9.0.0.";
+
+  $("progressDifference").className =
+
+    verschilKleur(progressDifference);
 
   $("remainingText").textContent =
+
     format(totalMissing) +
-    " aanvullende antwoordkoppelingen " +
-    "nodig om iedere vraag op 1.000 te brengen. " +
-    "Niet iedere vraag heeft noodzakelijk " +
-    "1.000 biologisch passende antwoorden.";
+
+    " aanvullende antwoordkoppelingen tot het " +
+
+    "theoretische streefdoel. Niet iedere vraag " +
+
+    "heeft noodzakelijk 1.000 passende antwoorden.";
 
   const sortedByCount =
     [...report].sort(
@@ -1638,108 +2207,137 @@
         sortedByCount.length - 1
       ];
 
-    $("extremeQuestions").innerHTML =
+    $("extremeQuestions").innerHTML = `
 
-      "<strong>Grootste vraag:</strong> " +
+      <strong>Grootste vraag:</strong>
 
-      escapeHtml(biggest.vraag) +
+      ${escapeHtml(biggest.vraag)}
 
-      " — " +
+      — ${format(biggest.antwoorden)} antwoorden
 
-      format(biggest.antwoorden) +
+      <br><br>
 
-      " antwoorden<br><br>" +
+      <strong>Kleinste vraag:</strong>
 
-      "<strong>Kleinste vraag:</strong> " +
+      ${escapeHtml(smallest.vraag)}
 
-      escapeHtml(smallest.vraag) +
+      — ${format(smallest.antwoorden)} antwoorden
 
-      " — " +
-
-      format(smallest.antwoorden) +
-
-      " antwoorden";
+    `;
 
   }
 
-  $("loadingTime").textContent =
-    "Laden en eerste controles: " +
-    loadDuration.toFixed(1) +
-    " milliseconden.";
+  // ========================================================
+  // VERGELIJKING MET V9.0
+  // ========================================================
 
-  // ==========================================================
-  // ALGEMENE STATUS
-  // ==========================================================
+  const comparisonRows = [
 
-  if (
-    technicalErrorCount === 0 &&
-    category.technicallyReady === true &&
-    debug
-  ) {
+    [
+      "Bruikbare diernamen",
+      basis.bruikbareDieren,
+      usableAnimals,
+      false
+    ],
 
-    $("generalStatus").innerHTML =
+    [
+      "Vraag-antwoordkoppelingen",
+      basis.koppelingen,
+      totalAnswers,
+      false
+    ],
 
-      '<div class="notice notice-success">' +
+    [
+      "Raketten",
+      basis.raketten,
+      totalRockets,
+      false
+    ],
 
-      "✅ De database is geladen en de " +
+    [
+      "Gemiddeld aantal antwoorden",
+      basis.gemiddeld,
+      average,
+      false
+    ],
 
-      "beschikbare technische controles " +
+    [
+      "Vragen met minimaal 1.000 antwoorden",
+      basis.voltooideVragen,
+      completed,
+      false
+    ],
 
-      "zijn geslaagd." +
+    [
+      "Ontbrekend tot streefdoel",
+      basis.ontbrekendeKoppelingen,
+      totalMissing,
+      true
+    ],
 
-      "</div>";
+    [
+      "Ontbrekende diernamen",
+      basis.ontbrekendeNamen,
+      missingNames.length,
+      true
+    ],
 
-  } else {
+    [
+      "Naamconflicten",
+      basis.naamconflicten,
+      conflicts.length,
+      true
+    ]
 
-    $("generalStatus").innerHTML =
+  ];
 
-      '<div class="notice notice-warning">' +
+  $("comparisonTable").innerHTML =
 
-      "⚠️ De database is geladen, maar " +
+    comparisonRows.map(
+      ([label, oud, nieuw, lagerIsBeter]) => {
 
-      "er zijn technische controles die " +
+        const verschil =
+          nieuw - oud;
 
-      "nog aandacht nodig hebben." +
+        return `
 
-      "</div>";
+          <tr>
 
-  }
+            <td>${escapeHtml(label)}</td>
 
-  $("generalStatus").innerHTML +=
+            <td>${format(oud)}</td>
 
-    '<div class="notice notice-info">' +
+            <td><strong>${format(nieuw)}</strong></td>
 
-    "ℹ️ Dit is een conceptdatabase. " +
+            <td class="${verschilKleur(
+              verschil,
+              lagerIsBeter
+            )}">
 
-    "Het aantal opgeslagen antwoorden is " +
+              <strong>${signed(verschil)}</strong>
 
-    "niet hetzelfde als het aantal " +
+            </td>
 
-    "onafhankelijk biologisch gecontroleerde antwoorden." +
+          </tr>
 
-    "</div>";
+        `;
 
-  // ==========================================================
+      }
+    ).join("");
+
+  // ========================================================
   // VRAGENLIJST
-  // ==========================================================
+  // ========================================================
 
-  function progressColor(count) {
+  function progressColor(aantal) {
 
-    if (count >= 1000) {
-      return "#22c55e";
-    }
+    if (aantal >= 1000) return "#22c55e";
 
-    if (count >= 750) {
-      return "#84cc16";
-    }
+    if (aantal >= 750) return "#84cc16";
 
-    if (count >= 500) {
-      return "#eab308";
-    }
+    if (aantal >= 500) return "#eab308";
 
-    if (count >= 250) {
-      return "#f97316";
-    }
+    if (aantal >= 250) return "#f97316";
 
     return "#ef4444";
 
@@ -1748,9 +2346,7 @@
   function renderQuestions() {
 
     const search =
-      normaliseer(
-        $("questionSearch").value
-      );
+      normaal($("questionSearch").value);
 
     const sorting =
       $("questionSort").value;
@@ -1758,38 +2354,44 @@
     const filtering =
       $("questionFilter").value;
 
-    let rows =
-      report.filter(question => {
+    let rows = report.filter(question => {
 
-        if (
-          search &&
-          !normaliseer(question.vraag)
-            .includes(search)
-        ) {
+      if (
+        search &&
+        !normaal(question.vraag).includes(search)
+      ) {
 
-          return false;
+        return false;
 
-        }
+      }
 
-        if (filtering === "complete") {
-          return question.antwoorden >= 1000;
-        }
+      if (filtering === "complete") {
+        return question.antwoorden >= 1000;
+      }
 
-        if (filtering === "incomplete") {
-          return question.antwoorden < 1000;
-        }
+      if (filtering === "incomplete") {
+        return question.antwoorden < 1000;
+      }
 
-        if (filtering === "low") {
-          return question.antwoorden < 100;
-        }
+      if (filtering === "low") {
+        return question.antwoorden < 100;
+      }
 
-        if (filtering === "empty") {
-          return question.antwoorden === 0;
-        }
+      if (filtering === "improved") {
+        return question.verschil > 0;
+      }
 
-        return true;
+      if (filtering === "decreased") {
+        return question.verschil < 0;
+      }
 
-      });
+      if (filtering === "empty") {
+        return question.antwoorden === 0;
+      }
+
+      return true;
+
+    });
 
     rows.sort((a, b) => {
 
@@ -1799,6 +2401,10 @@
 
       if (sorting === "least") {
         return a.antwoorden - b.antwoorden;
+      }
+
+      if (sorting === "growth") {
+        return b.verschil - a.verschil;
       }
 
       if (sorting === "rockets") {
@@ -1814,24 +2420,27 @@
     });
 
     $("visibleQuestionCount").textContent =
+
       rows.length +
+
       " van " +
+
       report.length +
+
       " vragen";
 
     $("questionTable").innerHTML =
+
       rows.map(question => {
 
         const color =
-          progressColor(
-            question.antwoorden
-          );
+          progressColor(question.antwoorden);
 
         return `
 
           <tr>
 
-            <td class="number-cell">
+            <td class="muted">
               ${question.nummer}
             </td>
 
@@ -1839,10 +2448,22 @@
               ${escapeHtml(question.vraag)}
             </td>
 
+            <td>
+              ${format(question.eerder)}
+            </td>
+
             <td style="color:${color}">
               <strong>
                 ${format(question.antwoorden)}
               </strong>
+            </td>
+
+            <td class="${verschilKleur(
+              question.verschil
+            )}">
+
+              ${signed(question.verschil)}
+
             </td>
 
             <td>
@@ -1858,16 +2479,20 @@
               <div class="progress">
 
                 <div class="progress-fill"
+
                      style="
                        width:${question.percentage}%;
                        background:${color};
                      ">
+
                 </div>
 
               </div>
 
               <small>
+
                 ${question.percentage.toFixed(1)}%
+
               </small>
 
             </td>
@@ -1892,27 +2517,24 @@
 
   }
 
-  $("questionSearch")
-    .addEventListener(
-      "input",
-      renderQuestions
-    );
+  $("questionSearch").addEventListener(
+    "input",
+    renderQuestions
+  );
 
-  $("questionSort")
-    .addEventListener(
-      "change",
-      renderQuestions
-    );
+  $("questionSort").addEventListener(
+    "change",
+    renderQuestions
+  );
 
-  $("questionFilter")
-    .addEventListener(
-      "change",
-      renderQuestions
-    );
+  $("questionFilter").addEventListener(
+    "change",
+    renderQuestions
+  );
 
-  // ==========================================================
+  // ========================================================
   // VRAAGSELECTIES
-  // ==========================================================
+  // ========================================================
 
   const questionOptions =
     report.map(question => `
@@ -1926,13 +2548,15 @@
 
     `).join("");
 
-  for (
-    const id of [
-      "testQuestion",
-      "browseQuestion",
-      "letterQuestion"
-    ]
-  ) {
+  for (const id of [
+
+    "testQuestion",
+
+    "browseQuestion",
+
+    "letterQuestion"
+
+  ]) {
 
     $(id).innerHTML =
       questionOptions;
@@ -1949,16 +2573,14 @@
 
   }
 
-  // ==========================================================
+  // ========================================================
   // ANTWOORDTESTER
-  // ==========================================================
+  // ========================================================
 
   function testAnswer() {
 
-    const questionNumber =
-      Number(
-        $("testQuestion").value
-      );
+    const number =
+      Number($("testQuestion").value);
 
     const answer =
       $("testAnswer").value.trim();
@@ -1982,10 +2604,7 @@
     try {
 
       checked =
-        category.check(
-          questionNumber,
-          answer
-        );
+        category.check(number, answer);
 
     } catch (error) {
 
@@ -1993,8 +2612,7 @@
         "result invalid";
 
       result.textContent =
-        "Technische fout: " +
-        error.message;
+        "Technische fout: " + error.message;
 
       return;
 
@@ -2009,19 +2627,20 @@
 
         <h3>❌ Niet geaccepteerd</h3>
 
-        <strong>
-          ${escapeHtml(answer)}
-        </strong>
+        <strong>${escapeHtml(answer)}</strong>
 
         <p>
-          Dit antwoord staat niet bij
-          deze vraag in de huidige database.
+
+          Dit antwoord staat niet bij deze vraag
+          in de huidige database.
+
         </p>
 
         <p class="muted">
-          Dat betekent niet automatisch
-          dat het antwoord biologisch fout is.
-          Het kan ook ontbreken.
+
+          Het antwoord kan biologisch juist zijn
+          maar nog ontbreken.
+
         </p>
 
       `;
@@ -2050,9 +2669,15 @@
       </div>
 
       <p>
+
         ${checked.isRocket
+
           ? "Dit antwoord is een raket!"
-          : "Dit is een normaal antwoord."}
+
+          : "Dit is een normaal antwoord."
+
+        }
+
       </p>
 
       <p class="aliases">
@@ -2060,89 +2685,99 @@
         Synoniemen:
 
         ${escapeHtml(
-          (checked.aliases || [])
-            .join(", ") ||
+          (checked.aliases || []).join(", ") ||
           "Geen"
         )}
 
       </p>
 
       ${checked.ambiguous
-        ? "<p>⚠️ Deze naam verwijst naar " +
-          "meerdere mogelijke dieren.</p>"
-        : ""}
+
+        ? `
+
+          <p>
+
+            ⚠️ Meerdere mogelijke dieren:
+
+            ${escapeHtml(
+              (checked.alternatives || [])
+                .join(", ")
+            )}
+
+          </p>
+
+        `
+
+        : ""
+
+      }
 
     `;
 
   }
 
-  $("testButton")
-    .addEventListener(
-      "click",
-      testAnswer
-    );
+  $("testButton").addEventListener(
+    "click",
+    testAnswer
+  );
 
-  $("testAnswer")
-    .addEventListener(
-      "keydown",
-      event => {
+  $("testAnswer").addEventListener(
 
-        if (event.key === "Enter") {
-          testAnswer();
-        }
+    "keydown",
 
-      }
-    );
+    event => {
 
-  $("randomAnswerButton")
-    .addEventListener(
-      "click",
-      () => {
-
-        const question =
-          getQuestion(
-            $("testQuestion").value
-          );
-
-        if (!question?.answers?.length) {
-          return;
-        }
-
-        const random =
-          question.answers[
-            Math.floor(
-              Math.random() *
-              question.answers.length
-            )
-          ];
-
-        $("testAnswer").value =
-          random.answer;
-
+      if (event.key === "Enter") {
         testAnswer();
-
       }
-    );
 
-  // ==========================================================
-  // ANTWOORDENDATABASE
-  // ==========================================================
+    }
+
+  );
+
+  $("randomAnswerButton").addEventListener(
+
+    "click",
+
+    () => {
+
+      const question =
+        getQuestion($("testQuestion").value);
+
+      if (!question?.answers?.length) return;
+
+      const random =
+        question.answers[
+          Math.floor(
+            Math.random() *
+            question.answers.length
+          )
+        ];
+
+      $("testAnswer").value =
+        random.answer;
+
+      testAnswer();
+
+    }
+
+  );
+
+  // ========================================================
+  // ANTWOORDENDATABASE BEKIJKEN
+  // ========================================================
 
   let answerLimit = 200;
 
   function renderAnswers() {
 
     const question =
-      getQuestion(
-        $("browseQuestion").value
-      );
+      getQuestion($("browseQuestion").value);
 
     if (!question) return;
 
     const search =
-      normaliseer(
-        $("answerSearch").value
-      );
+      normaal($("answerSearch").value);
 
     const sorting =
       $("answerSort").value;
@@ -2173,15 +2808,15 @@
 
         if (search) {
 
-          const names = [
-            answer.answer,
-            ...(answer.aliases || [])
-          ];
+          return [
 
-          return names.some(
+            answer.answer,
+
+            ...(answer.aliases || [])
+
+          ].some(
             name =>
-              normaliseer(name)
-                .includes(search)
+              normaal(name).includes(search)
           );
 
         }
@@ -2221,6 +2856,7 @@
       " weergegeven";
 
     $("answerList").innerHTML =
+
       displayed.map(answer => `
 
         <article class="answer-card
@@ -2243,8 +2879,7 @@
           <div class="aliases">
 
             ${escapeHtml(
-              (answer.aliases || [])
-                .join(", ")
+              (answer.aliases || []).join(", ")
             )}
 
           </div>
@@ -2263,16 +2898,20 @@
 
   }
 
-  for (
-    const id of [
-      "browseQuestion",
-      "answerSort",
-      "answerFilter"
-    ]
-  ) {
+  for (const id of [
+
+    "browseQuestion",
+
+    "answerSort",
+
+    "answerFilter"
+
+  ]) {
 
     $(id).addEventListener(
+
       "change",
+
       () => {
 
         answerLimit = 200;
@@ -2280,91 +2919,99 @@
         renderAnswers();
 
       }
+
     );
 
   }
 
-  $("answerSearch")
-    .addEventListener(
-      "input",
-      () => {
+  $("answerSearch").addEventListener(
 
-        answerLimit = 200;
+    "input",
 
-        renderAnswers();
+    () => {
 
-      }
-    );
+      answerLimit = 200;
 
-  $("loadMoreAnswers")
-    .addEventListener(
-      "click",
-      () => {
+      renderAnswers();
 
-        answerLimit += 200;
+    }
 
-        renderAnswers();
+  );
 
-      }
-    );
+  $("loadMoreAnswers").addEventListener(
 
-  $("questionTable")
-    .addEventListener(
-      "click",
-      event => {
+    "click",
 
-        const button =
-          event.target.closest(
-            "[data-question]"
-          );
+    () => {
 
-        if (!button) return;
+      answerLimit += 200;
 
-        $("browseQuestion").value =
+      renderAnswers();
+
+    }
+
+  );
+
+  $("questionTable").addEventListener(
+
+    "click",
+
+    event => {
+
+      const button =
+        event.target.closest("[data-question]");
+
+      if (!button) return;
+
+      for (const id of [
+
+        "browseQuestion",
+
+        "testQuestion",
+
+        "letterQuestion"
+
+      ]) {
+
+        $(id).value =
           button.dataset.question;
 
-        $("testQuestion").value =
-          button.dataset.question;
-
-        $("letterQuestion").value =
-          button.dataset.question;
-
-        $("answerSearch").value = "";
-
-        $("answerFilter").value = "all";
-
-        answerLimit = 200;
-
-        renderAnswers();
-
-        renderLetters();
-
-        $("answerBrowser").scrollIntoView({
-
-          behavior: "smooth"
-
-        });
-
       }
-    );
 
-  // ==========================================================
+      $("answerSearch").value = "";
+
+      $("answerFilter").value = "all";
+
+      answerLimit = 200;
+
+      renderAnswers();
+
+      renderLetters();
+
+      $("answerBrowser").scrollIntoView({
+
+        behavior: "smooth"
+
+      });
+
+    }
+
+  );
+
+  // ========================================================
   // LETTERREGELS
-  // ==========================================================
+  // ========================================================
 
   function renderLetters() {
 
     const number =
-      Number(
-        $("letterQuestion").value
-      );
+      Number($("letterQuestion").value);
 
     $("letterResult")
       .classList.add("hidden");
 
     if (
-      typeof category.availableLetters !==
-      "function"
+      typeof category.availableLetters !== "function"
     ) {
 
       $("letterGrid").textContent =
@@ -2375,12 +3022,10 @@
     }
 
     const letters =
-      category.availableLetters(
-        number,
-        1
-      );
+      category.availableLetters(number, 1);
 
     $("letterGrid").innerHTML =
+
       letters.map(letter => `
 
         <button
@@ -2395,8 +3040,7 @@
 
           <div class="letter-detail">
 
-            ${format(letter.aantal)}
-            antwoorden
+            ${format(letter.aantal)} antwoorden
 
           </div>
 
@@ -2412,128 +3056,244 @@
 
   }
 
-  $("letterQuestion")
-    .addEventListener(
-      "change",
-      renderLetters
-    );
+  $("letterQuestion").addEventListener(
 
-  $("letterGrid")
-    .addEventListener(
-      "click",
-      event => {
+    "change",
 
-        const button =
-          event.target.closest(
-            "[data-letter]"
+    renderLetters
+
+  );
+
+  $("letterGrid").addEventListener(
+
+    "click",
+
+    event => {
+
+      const button =
+        event.target.closest("[data-letter]");
+
+      if (!button) return;
+
+      const letter =
+        button.dataset.letter;
+
+      const number =
+        Number($("letterQuestion").value);
+
+      const answers =
+        category.letterAnswers(number, letter);
+
+      const rockets =
+        answers.filter(
+          answer => answer.isRocket
+        );
+
+      const letterErrors = [];
+
+      const letterNames = new Set();
+
+      for (const answer of answers) {
+
+        const sleutel =
+          normaal(answer.answer);
+
+        if (letterNames.has(sleutel)) {
+
+          letterErrors.push(
+
+            "Dubbele antwoordnaam: " +
+            answer.answer
+
           );
 
-        if (!button) return;
+        }
 
-        const letter =
-          button.dataset.letter;
+        letterNames.add(sleutel);
 
-        const number =
-          Number(
-            $("letterQuestion").value
+        for (const naam of [
+
+          answer.answer,
+
+          ...(answer.aliases || [])
+
+        ]) {
+
+          if (
+            !normaal(naam).startsWith(
+              normaal(letter)
+            )
+          ) {
+
+            letterErrors.push(
+
+              "Onjuiste beginletter: " + naam
+
+            );
+
+          }
+
+        }
+
+        if (
+          Boolean(answer.isRocket) !==
+          (answer.points === 100)
+        ) {
+
+          letterErrors.push(
+
+            "Ongeldige raketpunten: " +
+            answer.answer
+
           );
 
-        const answers =
-          category.letterAnswers(
-            number,
-            letter
-          );
-
-        const rockets =
-          answers.filter(
-            answer => answer.isRocket
-          );
-
-        document
-          .querySelectorAll(".letter-card")
-          .forEach(card =>
-            card.classList.remove("active")
-          );
-
-        button.classList.add("active");
-
-        $("letterResult")
-          .classList.remove("hidden");
-
-        $("letterResult").innerHTML = `
-
-          <h3>Beginletter ${escapeHtml(letter)}</h3>
-
-          <p>
-            ${format(answers.length)}
-            antwoorden
-          </p>
-
-          <h3>
-            🚀 ${format(rockets.length)} raketten
-          </h3>
-
-          <p>
-
-            ${rockets.map(answer =>
-
-              escapeHtml(answer.answer)
-
-            ).join(", ")}
-
-          </p>
-
-          <h3>Voorbeelden</h3>
-
-          <p>
-
-            ${answers.slice(0, 30)
-              .map(answer =>
-
-                escapeHtml(answer.answer) +
-
-                " (" +
-
-                answer.points +
-
-                " punten)"
-
-              ).join("<br>")}
-
-          </p>
-
-        `;
+        }
 
       }
-    );
 
-  // ==========================================================
+      if (
+        rockets.length !==
+        expectedRockets(answers.length)
+      ) {
+
+        letterErrors.push(
+
+          "Onjuist aantal raketten."
+
+        );
+
+      }
+
+      document
+        .querySelectorAll(".letter-card")
+        .forEach(card =>
+          card.classList.remove("active")
+        );
+
+      button.classList.add("active");
+
+      $("letterResult")
+        .classList.remove("hidden");
+
+      $("letterResult").innerHTML = `
+
+        <h3>
+
+          Beginletter ${escapeHtml(letter)}
+
+        </h3>
+
+        <p>
+
+          ${format(answers.length)} antwoorden
+
+        </p>
+
+        <p>
+
+          🚀 ${format(rockets.length)} raketten
+
+        </p>
+
+        <p class="${
+          letterErrors.length ? "red" : "green"
+        }">
+
+          ${letterErrors.length
+
+            ? "Lettercontrole: " +
+              letterErrors.length +
+              " fouten"
+
+            : "✅ Lettercontrole geslaagd"
+
+          }
+
+        </p>
+
+        ${letterErrors.length
+
+          ? `
+
+            <pre>${
+              escapeHtml(
+                letterErrors.join("\n")
+              )
+            }</pre>
+
+          `
+
+          : ""
+
+        }
+
+        <h3>Raketten</h3>
+
+        <p>
+
+          ${rockets.map(answer =>
+
+            escapeHtml(answer.answer)
+
+          ).join(", ") || "Geen"}
+
+        </p>
+
+        <h3>Voorbeelden</h3>
+
+        <p>
+
+          ${answers.slice(0, 40).map(answer =>
+
+            escapeHtml(answer.answer) +
+
+            " (" +
+
+            answer.points +
+
+            " punten)"
+
+          ).join("<br>")}
+
+        </p>
+
+      `;
+
+    }
+
+  );
+
+  // ========================================================
   // AUTOMATISCHE TESTRESULTATEN
-  // ==========================================================
-
-  const passedTests =
-    allTests.filter(
-      test => test.geslaagd
-    ).length;
-
-  const passedRocketTests =
-    rocketTests.filter(
-      test => test.geslaagd
-    ).length;
+  // ========================================================
 
   $("automatedTestSummary").innerHTML = `
 
     <p>
 
-      Antwoordtests:
+      Database-antwoordtests:
 
-      <strong class="green">
+      <strong class="${
+        failedTests.length ? "orange" : "green"
+      }">
 
-        ${passedTests}
+        ${passedTests}/${allTests.length}
 
       </strong>
 
-      / ${allTests.length} geslaagd
+    </p>
+
+    <p>
+
+      Extra dashboardtests:
+
+      <strong class="${
+        failedExtraTests.length ? "orange" : "green"
+      }">
+
+        ${passedExtraTests}/${extraTests.length}
+
+      </strong>
 
     </p>
 
@@ -2541,13 +3301,443 @@
 
       Raketformuletests:
 
-      <strong class="green">
+      <strong class="${
+        failedRocketTests.length ? "orange" : "green"
+      }">
 
-        ${passedRocketTests}
+        ${passedRocketTests}/${rocketTests.length}
 
       </strong>
 
-      / ${rocketTests.length} geslaagd
+    </p>
+
+  `;
+
+  function testCard(test, bron) {
+
+    return `
+
+      <div class="issue-card
+        ${test.geslaagd ? "" : "error-card"}">
+
+        <strong>
+
+          ${test.geslaagd ? "✅" : "❌"}
+
+          Vraag ${escapeHtml(test.nummer)}:
+
+          ${escapeHtml(test.invoer || test.antwoord)}
+
+        </strong>
+
+        <p class="muted">
+
+          ${escapeHtml(bron)}
+
+        </p>
+
+        <p>
+
+          Verwacht:
+
+          ${test.verwacht
+
+            ? "Geaccepteerd"
+
+            : "Afgewezen"
+
+          }
+
+          <br>
+
+          Werkelijk:
+
+          ${test.resultaat === null
+
+            ? "Technische fout"
+
+            : test.resultaat
+
+              ? "Geaccepteerd"
+
+              : "Afgewezen"
+
+          }
+
+        </p>
+
+        ${test.fout
+
+          ? `<p>${escapeHtml(test.fout)}</p>`
+
+          : ""
+
+        }
+
+      </div>
+
+    `;
+
+  }
+
+  if (
+    failedTests.length === 0 &&
+    failedExtraTests.length === 0 &&
+    allTests.length > 0
+  ) {
+
+    $("failedTests").innerHTML =
+
+      '<div class="notice notice-success">' +
+
+      "✅ Alle beschikbare antwoordtests zijn geslaagd." +
+
+      "</div>";
+
+  } else {
+
+    $("failedTests").innerHTML =
+
+      failedTests.map(
+        test => testCard(test, "Databasetest")
+      ).join("") +
+
+      failedExtraTests.map(
+        test => testCard(test, "Extra dashboardtest")
+      ).join("");
+
+  }
+
+  $("showAllTests").addEventListener(
+
+    "click",
+
+    () => {
+
+      const hidden =
+        $("allTestResults")
+          .classList.toggle("hidden");
+
+      $("showAllTests").textContent =
+
+        hidden
+
+          ? "Toon alle antwoordtests"
+
+          : "Verberg alle antwoordtests";
+
+      if (!hidden) {
+
+        $("allTestResults").innerHTML =
+
+          allTests.map(
+            test => testCard(test, "Databasetest")
+          ).join("") +
+
+          extraTests.map(
+            test => testCard(test, "Extra dashboardtest")
+          ).join("");
+
+      }
+
+    }
+
+  );
+
+  // ========================================================
+  // ONTBREKENDE DIERNAMEN
+  // ========================================================
+
+  const hersteldeNamen =
+    basis.ontbrekendeNamen -
+    missingNames.length;
+
+  $("missingSummary").innerHTML = `
+
+    <p>
+
+      Oorspronkelijk:
+
+      <strong>272</strong>
+
+    </p>
+
+    <p>
+
+      Nog ontbrekend:
+
+      <strong class="orange">
+
+        ${format(missingNames.length)}
+
+      </strong>
+
+    </p>
+
+    <p>
+
+      Netto minder ontbrekende namen:
+
+      <strong class="${verschilKleur(hersteldeNamen)}">
+
+        ${signed(hersteldeNamen)}
+
+      </strong>
+
+    </p>
+
+  `;
+
+  function renderMissing() {
+
+    const search =
+      normaal($("missingSearch").value);
+
+    const namen =
+      missingNames.filter(
+        naam =>
+          normaal(naam).includes(search)
+      );
+
+    $("missingList").innerHTML =
+
+      namen.length
+
+        ? namen.map(naam => `
+
+          <div class="issue-card">
+
+            ${escapeHtml(naam)}
+
+          </div>
+
+        `).join("")
+
+        : "<p>Geen overeenkomende ontbrekende namen.</p>";
+
+  }
+
+  $("showMissing").addEventListener(
+
+    "click",
+
+    () => {
+
+      const hidden =
+        $("missingList").classList.toggle("hidden");
+
+      $("showMissing").textContent =
+
+        hidden
+
+          ? "Toon ontbrekende namen"
+
+          : "Verberg ontbrekende namen";
+
+      if (!hidden) {
+
+        renderMissing();
+
+      }
+
+    }
+
+  );
+
+  $("missingSearch").addEventListener(
+
+    "input",
+
+    () => {
+
+      $("missingList")
+        .classList.remove("hidden");
+
+      $("showMissing").textContent =
+        "Verberg ontbrekende namen";
+
+      renderMissing();
+
+    }
+
+  );
+
+  // ========================================================
+  // NAAMCONFLICTEN
+  // ========================================================
+
+  $("conflictSummary").textContent =
+
+    format(conflicts.length) +
+
+    " naamconflicten in de huidige zoekindex.";
+
+  $("showConflicts").addEventListener(
+
+    "click",
+
+    () => {
+
+      const hidden =
+        $("conflictList").classList.toggle("hidden");
+
+      $("showConflicts").textContent =
+
+        hidden
+
+          ? "Toon naamconflicten"
+
+          : "Verberg naamconflicten";
+
+      if (hidden) return;
+
+      $("conflictList").innerHTML =
+
+        conflicts.length
+
+          ? conflicts.slice(0, 500)
+              .map(conflict => `
+
+                <div class="issue-card conflict-card">
+
+                  <strong>
+
+                    Vraag
+
+                    ${escapeHtml(conflict.vraagnummer)}
+
+                    —
+
+                    ${escapeHtml(conflict.invoer)}
+
+                  </strong>
+
+                  <p>
+
+                    ${escapeHtml(
+                      (conflict.mogelijkeDieren || [])
+                        .join(" | ")
+                    )}
+
+                  </p>
+
+                </div>
+
+              `).join("")
+
+          : "<p>Geen naamconflicten gerapporteerd.</p>";
+
+      if (conflicts.length > 500) {
+
+        $("conflictList").innerHTML +=
+
+          "<p>De eerste 500 conflicten worden getoond.</p>";
+
+      }
+
+    }
+
+  );
+
+  // ========================================================
+  // OVERGESLAGEN TOEVOEGINGEN
+  // ========================================================
+
+  $("skippedSummary").textContent =
+
+    format(skippedConflicts.length) +
+
+    " overgeslagen toevoegingen vanwege naamconflicten.";
+
+  $("showSkipped").addEventListener(
+
+    "click",
+
+    () => {
+
+      const hidden =
+        $("skippedList").classList.toggle("hidden");
+
+      $("showSkipped").textContent =
+
+        hidden
+
+          ? "Toon overgeslagen toevoegingen"
+
+          : "Verberg overgeslagen toevoegingen";
+
+      if (hidden) return;
+
+      $("skippedList").innerHTML =
+
+        skippedConflicts.length
+
+          ? skippedConflicts.map(conflict => `
+
+            <div class="issue-card conflict-card">
+
+              <strong>
+
+                ${escapeHtml(conflict.naam)}
+
+              </strong>
+
+              <p>
+
+                Bestaande mogelijke dieren:
+
+                ${escapeHtml(
+                  (conflict.kandidaten || [])
+                    .join(" | ")
+                )}
+
+              </p>
+
+            </div>
+
+          `).join("")
+
+          : "<p>Geen overgeslagen toevoegingen gerapporteerd.</p>";
+
+    }
+
+  );
+
+  // ========================================================
+  // TECHNISCHE CONTROLES
+  // ========================================================
+
+  $("technicalSummary").innerHTML = `
+
+    <p>
+
+      Browserfouten:
+
+      <strong>${capturedErrors.length}</strong>
+
+    </p>
+
+    <p>
+
+      Exportfouten:
+
+      <strong>${exportErrors.length}</strong>
+
+    </p>
+
+    <p>
+
+      Onafhankelijke structurele fouten:
+
+      <strong>${independentErrors.length}</strong>
+
+    </p>
+
+    <p>
+
+      Mislukte raketformuletests:
+
+      <strong>${failedRocketTests.length}</strong>
 
     </p>
 
@@ -2555,236 +3745,80 @@
 
       Mislukte antwoordtests:
 
-      <strong class="red">
+      <strong>${failedTests.length}</strong>
 
-        ${failedTests.length}
+    </p>
+
+    <p>
+
+      Mislukte extra dashboardtests:
+
+      <strong>${failedExtraTests.length}</strong>
+
+    </p>
+
+    <p>
+
+      Aanvulling geladen:
+
+      <strong class="${
+        aanvullingGeladen ? "green" : "red"
+      }">
+
+        ${aanvullingGeladen ? "Ja" : "Nee"}
 
       </strong>
 
     </p>
 
-  `;
-
-  if (allTests.length === 0) {
-
-    $("failedTests").innerHTML =
-      '<div class="notice notice-warning">' +
-      "Er zijn geen automatische " +
-      "antwoordtestresultaten beschikbaar." +
-      "</div>";
-
-  } else if (failedTests.length === 0) {
-
-    $("failedTests").innerHTML =
-      '<div class="notice notice-success">' +
-      "✅ Alle beschikbare antwoordtests zijn geslaagd." +
-      "</div>";
-
-  } else {
-
-    $("failedTests").innerHTML =
-      failedTests.map(test => `
-
-        <div class="error-card">
-
-          <strong>
-
-            Vraag ${escapeHtml(test.nummer)}:
-
-            ${escapeHtml(
-              test.invoer ||
-              test.antwoord
-            )}
-
-          </strong>
-
-          <p>
-
-            Verwacht:
-
-            ${test.verwacht
-              ? "Geaccepteerd"
-              : "Afgewezen"}
-
-            <br>
-
-            Werkelijk:
-
-            ${test.resultaat
-              ? "Geaccepteerd"
-              : "Afgewezen"}
-
-          </p>
-
-        </div>
-
-      `).join("");
-
-  }
-
-  // ==========================================================
-  // NAAMCONFLICTEN
-  // ==========================================================
-
-  $("conflictSummary").textContent =
-
-    format(conflicts.length) +
-
-    " geregistreerde naamconflicten.";
-
-  $("showConflicts")
-    .addEventListener(
-      "click",
-      () => {
-
-        const list =
-          $("conflictList");
-
-        const hidden =
-          list.classList.toggle("hidden");
-
-        $("showConflicts").textContent =
-          hidden
-
-            ? "Toon naamconflicten"
-
-            : "Verberg naamconflicten";
-
-        if (hidden) return;
-
-        if (!conflicts.length) {
-
-          list.textContent =
-            "Geen naamconflicten gerapporteerd.";
-
-          return;
-
-        }
-
-        list.innerHTML =
-          conflicts.slice(0, 500)
-            .map(conflict => `
-
-              <div class="conflict-card">
-
-                <strong>
-
-                  Vraag
-
-                  ${escapeHtml(
-                    conflict.vraagnummer
-                  )}
-
-                  —
-
-                  ${escapeHtml(
-                    conflict.invoer
-                  )}
-
-                </strong>
-
-                <p>
-
-                  ${escapeHtml(
-                    (
-                      conflict.mogelijkeDieren ||
-                      []
-                    ).join(" | ")
-                  )}
-
-                </p>
-
-              </div>
-
-            `).join("");
-
-        if (conflicts.length > 500) {
-
-          list.innerHTML +=
-
-            "<p>De eerste 500 conflicten " +
-
-            "worden weergegeven.</p>";
-
-        }
-
-      }
-    );
-
-  // ==========================================================
-  // TECHNISCHE FOUTEN
-  // ==========================================================
-
-  const combinedErrors = [
-
-    ...capturedErrors,
-
-    ...exportErrors,
-
-    ...independentErrors,
-
-    ...rocketTests.filter(
-      test => !test.geslaagd
-    )
-
-  ];
-
-  $("technicalSummary").innerHTML = `
-
     <p>
-      Browserfouten:
-      ${capturedErrors.length}
-    </p>
 
-    <p>
-      Exportfouten:
-      ${exportErrors.length}
-    </p>
-
-    <p>
-      Onafhankelijke technische fouten:
-      ${independentErrors.length}
-    </p>
-
-    <p>
-      Niet gevonden diernamen:
-      ${missingNames.length}
-    </p>
-
-    <p>
       Technisch gereed volgens database:
 
-      ${category.technicallyReady
-        ? "Ja"
-        : "Nee"}
+      <strong class="${
+        category.technicallyReady ? "green" : "orange"
+      }">
+
+        ${category.technicallyReady ? "Ja" : "Nee"}
+
+      </strong>
+
+    </p>
+
+    <p>
+
+      Biologisch onafhankelijk gecontroleerd:
+
+      <strong class="orange">Nee</strong>
 
     </p>
 
   `;
 
-  if (!combinedErrors.length) {
+  if (combinedErrors.length === 0) {
 
     $("technicalErrors").innerHTML =
+
       '<div class="notice notice-success">' +
-      "✅ Geen fouten gevonden door " +
-      "de uitgevoerde structurele controles." +
+
+      "✅ Geen fouten gevonden door de uitgevoerde " +
+
+      "structurele controles." +
+
       "</div>";
 
   } else {
 
     $("technicalErrors").innerHTML =
+
       combinedErrors.slice(0, 300)
         .map(error => `
 
-          <div class="error-card">
+          <div class="issue-card error-card">
 
             <pre>${
               escapeHtml(
-                JSON.stringify(
-                  error,
-                  null,
-                  2
-                )
+                JSON.stringify(error, null, 2)
               )
             }</pre>
 
@@ -2794,50 +3828,51 @@
 
   }
 
-  // ==========================================================
+  // ========================================================
   // SNELHEIDSTEST
-  // ==========================================================
+  // ========================================================
 
   let lastSpeedResult = null;
 
-  $("speedTestButton")
-    .addEventListener(
-      "click",
-      () => {
+  $("loadingTime").textContent =
 
-        const question =
-          questions.find(
-            question =>
-              question.answers.length > 0
-          );
+    "Laden en eerste controles: " +
 
-        if (!question) return;
+    loadDuration.toFixed(1) +
 
-        const number =
-          question.questionNumber;
+    " milliseconden.";
 
-        const answer =
-          question.answers[0].answer;
+  $("speedTestButton").addEventListener(
 
-        const repetitions = 10000;
+    "click",
 
-        const start =
-          performance.now();
+    () => {
 
-        let accepted = 0;
+      const question =
+        questions.find(
+          question => question.answers?.length
+        );
 
-        for (
-          let i = 0;
-          i < repetitions;
-          i++
-        ) {
+      if (!question) return;
 
-          if (
-            category.check(
-              number,
-              answer
-            ).valid
-          ) {
+      const number =
+        question.questionNumber;
+
+      const answer =
+        question.answers[0].answer;
+
+      const repetitions = 10000;
+
+      const start =
+        performance.now();
+
+      let accepted = 0;
+
+      try {
+
+        for (let i = 0; i < repetitions; i++) {
+
+          if (category.check(number, answer).valid) {
 
             accepted++;
 
@@ -2845,81 +3880,89 @@
 
         }
 
-        const duration =
-          performance.now() - start;
-
-        lastSpeedResult = {
-
-          controles:
-            repetitions,
-
-          geaccepteerd:
-            accepted,
-
-          milliseconden:
-            Number(
-              duration.toFixed(3)
-            ),
-
-          gemiddeld:
-            Number(
-              (
-                duration /
-                repetitions
-              ).toFixed(6)
-            )
-
-        };
+      } catch (error) {
 
         $("speedResult")
           .classList.remove("hidden");
 
-        $("speedResult").innerHTML = `
+        $("speedResult").textContent =
 
-          <h3>⚡ Test voltooid</h3>
+          "Snelheidstest mislukt: " +
 
-          <p>
+          error.message;
 
-            Controles:
-            ${format(repetitions)}
-
-          </p>
-
-          <p>
-
-            Totale tijd:
-            ${duration.toFixed(3)} ms
-
-          </p>
-
-          <p>
-
-            Gemiddeld per controle:
-
-            ${
-              (
-                duration / repetitions
-              ).toFixed(6)
-            } ms
-
-          </p>
-
-          <p>
-
-            Geaccepteerde testantwoorden:
-
-            ${format(accepted)}
-
-          </p>
-
-        `;
+        return;
 
       }
-    );
 
-  // ==========================================================
-  // VOLLEDIG TEKSTRAPPORT
-  // ==========================================================
+      const duration =
+        performance.now() - start;
+
+      lastSpeedResult = {
+
+        controles: repetitions,
+
+        geaccepteerd: accepted,
+
+        milliseconden:
+          Number(duration.toFixed(3)),
+
+        gemiddeld:
+          Number(
+            (duration / repetitions)
+              .toFixed(6)
+          )
+
+      };
+
+      $("speedResult")
+        .classList.remove("hidden");
+
+      $("speedResult").innerHTML = `
+
+        <h3>⚡ Test voltooid</h3>
+
+        <p>
+
+          Controles:
+
+          ${format(repetitions)}
+
+        </p>
+
+        <p>
+
+          Totale tijd:
+
+          ${duration.toFixed(3)} ms
+
+        </p>
+
+        <p>
+
+          Gemiddeld per controle:
+
+          ${(duration / repetitions).toFixed(6)} ms
+
+        </p>
+
+        <p>
+
+          Geaccepteerde testantwoorden:
+
+          ${format(accepted)}
+
+        </p>
+
+      `;
+
+    }
+
+  );
+
+  // ========================================================
+  // VOLLEDIG TESTRAPPORT
+  // ========================================================
 
   function createReport() {
 
@@ -2931,19 +3974,32 @@
 
       "",
 
-      "Versie: " +
-        category.version,
+      "Versie: " + version,
 
-      "Dierrecords: " +
+      "Aanvulling geladen: " +
+        (aanvullingGeladen ? "Ja" : "Nee"),
+
+      "Dierrecords volgens export: " +
         (
           summary.opgeslagenDierrecords ??
           "Onbekend"
         ),
 
-      "Bruikbare dierrecords: " +
+      "Bruikbare dierrecords volgens export: " +
         (
           summary.bruikbareDierrecords ??
           "Onbekend"
+        ),
+
+      "Unieke canonieke diernamen: " +
+        usableAnimals,
+
+      "Oorspronkelijke bruikbare dierrecords: " +
+        basis.bruikbareDieren,
+
+      "Verschil bruikbare namen: " +
+        signed(
+          usableAnimals - basis.bruikbareDieren
         ),
 
       "Totaal vragen: " +
@@ -2952,14 +4008,24 @@
       "Totaal antwoordkoppelingen: " +
         totalAnswers,
 
+      "Oorspronkelijke antwoordkoppelingen: " +
+        basis.koppelingen,
+
+      "Netto nieuwe antwoordkoppelingen: " +
+        signed(
+          totalAnswers - basis.koppelingen
+        ),
+
       "Totaal raketten: " +
         totalRockets,
 
-      "Gemiddeld per vraag: " +
-        Math.round(
-          totalAnswers /
-          Math.max(1, questions.length)
+      "Verschil raketten: " +
+        signed(
+          totalRockets - basis.raketten
         ),
+
+      "Gemiddeld per vraag: " +
+        average,
 
       "Vragen met minimaal 1000 antwoorden: " +
         completed,
@@ -2970,11 +4036,19 @@
       "Voortgang: " +
         progress.toFixed(2) + "%",
 
+      "Oorspronkelijke voortgang: 49.66%",
+
+      "Voortgangsverschil in procentpunten: " +
+        progressDifference.toFixed(2),
+
       "Ontbrekend tot streefdoel: " +
         totalMissing,
 
       "Naamconflicten: " +
         conflicts.length,
+
+      "Overgeslagen toevoegingen: " +
+        skippedConflicts.length,
 
       "Browserfouten: " +
         capturedErrors.length,
@@ -2986,20 +4060,48 @@
         independentErrors.length,
 
       "Geslaagde antwoordtests: " +
-        passedTests + "/" +
-        allTests.length,
+        passedTests + "/" + allTests.length,
+
+      "Geslaagde extra dashboardtests: " +
+        passedExtraTests + "/" + extraTests.length,
 
       "Geslaagde rakettests: " +
-        passedRocketTests + "/" +
-        rocketTests.length,
+        passedRocketTests + "/" + rocketTests.length,
 
-      "Ontbrekende diernamen: " +
+      "Oorspronkelijk ontbrekende diernamen: 272",
+
+      "Nog ontbrekende diernamen: " +
         missingNames.length,
+
+      "Netto minder ontbrekende namen: " +
+        hersteldeNamen,
+
+      "Nieuwe dierrecords volgens aanvulling: " +
+        (
+          summary.nieuweDieren ??
+          "Niet beschikbaar"
+        ),
+
+      "Nieuwe koppelingen volgens aanvulling: " +
+        (
+          summary.nieuweKoppelingen ??
+          "Niet beschikbaar"
+        ),
+
+      "Nieuwe synoniemen volgens aanvulling: " +
+        (
+          summary.nieuweSynoniemen ??
+          "Niet beschikbaar"
+        ),
 
       "Technisch gereed: " +
         (
-          category.technicallyReady
+          category.technicallyReady &&
+          technicalErrorCount === 0 &&
+          aanvullingGeladen
+
             ? "Ja"
+
             : "Nee"
         ),
 
@@ -3019,13 +4121,23 @@
 
       lines.push(
 
-        question.nummer + ". " +
+        question.nummer +
+
+        ". " +
 
         question.vraag +
 
         " | Antwoorden: " +
 
         question.antwoorden +
+
+        " | Eerder: " +
+
+        question.eerder +
+
+        " | Verschil: " +
+
+        signed(question.verschil) +
 
         " | Raketten: " +
 
@@ -3034,6 +4146,83 @@
         " | Tekort: " +
 
         question.ontbrekend
+
+      );
+
+    }
+
+    lines.push(
+
+      "",
+
+      "VRAGEN MET DE GROOTSTE UITBREIDING",
+
+      "================================="
+
+    );
+
+    for (const question of [...report]
+
+      .filter(question => question.verschil > 0)
+
+      .sort((a, b) => b.verschil - a.verschil)
+
+      .slice(0, 15)
+
+    ) {
+
+      lines.push(
+
+        question.nummer +
+
+        ". " +
+
+        question.vraag +
+
+        " | Verschil: " +
+
+        signed(question.verschil)
+
+      );
+
+    }
+
+    lines.push(
+
+      "",
+
+      "VRAGEN MET MINDER ANTWOORDEN",
+
+      "================================="
+
+    );
+
+    const decreased =
+      report.filter(
+        question => question.verschil < 0
+      );
+
+    if (!decreased.length) {
+
+      lines.push(
+        "Geen vragen met minder antwoorden."
+      );
+
+    }
+
+    for (const question of decreased) {
+
+      lines.push(
+
+        question.nummer +
+
+        ". " +
+
+        question.vraag +
+
+        " | Verschil: " +
+
+        signed(question.verschil)
 
       );
 
@@ -3069,6 +4258,32 @@
 
       "",
 
+      "MISLUKTE EXTRA DASHBOARDTESTS",
+
+      "================================="
+
+    );
+
+    if (!failedExtraTests.length) {
+
+      lines.push(
+        "Geen mislukte extra dashboardtests."
+      );
+
+    }
+
+    for (const test of failedExtraTests) {
+
+      lines.push(
+        JSON.stringify(test)
+      );
+
+    }
+
+    lines.push(
+
+      "",
+
       "TECHNISCHE FOUTEN",
 
       "================================="
@@ -3078,7 +4293,7 @@
     if (!combinedErrors.length) {
 
       lines.push(
-        "Geen gevonden technische fouten."
+        "Geen gevonden structurele technische fouten."
       );
 
     }
@@ -3095,27 +4310,67 @@
 
       "",
 
-      "ONTBREKENDE DIERNAMEN",
-
-      "=================================",
-
-      ...missingNames
-
-    );
-
-    lines.push(
-
-      "",
-
-      "NAAMCONFLICTEN - EERSTE 100",
+      "NOG ONTBREKENDE DIERNAMEN",
 
       "================================="
 
     );
 
-    for (
-      const conflict of conflicts.slice(0, 100)
-    ) {
+    if (!missingNames.length) {
+
+      lines.push(
+        "Geen ontbrekende namen gerapporteerd."
+      );
+
+    }
+
+    lines.push(...missingNames);
+
+    lines.push(
+
+      "",
+
+      "OVERGESLAGEN TOEVOEGINGEN",
+
+      "================================="
+
+    );
+
+    if (!skippedConflicts.length) {
+
+      lines.push(
+        "Geen overgeslagen toevoegingen gerapporteerd."
+      );
+
+    }
+
+    for (const conflict of skippedConflicts) {
+
+      lines.push(
+        JSON.stringify(conflict)
+      );
+
+    }
+
+    lines.push(
+
+      "",
+
+      "NAAMCONFLICTEN",
+
+      "================================="
+
+    );
+
+    if (!conflicts.length) {
+
+      lines.push(
+        "Geen naamconflicten gerapporteerd."
+      );
+
+    }
+
+    for (const conflict of conflicts) {
 
       lines.push(
         JSON.stringify(conflict)
@@ -3147,80 +4402,116 @@
 
   }
 
-  $("showReport")
-    .addEventListener(
-      "click",
-      () => {
+  // ========================================================
+  // RAPPORT TONEN EN KOPIËREN
+  // ========================================================
 
-        $("reportText").textContent =
-          createReport();
+  $("showReport").addEventListener(
+
+    "click",
+
+    () => {
+
+      $("reportText").textContent =
+        createReport();
+
+      $("reportText")
+        .classList.toggle("hidden");
+
+    }
+
+  );
+
+  $("copyReport").addEventListener(
+
+    "click",
+
+    async () => {
+
+      const text =
+        createReport();
+
+      try {
+
+        await navigator.clipboard.writeText(text);
+
+        $("copyStatus").textContent =
+
+          "✅ Het volledige rapport is gekopieerd.";
+
+        $("copyStatus").className = "green";
+
+      } catch (error) {
+
+        $("reportText").textContent = text;
 
         $("reportText")
-          .classList.toggle("hidden");
+          .classList.remove("hidden");
 
-      }
-    );
+        const range =
+          document.createRange();
 
-  $("copyReport")
-    .addEventListener(
-      "click",
-      async () => {
-
-        const text =
-          createReport();
-
-        try {
-
-          await navigator.clipboard
-            .writeText(text);
-
-          $("copyStatus").textContent =
-            "✅ Het volledige rapport is gekopieerd.";
-
-        } catch (error) {
-
-          $("reportText").textContent =
-            text;
-
+        range.selectNodeContents(
           $("reportText")
-            .classList.remove("hidden");
+        );
 
-          const range =
-            document.createRange();
+        const selection =
+          window.getSelection();
 
-          range.selectNodeContents(
-            $("reportText")
-          );
+        selection.removeAllRanges();
 
-          const selection =
-            window.getSelection();
+        selection.addRange(range);
 
-          selection.removeAllRanges();
+        $("copyStatus").textContent =
 
-          selection.addRange(range);
+          "Het rapport is geselecteerd. " +
 
-          $("copyStatus").textContent =
-            "Het rapport is geselecteerd. " +
-            "Druk op Ctrl+C om het te kopiëren.";
+          "Druk op Ctrl+C om het te kopiëren.";
 
-        }
+        $("copyStatus").className = "orange";
 
       }
-    );
 
-  // ==========================================================
+    }
+
+  );
+
+  // ========================================================
   // DASHBOARD STARTEN
-  // ==========================================================
+  // ========================================================
 
   renderQuestions();
 
   renderAnswers();
 
-  renderLetters();
+  try {
+
+    renderLetters();
+
+  } catch (error) {
+
+    $("letterGrid").textContent =
+
+      "Letterfunctie mislukt: " +
+
+      error.message;
+
+  }
+
+  console.log(
+
+    "QuizBallon Dieren Testcentrum geladen.",
+
+    "Databaseversie:", version,
+
+    "Aanvulling geladen:", aanvullingGeladen
+
+  );
 
 })();
 
 </script>
 
 </body>
+
 </html>
