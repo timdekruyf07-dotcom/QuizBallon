@@ -2,7 +2,6 @@
    QuizBallon V7 - 650 AFZONDERLIJKE VRAGEN / 13 CATEGORIEEN
    13 x 50 vragen, eigen antwoorden per vraag, 1 raketantwoord.
 
-   Dit bestand is volledig: plak het als vragen-650.js.
    Laad het NA script.js en VOOR daily.js.
 
    LET OP: 650 vragen zijn inhoudelijk samengesteld, maar
@@ -11,6 +10,7 @@
 ============================================================= */
 (function () {
   "use strict";
+
   const RAW = `# Dieren
 Noem een soort grote katachtige.|Leeuw;Tijger;Luipaard;Jaguar;Sneeuwluipaard;Nevelpanter;Jachtluipaard
 Noem een berensoort.|IJsbeer;Bruine beer;Zwarte beer;Aziatische zwarte beer;Lippenbeer;Maleise beer;Brilbeer;Reuzenpanda
@@ -113,6 +113,8 @@ Noem een historische handelsstad in Europa.|Amsterdam;Rotterdam;Brugge;Gent;Lüb
 Noem een land met meer dan 100 miljoen inwoners.|India;China;Verenigde Staten;Indonesië;Pakistan;Nigeria;Brazilië;Bangladesh;Rusland;Mexico;Japan;Ethiopië;Filipijnen;Egypte;Vietnam;Democratische Republiek Congo
 Noem een geografische regio in Nederland.|Veluwe;Achterhoek;Twente;Betuwe;Zaanstreek;Bollenstreek;Westland;Salland;Drenthe;Friese Wouden;Gooi;Heuvelland;Peel;Kempen;Waddengebied
 Noem een hooggebergte buiten Europa.|Himalaya;Andes;Rocky Mountains;Karakoram;Tien Shan;Hindoekoesj;Alaska Range;Atlasgebergte;Rwenzori;Drakensbergen
+Noem een land in de Hoorn van Afrika.|Somalië;Ethiopië;Eritrea;Djibouti
+
 # Sport
 Noem een discipline binnen de gymnastiek.|Turnen;Ritmische gymnastiek;Trampolinespringen;Acrogym;Aerobics;Rhönradturnen;Parkour;Tumbling
 Noem een toestel in het turnen.|Ringen;Rekstok;Brug met gelijke leggers;Brug met ongelijke leggers;Evenwichtsbalk;Voltigepaard;Paard met bogen;Sprongtafel;Vloer
@@ -216,6 +218,7 @@ Noem een snaarinstrument zonder toetsen.|Gitaar;Viool;Altviool;Cello;Contrabas;H
 Noem een muziekeffect voor elektrische gitaar.|Distortion;Overdrive;Fuzz;Chorus;Flanger;Phaser;Delay;Reverb;Wah-wah;Tremolo
 Noem een type microfoon.|Dynamische microfoon;Condensatormicrofoon;Lintmicrofoon;USB-microfoon;Shotgunmicrofoon;Lavaliermicrofoon;Grensvlakmicrofoon;Meetmicrofoon
 Noem een manier om een lied live uit te voeren.|Akoestisch;A capella;Met orkest;Met band;Solo;Met koor;Met backingtrack;Met loopstation;Geïmproviseerd
+
 # Mode
 Noem een soort jas.|Trenchcoat;Regenjas;Parka;Bomberjack;Blazer;Spijkerjack;Leren jack;Donsjas;Peacoat;Mantel;Windjack;Pufferjack
 Noem een soort broek.|Jeans;Chino;Cargo broek;Culotte;Legging;Joggingbroek;Pantalon;Short;Bermuda;Palazzobroek;Flared broek;Capribroek
@@ -319,7 +322,6 @@ Noem een historische handelscompagnie.|VOC;WIC;Britse Oost-Indische Compagnie;Fr
 Noem een middeleeuwse religieuze orde.|Benedictijnen;Franciscanen;Dominicanen;Cisterciënzers;Kartuizers;Augustijnen;Karmelieten;Cluniacenzers
 Noem een oude meeteenheid.|El;Voet;Duim;Mijl;Ons;Pond;Vadem;Roede;Morgen;Schepel
 Noem een bekende historische archeologische vindplaats.|Pompeï;Troje;Machu Picchu;Çatalhöyük;Stonehenge;Knossos;Ur;Petra;Göbekli Tepe;Lascaux
-Noem een land in de Hoorn van Afrika.|Somalië;Ethiopië;Eritrea;Djibouti
 # Ruimte
 Noem een maan van Jupiter.|Io;Europa;Ganymedes;Callisto;Amalthea;Himalia;Elara;Pasiphae;Sinope;Lysithea;Carme;Ananke
 Noem een maan van Saturnus.|Titan;Enceladus;Rhea;Iapetus;Dione;Tethys;Mimas;Hyperion;Phoebe;Janus;Epimetheus;Pan;Atlas
@@ -423,6 +425,7 @@ Noem een soort fossiel.|Afdrukfossiel;Versteningsfossiel;Insluitingsfossiel;Spoo
 Noem een manier van gegevens visualiseren.|Staafdiagram;Lijndiagram;Cirkeldiagram;Histogram;Spreidingsdiagram;Boxplot;Heatmap;Kaartdiagram;Boomdiagram
 Noem een statistische centrummaat.|Gemiddelde;Mediaan;Modus;Geometrisch gemiddelde;Harmonisch gemiddelde;Gewogen gemiddelde
 Noem een wetenschappelijke onderzoeksmethode.|Experiment;Observatie;Enquête;Interview;Literatuuronderzoek;Casestudy;Veldonderzoek;Meta-analyse;Longitudinaal onderzoek
+
 # Eten
 Noem een soort Italiaanse pasta.|Spaghetti;Penne;Fusilli;Farfalle;Rigatoni;Tagliatelle;Linguine;Orecchiette;Bucatini;Pappardelle;Conchiglie
 Noem een soort pizza.|Margherita;Marinara;Quattro formaggi;Quattro stagioni;Capricciosa;Diavola;Funghi;Prosciutto;Napoli;Calzone
@@ -526,6 +529,7 @@ Noem een soort symbiose.|Mutualisme;Commensalisme;Parasitisme;Mycorrhiza;Korstmo
 Noem een natuurlijk verschijnsel met gekleurd licht.|Regenboog;Noorderlicht;Zuiderlicht;Halo;Bijzon;Groene flits;Lichtzuil;Irisatie
 Noem een type bloemstand.|Tros;Aar;Scherm;Hoofdje;Pluim;Katje;Kolf;Tuil;Bloemkrans
 Noem een soort hout uit de natuur.|Eikenhout;Beukenhout;Teakhout;Mahonie;Grenenhout;Vurenhout;Berkenhout;Esdoornhout;Bamboe;Cederhout
+
 # Cultuur
 Noem een schilder uit de Nederlandse Gouden Eeuw.|Rembrandt;Vermeer;Frans Hals;Jan Steen;Pieter de Hooch;Gerard ter Borch;Jacob van Ruisdael;Judith Leyster;Aelbert Cuyp
 Noem een schilder uit het impressionisme.|Claude Monet;Pierre-Auguste Renoir;Edgar Degas;Camille Pissarro;Berthe Morisot;Mary Cassatt;Alfred Sisley;Gustave Caillebotte
@@ -629,6 +633,7 @@ Noem een hulpmiddel voor vrachtvervoer.|Pallet;Vorkheftruck;Container;Palletwage
 Noem een type raceauto.|Formule 1-auto;IndyCar;Rallyauto;GT3-auto;Prototype;Touringcar;Stockcar;Kart;Dragracer;Formule E-auto
 Noem een type aanhanger.|Caravan;Bagagewagen;Paardentrailer;Boottrailer;Autotrailer;Kipper;Gesloten aanhanger;Fietstrailer;Dieplader
 Noem een vervoermiddel met twee wielen.|Fiets;Motorfiets;Scooter;Bromfiets;E-bike;Bakfiets met twee wielen;Vouwfiets;Step;Segway
+
 # Algemene kennis
 Noem een menselijke taal met meer dan 50 miljoen sprekers.|Mandarijn;Spaans;Engels;Hindi;Arabisch;Portugees;Russisch;Bengaals;Frans;Duits;Japans;Punjabi;Indonesisch
 Noem een officiële taal van de Europese Unie.|Nederlands;Duits;Frans;Engels;Spaans;Portugees;Italiaans;Pools;Grieks;Zweeds;Fins;Deens;Tsjechisch;Slowaaks;Hongaars;Roemeens;Bulgaars;Kroatisch;Sloveens;Ests;Lets;Litouws;Maltees;Iers
@@ -645,7 +650,7 @@ Noem een religieus gebouw.|Kerk;Moskee;Synagoge;Tempel;Klooster;Kathedraal;Basil
 Noem een beroemd wereldwonder uit de oudheid.|Piramide van Cheops;Hangende tuinen van Babylon;Zeusbeeld te Olympia;Tempel van Artemis;Mausoleum van Halicarnassus;Kolossus van Rhodos;Vuurtoren van Alexandrië
 Noem een onderdeel van een computer.|Processor;Moederbord;Werkgeheugen;Videokaart;SSD;Harde schijf;Voeding;Koeler;Behuizing;Netwerkkaart;Geluidskaart
 Noem een besturingssysteem.|Windows;macOS;Linux;Android;iOS;ChromeOS;FreeBSD;Ubuntu;Debian;Fedora
-Noem een webbrow ser.|Chrome;Firefox;Safari;Edge;Opera;Brave;Vivaldi;Tor Browser;Chromium;DuckDuckGo Browser
+Noem een webbrowser.|Chrome;Firefox;Safari;Edge;Opera;Brave;Vivaldi;Tor Browser;Chromium;DuckDuckGo Browser
 Noem een zoekmachine.|Google;Bing;DuckDuckGo;Yahoo;Startpage;Ecosia;Brave Search;Qwant;Mojeek;Yandex
 Noem een bestandstype voor een afbeelding.|JPEG;PNG;GIF;WebP;SVG;BMP;TIFF;HEIF;AVIF;ICO
 Noem een manier om gegevens veilig te bewaren.|Externe back-up;Cloudback-up;Offline back-up;Versiebeheer;Momentopname;Versleutelde back-up;Lokale back-up;Redundante opslag;Archivering
@@ -681,6 +686,11 @@ Noem een algemeen type verzekering.|Zorgverzekering;Autoverzekering;Inboedelverz
 Noem een soort identiteitsdocument.|Paspoort;Identiteitskaart;Rijbewijs;Verblijfsvergunning;Diplomatiek paspoort;Vreemdelingendocument
 Noem een manier om een bericht te versturen.|E-mail;Sms;Brief;Chatbericht;Postkaart;Fax;Telegram;Spraakbericht;Pushmelding;Direct message
 `;
+
+/* ==========================================================
+   CATEGORIËN
+========================================================== */
+
   const LABELS = {
     "Dieren": "🐾 DIEREN",
     "Aardrijkskunde": "🌍 AARDRIJKSKUNDE",
@@ -696,21 +706,40 @@ Noem een manier om een bericht te versturen.|E-mail;Sms;Brief;Chatbericht;Postka
     "Vervoer": "🚗 VERVOER",
     "Algemene kennis": "🧩 ALGEMENE KENNIS"
   };
+
+/* ==========================================================
+   ANTWOORDEN NORMALISEREN
+========================================================== */
+
   function norm(x) {
-    return String(x).normalize("NFD")
+    return String(x)
+      .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase().replace(/\+/g, "plus").replace(/#/g, "sharp")
-      .replace(/[^a-z0-9Ͱ-Ͽ]/g, "");
+      .toLowerCase()
+      .replace(/\+/g, "plus")
+      .replace(/#/g, "sharp")
+      .replace(/[^a-z0-9\u0370-\u03ff]/g, "");
   }
+
+/* ==========================================================
+   PUNTENSCORE BEREKENEN
+========================================================== */
+
   function hash(x) {
     let h = 2166136261;
+
     for (let i = 0; i < x.length; i++) {
       h ^= x.charCodeAt(i);
       h = Math.imul(h, 16777619);
     }
+
     return h >>> 0;
   }
-  // Alleen gecontroleerde alternatieve namen voor hetzelfde antwoord.
+
+/* ==========================================================
+   ALTERNATIEVE NAMEN
+========================================================== */
+
   const SYNONYMS = {
     "tchaikovsky": ["Tsjaikovski", "Tsjajkovski"],
     "tsjaikovski": ["Tchaikovsky"],
@@ -735,47 +764,111 @@ Noem een manier om een bericht te versturen.|E-mail;Sms;Brief;Chatbericht;Postka
     "chennai": ["Madras"],
     "bengaluru": ["Bangalore"]
   };
+
+/* ==========================================================
+   VRAGEN INLEZEN
+========================================================== */
+
   const questions = [];
   const byCategory = {};
+
   let category = "";
   let index = 0;
+
   const duplicates = new Set();
+
   RAW.split("\n").forEach(function (rawLine) {
     const line = rawLine.trim();
-    if (!line) return;
+
+    if (!line) {
+      return;
+    }
+
     if (line.startsWith("# ")) {
       category = line.slice(2).trim();
       index = 0;
-      if (!LABELS[category]) throw Error("Onbekende categorie " + category);
+
+      if (!LABELS[category]) {
+        throw Error(
+          "Onbekende categorie: " + category
+        );
+      }
+
       byCategory[category] = [];
       return;
     }
+
     const sep = line.indexOf("|");
-    if (sep < 1) throw Error("Ongeldige vraagregel: " + line);
+
+    if (sep < 1) {
+      throw Error(
+        "Ongeldige vraagregel: " + line
+      );
+    }
+
     const text = line.slice(0, sep).trim();
-    const names = line.slice(sep + 1).split(";")
-      .map(function (x) { return x.trim(); }).filter(Boolean);
-    if (names.length < 3) throw Error("Te weinig antwoorden: " + text);
-    if (duplicates.has(norm(text))) throw Error("Dubbele vraag: " + text);
+
+    const names = line
+      .slice(sep + 1)
+      .split(";")
+      .map(function (x) {
+        return x.trim();
+      })
+      .filter(Boolean);
+
+    if (names.length < 3) {
+      throw Error(
+        "Te weinig antwoorden: " + text
+      );
+    }
+
+    if (duplicates.has(norm(text))) {
+      throw Error(
+        "Dubbele vraag: " + text
+      );
+    }
+
     duplicates.add(norm(text));
-    const id = "qb650-" + norm(category) + "-" + String(index + 1).padStart(2, "0");
+
+    const id =
+      "qb650-" +
+      norm(category) +
+      "-" +
+      String(index + 1).padStart(2, "0");
+
     const seen = new Set();
+
     const accepted = names.filter(function (name) {
       const key = norm(name);
-      if (!key || seen.has(key)) return false;
+
+      if (!key || seen.has(key)) {
+        return false;
+      }
+
       seen.add(key);
       return true;
     });
-    const rocketName = accepted[accepted.length - 1];
+
+    const rocketName =
+      accepted[accepted.length - 1];
+
     const answers = accepted.map(function (name) {
       const rocket = name === rocketName;
+
       return {
         answer: name,
-        points: rocket ? 100 : 10 + (hash(id + "|" + name) % 80),
-        aliases: (SYNONYMS[norm(name)] || []).slice(),
+
+        points: rocket
+          ? 100
+          : 10 + (hash(id + "|" + name) % 80),
+
+        aliases:
+          (SYNONYMS[norm(name)] || []).slice(),
+
         isRocket: rocket
       };
     });
+
     const item = {
       id: id,
       baseQuestionId: id,
@@ -783,26 +876,74 @@ Noem een manier om een bericht te versturen.|E-mail;Sms;Brief;Chatbericht;Postka
       qb650Category: category,
       category: LABELS[category],
       question: text,
-      hint: "Denk aan een minder bekend maar correct antwoord!",
+
+      hint:
+        "Denk aan een minder bekend maar correct antwoord!",
+
       answers: answers,
       qb650: true
     };
+
     questions.push(item);
     byCategory[category].push(item);
+
     index++;
   });
-  if (questions.length !== 650 ||
-      Object.keys(byCategory).length !== 13 ||
-      Object.values(byCategory).some(function (a) { return a.length !== 50; })) {
-    throw Error("QuizBallon 650 is niet compleet: " + questions.length + " vragen.");
+
+/* ==========================================================
+   CONTROLEREN OF ALLES COMPLEET IS
+========================================================== */
+
+  const categoryCounts = Object.entries(
+    byCategory
+  ).map(function (entry) {
+    return {
+      categorie: entry[0],
+      vragen: entry[1].length
+    };
+  });
+
+  console.table(categoryCounts);
+
+  if (
+    questions.length !== 650 ||
+    Object.keys(byCategory).length !== 13 ||
+    Object.values(byCategory).some(function (list) {
+      return list.length !== 50;
+    })
+  ) {
+    throw Error(
+      "QuizBallon 650 is niet compleet: " +
+      questions.length +
+      " vragen."
+    );
   }
+
+/* ==========================================================
+   VRAGENBANK BESCHIKBAAR MAKEN
+========================================================== */
+
   window.QB650_QUESTIONS = questions;
+
   window.QB650_BY_CATEGORY = byCategory;
-  window.QB650_VERSION = "QB650-2026-11-27-1";
-  // Daily V7 leest uitsluitend deze 650 gevalideerde basisvragen.
-  // De oudere QuizBallon-vragenbestanden blijven beschikbaar voor Duel.
-  console.log("✅ QuizBallon 650 geladen: 13 categorieën × 50 vragen = 650 vragen.");
-  console.log("🧠 Geldige antwoordnamen:", questions.reduce(function (a, q) {
-    return a + q.answers.length;
-  }, 0));
+
+  window.QB650_VERSION =
+    "QB650-2026-11-27-1";
+
+/* ==========================================================
+   CONSOLEBERICHTEN
+========================================================== */
+
+  console.log(
+    "✅ QuizBallon 650 geladen: " +
+    "13 categorieën × 50 vragen = 650 vragen."
+  );
+
+  console.log(
+    "🧠 Geldige antwoordnamen:",
+    questions.reduce(function (total, question) {
+      return total + question.answers.length;
+    }, 0)
+  );
+
 })();
