@@ -1,0 +1,636 @@
+name: QuizBallon - Bouw Dieren V9
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: quizballon-bouw-dieren
+  cancel-in-progress: false
+
+jobs:
+  bouw-dieren:
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 20
+
+    steps:
+
+      - name: Repository openen
+        uses: actions/checkout@v4
+
+      - name: Node.js installeren
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Database verwerken en controleren
+        shell: bash
+        run: |
+          node <<'NODE'
+
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const vm = require("node:vm");
+          const { performance } = require("node:perf_hooks");
+
+          const start = performance.now();
+
+          const stilConsole = {
+            log() {},
+            table() {},
+            warn() {},
+            error() {},
+            group() {},
+            groupEnd() {},
+            info() {}
+          };
+
+          const context = vm.createContext({
+            console: stilConsole,
+            performance
+          });
+
+          context.window = context;
+          context.self = context;
+
+          const tijden = {};
+
+          function laadBestand(bestand) {
+
+            if (!fs.existsSync(bestand)) {
+              throw new Error(
+                "Bestand ontbreekt: " + bestand
+              );
+            }
+
+            const begin = performance.now();
+
+            const code = fs.readFileSync(
+              bestand,
+              "utf8"
+            );
+
+            vm.runInContext(
+              code,
+              context,
+              {
+                filename: bestand,
+                timeout: 900000
+              }
+            );
+
+            tijden[bestand] = Number(
+              (
+                (performance.now() - begin) /
+                1000
+              ).toFixed(3)
+            );
+
+            console.log(
+              bestand +
+              " verwerkt in " +
+              tijden[bestand] +
+              " seconden."
+            );
+
+          }
+
+          laadBestand("antwoorden/dieren.js");
+
+          laadBestand(
+            "antwoorden/dieren-aanvulling.js"
+          );
+
+          const categorie =
+            context.QB_V9_CATEGORIEEN?.Dieren;
+
+          const debug =
+            context.QB_V9_DIeren_DEBUG;
+
+          if (!categorie) {
+            throw new Error(
+              "Geen Dieren V9-export gevonden."
+            );
+          }
+
+          const vragen = JSON.parse(
+            JSON.stringify(categorie.questions)
+          );
+
+          if (vragen.length !== 50) {
+            throw new Error(
+              "Verwacht 50 vragen, gevonden: " +
+              vragen.length
+            );
+          }
+
+          function normaal(tekst) {
+
+            return String(tekst ?? "")
+              .normalize("NFKD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .toLowerCase()
+              .replace(/ß/g, "ss")
+              .replace(/æ/g, "ae")
+              .replace(/œ/g, "oe")
+              .replace(/[^a-z0-9]/g, "");
+
+          }
+
+          function raketten(aantal) {
+
+            if (aantal <= 0) return 0;
+
+            return Math.min(
+              aantal,
+              Math.max(
+                1,
+                Math.ceil(
+                  (aantal + 50) / 100
+                )
+              )
+            );
+
+          }
+
+          const fouten = [];
+          const uniekeIds = new Set();
+          const uniekeNummers = new Set();
+          const uniekeDieren = new Set();
+
+          let totaalAntwoorden = 0;
+          let totaalRaketten = 0;
+
+          const bestanden = [];
+
+          for (const vraag of vragen) {
+
+            const nummer =
+              vraag.questionNumber;
+
+            if (
+              !Number.isInteger(nummer) ||
+              nummer < 1 ||
+              nummer > 50
+            ) {
+              fouten.push(
+                "Ongeldig vraagnummer: " +
+                nummer
+              );
+            }
+
+            if (uniekeIds.has(vraag.id)) {
+              fouten.push(
+                "Dubbel vraag-ID: " +
+                vraag.id
+              );
+            }
+
+            uniekeIds.add(vraag.id);
+
+            if (uniekeNummers.has(nummer)) {
+              fouten.push(
+                "Dubbel vraagnummer: " +
+                nummer
+              );
+            }
+
+            uniekeNummers.add(nummer);
+
+            if (
+              !Array.isArray(vraag.answers) ||
+              !vraag.answers.length
+            ) {
+              fouten.push(
+                "Geen antwoorden bij vraag " +
+                nummer
+              );
+
+              continue;
+            }
+
+            const namen = new Set();
+
+            for (const antwoord of vraag.answers) {
+
+              const sleutel =
+                normaal(antwoord.answer);
+
+              if (!sleutel) {
+                fouten.push(
+                  "Leeg antwoord bij vraag " +
+                  nummer
+                );
+              }
+
+              if (namen.has(sleutel)) {
+                fouten.push(
+                  "Dubbel antwoord bij vraag " +
+                  nummer +
+                  ": " +
+                  antwoord.answer
+                );
+              }
+
+              namen.add(sleutel);
+              uniekeDieren.add(sleutel);
+
+              if (
+                !Number.isInteger(
+                  antwoord.points
+                ) ||
+                antwoord.points < 10 ||
+                antwoord.points > 100
+              ) {
+                fouten.push(
+                  "Ongeldige punten: " +
+                  antwoord.answer
+                );
+              }
+
+              if (
+                Boolean(antwoord.isRocket) !==
+                (antwoord.points === 100)
+              ) {
+                fouten.push(
+                  "Ongeldige raket: " +
+                  antwoord.answer
+                );
+              }
+
+              if (
+                !Array.isArray(
+                  antwoord.aliases
+                )
+              ) {
+                fouten.push(
+                  "Synoniemen ontbreken: " +
+                  antwoord.answer
+                );
+              }
+
+            }
+
+            const aantal =
+              vraag.answers.length;
+
+            const aantalRaketten =
+              vraag.answers.filter(
+                antwoord => antwoord.isRocket
+              ).length;
+
+            if (
+              aantalRaketten !==
+              raketten(aantal)
+            ) {
+              fouten.push(
+                "Verkeerde raketverdeling bij vraag " +
+                nummer
+              );
+            }
+
+            totaalAntwoorden += aantal;
+            totaalRaketten += aantalRaketten;
+
+            const bestandsnaam =
+              String(nummer)
+                .padStart(2, "0") +
+              ".json";
+
+            const inhoud =
+              JSON.stringify(vraag);
+
+            bestanden.push({
+              nummer,
+              bestandsnaam,
+              inhoud,
+              metadata: {
+                id: vraag.id,
+                baseQuestionId:
+                  vraag.baseQuestionId,
+                topicId:
+                  vraag.topicId,
+                questionNumber: nummer,
+                question: vraag.question,
+                category: vraag.category,
+                qb650Category:
+                  vraag.qb650Category,
+                hint: vraag.hint,
+                answerCount: aantal,
+                rocketCount: aantalRaketten,
+                file: bestandsnaam,
+                bytes:
+                  Buffer.byteLength(
+                    inhoud,
+                    "utf8"
+                  )
+              }
+            });
+
+          }
+
+          const tests =
+            debug?.tests?.() || [];
+
+          const raketTests =
+            debug?.raketTests?.() || [];
+
+          if (!tests.length) {
+            fouten.push(
+              "Geen antwoordtests beschikbaar."
+            );
+          }
+
+          if (!raketTests.length) {
+            fouten.push(
+              "Geen rakettests beschikbaar."
+            );
+          }
+
+          const mislukteTests =
+            tests.filter(
+              test => !test.geslaagd
+            );
+
+          const mislukteRaketTests =
+            raketTests.filter(
+              test => !test.geslaagd
+            );
+
+          if (mislukteTests.length) {
+            fouten.push(
+              "Mislukte antwoordtests: " +
+              mislukteTests.length
+            );
+          }
+
+          if (mislukteRaketTests.length) {
+            fouten.push(
+              "Mislukte rakettests: " +
+              mislukteRaketTests.length
+            );
+          }
+
+          if (
+            categorie.summary
+              ?.totaalVraagAntwoorden !==
+            totaalAntwoorden
+          ) {
+            fouten.push(
+              "Totaal aantal antwoorden wijkt af."
+            );
+          }
+
+          if (
+            categorie.summary?.totaalRaketten !==
+            totaalRaketten
+          ) {
+            fouten.push(
+              "Totaal aantal raketten wijkt af."
+            );
+          }
+
+          if (
+            debug?.fouten?.().length
+          ) {
+            fouten.push(
+              "De bestaande export meldt fouten."
+            );
+          }
+
+          if (fouten.length) {
+
+            console.error(
+              JSON.stringify(
+                fouten,
+                null,
+                2
+              )
+            );
+
+            throw new Error(
+              "Databasecontrole mislukt."
+            );
+
+          }
+
+          const uitvoerMap =
+            "antwoorden/gebouwd/dieren";
+
+          fs.mkdirSync(
+            uitvoerMap,
+            { recursive: true }
+          );
+
+          for (const bestand of bestanden) {
+
+            fs.writeFileSync(
+              path.join(
+                uitvoerMap,
+                bestand.bestandsnaam
+              ),
+              bestand.inhoud,
+              "utf8"
+            );
+
+          }
+
+          const vragenMetadata =
+            bestanden
+              .map(
+                bestand => bestand.metadata
+              )
+              .sort(
+                (a, b) =>
+                  a.questionNumber -
+                  b.questionNumber
+              );
+
+          const totaalBytes =
+            vragenMetadata.reduce(
+              (som, vraag) =>
+                som + vraag.bytes,
+              0
+            );
+
+          const voortgang =
+            vragenMetadata.reduce(
+              (som, vraag) =>
+                som + Math.min(
+                  vraag.answerCount,
+                  1000
+                ),
+              0
+            ) / 50000 * 100;
+
+          const manifest = {
+
+            version:
+              categorie.version,
+
+            category:
+              "Dieren",
+
+            contentVerified:
+              false,
+
+            buildVerified:
+              true,
+
+            summary: {
+
+              uniqueAnimals:
+                uniekeDieren.size,
+
+              questionCount:
+                vragen.length,
+
+              answerCount:
+                totaalAntwoorden,
+
+              rocketCount:
+                totaalRaketten,
+
+              completedQuestions:
+                vragenMetadata.filter(
+                  vraag =>
+                    vraag.answerCount >= 1000
+                ).length,
+
+              progress:
+                Number(
+                  voortgang.toFixed(2)
+                ),
+
+              totalBytes:
+                totaalBytes,
+
+              averageQuestionBytes:
+                Math.round(
+                  totaalBytes /
+                  vragen.length
+                ),
+
+              passedTests:
+                tests.filter(
+                  test => test.geslaagd
+                ).length,
+
+              totalTests:
+                tests.length,
+
+              passedRocketTests:
+                raketTests.filter(
+                  test => test.geslaagd
+                ).length,
+
+              totalRocketTests:
+                raketTests.length
+
+            },
+
+            questions:
+              vragenMetadata
+
+          };
+
+          fs.writeFileSync(
+            path.join(
+              uitvoerMap,
+              "manifest.json"
+            ),
+            JSON.stringify(manifest),
+            "utf8"
+          );
+
+          const controleRapport = {
+
+            version:
+              categorie.version,
+
+            timings:
+              tijden,
+
+            summary:
+              manifest.summary,
+
+            tests,
+
+            rocketTests,
+
+            missingNames:
+              debug?.ontbrekendeNamen?.() || [],
+
+            conflicts:
+              debug?.naamconflicten?.() || [],
+
+            exportErrors:
+              fouten,
+
+            totalBuildSeconds:
+              Number(
+                (
+                  (performance.now() - start) /
+                  1000
+                ).toFixed(3)
+              )
+
+          };
+
+          fs.writeFileSync(
+            path.join(
+              uitvoerMap,
+              "controle.json"
+            ),
+            JSON.stringify(
+              controleRapport,
+              null,
+              2
+            ),
+            "utf8"
+          );
+
+          console.log(
+            JSON.stringify(
+              controleRapport.summary,
+              null,
+              2
+            )
+          );
+
+          console.log(
+            "Totale bouwtijd: " +
+            controleRapport.totalBuildSeconds +
+            " seconden."
+          );
+
+          console.log(
+            "50 antwoordbestanden aangemaakt."
+          );
+
+          NODE
+
+      - name: Gegenereerde bestanden opslaan
+        shell: bash
+        run: |
+
+          git config user.name "github-actions[bot]"
+
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add antwoorden/gebouwd/dieren/
+
+          if git diff --cached --quiet; then
+
+            echo "Geen gewijzigde bestanden."
+
+          else
+
+            git commit -m "Bouw QuizBallon Dieren antwoordbestanden"
+
+            git push
+
+          fi
