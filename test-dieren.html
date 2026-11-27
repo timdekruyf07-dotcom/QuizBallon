@@ -1,0 +1,3226 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>QuizBallon V9 - Dieren Testcentrum</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --background: #090e1b;
+      --panel: #151d30;
+      --border: #29364e;
+      --text: #ffffff;
+      --muted: #9cacc6;
+      --blue: #60a5fa;
+      --green: #22c55e;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --purple: #a78bfa;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 1500px;
+      margin: auto;
+      padding: 24px;
+    }
+
+    header {
+      text-align: center;
+      padding: 35px 10px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 5vw, 42px);
+      margin: 0 0 12px;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 23px;
+    }
+
+    h3 {
+      font-size: 16px;
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 15px;
+      border-radius: 30px;
+      background: #312e81;
+      color: #ddd6fe;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 34px;
+      font-weight: bold;
+      color: var(--blue);
+      margin: 10px 0;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .green {
+      color: var(--green);
+    }
+
+    .orange {
+      color: var(--orange);
+    }
+
+    .red {
+      color: var(--red);
+    }
+
+    .purple {
+      color: var(--purple);
+    }
+
+    .notice {
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .notice-info {
+      background: #172554;
+      border: 1px solid #3b82f6;
+    }
+
+    .notice-success {
+      background: #052e16;
+      border: 1px solid #22c55e;
+    }
+
+    .notice-warning {
+      background: #422006;
+      border: 1px solid #f59e0b;
+    }
+
+    .notice-error {
+      background: #450a0a;
+      border: 1px solid #ef4444;
+    }
+
+    .progress {
+      width: 100%;
+      height: 13px;
+      background: #29364e;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 20px;
+      transition: width 0.4s;
+    }
+
+    .large-progress {
+      height: 22px;
+      margin: 15px 0;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    input,
+    select,
+    button {
+      font-family: inherit;
+      font-size: 15px;
+      padding: 12px 15px;
+      border-radius: 10px;
+    }
+
+    input,
+    select {
+      background: #0c1323;
+      color: white;
+      border: 1px solid var(--border);
+      min-width: 0;
+    }
+
+    input {
+      flex: 1;
+    }
+
+    select {
+      max-width: 100%;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    button.secondary {
+      background: #334155;
+    }
+
+    button.secondary:hover {
+      background: #475569;
+    }
+
+    button.success {
+      background: #15803d;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 850px;
+    }
+
+    th,
+    td {
+      padding: 15px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #101827;
+      color: var(--muted);
+      position: sticky;
+      top: 0;
+    }
+
+    tr:hover td {
+      background: #1c263b;
+    }
+
+    .number-cell {
+      color: var(--muted);
+      width: 55px;
+    }
+
+    .question-cell {
+      min-width: 260px;
+    }
+
+    .progress-cell {
+      min-width: 120px;
+    }
+
+    .small-button {
+      font-size: 12px;
+      padding: 8px 12px;
+    }
+
+    .result {
+      padding: 20px;
+      border-radius: 14px;
+      margin-top: 18px;
+      background: #0c1323;
+      border: 1px solid var(--border);
+    }
+
+    .result.valid {
+      background: #052e16;
+      border-color: var(--green);
+    }
+
+    .result.invalid {
+      background: #450a0a;
+      border-color: var(--red);
+    }
+
+    .result-score {
+      font-size: 38px;
+      font-weight: bold;
+      margin: 12px 0;
+    }
+
+    .answer-list {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fill, minmax(240px, 1fr));
+      gap: 10px;
+      max-height: 650px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+
+    .answer-card {
+      background: #0c1323;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+      overflow-wrap: anywhere;
+    }
+
+    .answer-card.rocket {
+      background: #422006;
+      border-color: var(--orange);
+    }
+
+    .answer-name {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .answer-points {
+      color: var(--blue);
+      font-weight: bold;
+    }
+
+    .rocket .answer-points {
+      color: #fbbf24;
+    }
+
+    .aliases {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 7px;
+    }
+
+    .error-card {
+      padding: 14px;
+      border-radius: 10px;
+      background: #27141d;
+      border: 1px solid #7f1d1d;
+      margin: 10px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .conflict-card {
+      padding: 14px;
+      border-radius: 10px;
+      background: #302413;
+      border: 1px solid #854d0e;
+      margin: 10px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .issue-list {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .letter-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+    }
+
+    .letter-card {
+      background: #0c1323;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px;
+      text-align: center;
+      cursor: pointer;
+      color: white;
+    }
+
+    .letter-card:hover {
+      border-color: var(--blue);
+    }
+
+    .letter-card.active {
+      background: #172554;
+      border-color: var(--blue);
+    }
+
+    .letter-name {
+      color: var(--blue);
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    .letter-detail {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px;
+      line-height: 1.8;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #090e1b;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    @media (max-width: 650px) {
+
+      .container {
+        padding: 12px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .stats {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .stat {
+        padding: 15px 8px;
+      }
+
+      .stat-value {
+        font-size: 26px;
+      }
+
+      .controls > * {
+        width: 100%;
+      }
+
+    }
+
+  </style>
+
+  <script>
+
+    window.QB_TEST_ERRORS = [];
+
+    window.addEventListener(
+      "error",
+      function(event) {
+
+        window.QB_TEST_ERRORS.push({
+
+          message:
+            event.message ||
+            "Bestand kon niet worden geladen.",
+
+          filename:
+            event.filename ||
+            event.target?.src ||
+            "Onbekend bestand",
+
+          line:
+            event.lineno || 0,
+
+          column:
+            event.colno || 0
+
+        });
+
+      },
+      true
+    );
+
+    window.addEventListener(
+      "unhandledrejection",
+      function(event) {
+
+        window.QB_TEST_ERRORS.push({
+
+          message:
+            String(event.reason),
+
+          filename:
+            "Promise",
+
+          line: 0,
+
+          column: 0
+
+        });
+
+      }
+    );
+
+    window.QB_TEST_START =
+      performance.now();
+
+  </script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <header>
+
+    <span class="badge">
+      QUIZBALLON V9
+    </span>
+
+    <h1>
+      🐾 Dieren Testcentrum
+    </h1>
+
+    <p class="muted">
+      Antwoordendatabase · 50 vragen · Punten · Raketten
+    </p>
+
+  </header>
+
+  <div id="loading"
+       class="notice notice-info">
+
+    ⏳ De dierendatabase wordt geladen...
+
+  </div>
+
+  <div id="fatalError"
+       class="notice notice-error hidden">
+  </div>
+
+  <main id="dashboard"
+        class="hidden">
+
+    <div id="generalStatus">
+    </div>
+
+    <!-- STATISTIEKEN -->
+
+    <div class="stats">
+
+      <div class="stat">
+
+        <div>🐾</div>
+
+        <div class="stat-value"
+             id="totalAnimals">0</div>
+
+        <div class="stat-label">
+          Bruikbare dierrecords
+        </div>
+
+      </div>
+
+      <div class="stat">
+
+        <div>❓</div>
+
+        <div class="stat-value"
+             id="totalQuestions">0</div>
+
+        <div class="stat-label">
+          Vragen
+        </div>
+
+      </div>
+
+      <div class="stat">
+
+        <div>💬</div>
+
+        <div class="stat-value"
+             id="totalAnswers">0</div>
+
+        <div class="stat-label">
+          Vraag-antwoordkoppelingen
+        </div>
+
+      </div>
+
+      <div class="stat">
+
+        <div>🚀</div>
+
+        <div class="stat-value purple"
+             id="totalRockets">0</div>
+
+        <div class="stat-label">
+          Raketten
+        </div>
+
+      </div>
+
+      <div class="stat">
+
+        <div>📊</div>
+
+        <div class="stat-value"
+             id="averageAnswers">0</div>
+
+        <div class="stat-label">
+          Gemiddeld per vraag
+        </div>
+
+      </div>
+
+      <div class="stat">
+
+        <div>🎯</div>
+
+        <div class="stat-value green"
+             id="completedQuestions">0</div>
+
+        <div class="stat-label">
+          Vragen met 1.000+ antwoorden
+        </div>
+
+      </div>
+
+      <div class="stat">
+
+        <div>⚠️</div>
+
+        <div class="stat-value orange"
+             id="totalConflicts">0</div>
+
+        <div class="stat-label">
+          Naamconflicten
+        </div>
+
+      </div>
+
+      <div class="stat">
+
+        <div>❌</div>
+
+        <div class="stat-value red"
+             id="totalErrors">0</div>
+
+        <div class="stat-label">
+          Technische fouten
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TOTALE VOORTGANG -->
+
+    <section class="panel">
+
+      <h2>🎯 Voortgang richting het doel</h2>
+
+      <p class="muted">
+        Streefdoel: 1.000 antwoorden per vraag,
+        voor zover biologisch mogelijk.
+      </p>
+
+      <h3 id="progressText">
+        0%
+      </h3>
+
+      <div class="progress large-progress">
+
+        <div id="overallProgress"
+             class="progress-fill"
+             style="width:0%;background:#22c55e">
+        </div>
+
+      </div>
+
+      <p id="remainingText"
+         class="muted">
+      </p>
+
+      <p id="extremeQuestions">
+      </p>
+
+    </section>
+
+    <!-- ALLE VRAGEN -->
+
+    <section class="panel">
+
+      <h2>📋 Alle 50 dierenvragen</h2>
+
+      <div class="controls">
+
+        <input id="questionSearch"
+               placeholder="Zoek een vraag...">
+
+        <select id="questionSort">
+
+          <option value="number">
+            Vraagnummer
+          </option>
+
+          <option value="most">
+            Meeste antwoorden
+          </option>
+
+          <option value="least">
+            Minste antwoorden
+          </option>
+
+          <option value="rockets">
+            Meeste raketten
+          </option>
+
+          <option value="missing">
+            Grootste tekort
+          </option>
+
+        </select>
+
+        <select id="questionFilter">
+
+          <option value="all">
+            Alle vragen
+          </option>
+
+          <option value="complete">
+            1.000 of meer
+          </option>
+
+          <option value="incomplete">
+            Minder dan 1.000
+          </option>
+
+          <option value="low">
+            Minder dan 100
+          </option>
+
+          <option value="empty">
+            Geen antwoorden
+          </option>
+
+        </select>
+
+      </div>
+
+      <p class="muted"
+         id="visibleQuestionCount">
+      </p>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Nr.</th>
+
+              <th>Vraag</th>
+
+              <th>Antwoorden</th>
+
+              <th>Raketten</th>
+
+              <th>Tekort</th>
+
+              <th>Voortgang</th>
+
+              <th>Bekijken</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="questionTable">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+    <!-- ANTWOORD TESTEN -->
+
+    <section class="panel"
+             id="answerTester">
+
+      <h2>🔍 Test zelf een antwoord</h2>
+
+      <p class="muted">
+        Controleer of een dier wordt geaccepteerd
+        en hoeveel punten het oplevert.
+      </p>
+
+      <div class="controls">
+
+        <select id="testQuestion">
+        </select>
+
+      </div>
+
+      <div class="controls">
+
+        <input id="testAnswer"
+               placeholder="Typ bijvoorbeeld: goudvis"
+               autocomplete="off">
+
+        <button id="testButton">
+          Test antwoord
+        </button>
+
+        <button class="secondary"
+                id="randomAnswerButton">
+          Willekeurig antwoord
+        </button>
+
+      </div>
+
+      <div id="testResult"
+           class="result">
+
+        Kies een vraag en vul een antwoord in.
+
+      </div>
+
+    </section>
+
+    <!-- ANTWOORDEN BEKIJKEN -->
+
+    <section class="panel"
+             id="answerBrowser">
+
+      <h2>📚 Antwoordendatabase bekijken</h2>
+
+      <div class="controls">
+
+        <select id="browseQuestion">
+        </select>
+
+      </div>
+
+      <div class="controls">
+
+        <input id="answerSearch"
+               placeholder="Zoek dier of synoniem...">
+
+        <select id="answerSort">
+
+          <option value="alphabet">
+            Alfabetisch
+          </option>
+
+          <option value="highest">
+            Hoogste punten
+          </option>
+
+          <option value="lowest">
+            Laagste punten
+          </option>
+
+        </select>
+
+        <select id="answerFilter">
+
+          <option value="all">
+            Alle antwoorden
+          </option>
+
+          <option value="rockets">
+            Alleen raketten
+          </option>
+
+          <option value="normal">
+            Alleen normale antwoorden
+          </option>
+
+        </select>
+
+      </div>
+
+      <p id="answerCount"
+         class="muted">
+      </p>
+
+      <div id="answerList"
+           class="answer-list">
+      </div>
+
+      <div class="controls">
+
+        <button id="loadMoreAnswers"
+                class="secondary">
+
+          Meer antwoorden tonen
+
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- LETTERVARIANTEN -->
+
+    <section class="panel"
+             id="letterSection">
+
+      <h2>🔤 Letterregels testen</h2>
+
+      <p class="muted">
+        Bekijk hoeveel antwoorden er per beginletter
+        beschikbaar zijn en hoeveel raketten
+        iedere lettervariant krijgt.
+      </p>
+
+      <div class="controls">
+
+        <select id="letterQuestion">
+        </select>
+
+      </div>
+
+      <div id="letterGrid"
+           class="letter-grid">
+      </div>
+
+      <div id="letterResult"
+           class="result hidden">
+      </div>
+
+    </section>
+
+    <!-- AUTOMATISCHE TESTS -->
+
+    <section class="panel">
+
+      <h2>✅ Automatische tests</h2>
+
+      <div id="automatedTestSummary">
+      </div>
+
+      <div id="failedTests"
+           class="issue-list">
+      </div>
+
+    </section>
+
+    <!-- NAAMCONFLICTEN -->
+
+    <section class="panel">
+
+      <h2>⚠️ Dubbele en dubbelzinnige namen</h2>
+
+      <p class="muted">
+        Sommige invoernamen kunnen naar meerdere
+        dierrecords verwijzen. Dat kan een geldig
+        naamconflict zijn of een dubbele soort.
+      </p>
+
+      <div id="conflictSummary">
+      </div>
+
+      <div class="controls">
+
+        <button id="showConflicts"
+                class="secondary">
+
+          Toon naamconflicten
+
+        </button>
+
+      </div>
+
+      <div id="conflictList"
+           class="issue-list hidden">
+      </div>
+
+    </section>
+
+    <!-- TECHNISCHE FOUTEN -->
+
+    <section class="panel">
+
+      <h2>🛠️ Technische controles</h2>
+
+      <div id="technicalSummary">
+      </div>
+
+      <div id="technicalErrors"
+           class="issue-list">
+      </div>
+
+    </section>
+
+    <!-- SNELHEID -->
+
+    <section class="panel">
+
+      <h2>⚡ Snelheidstest</h2>
+
+      <p id="loadingTime"
+         class="muted">
+      </p>
+
+      <p class="muted">
+        Voer 10.000 lokale antwoordcontroles uit
+        om te meten hoe snel de zoekindex werkt.
+      </p>
+
+      <button id="speedTestButton">
+        Start snelheidstest
+      </button>
+
+      <div id="speedResult"
+           class="result hidden">
+      </div>
+
+    </section>
+
+    <!-- RAPPORT -->
+
+    <section class="panel">
+
+      <h2>📄 Volledig testrapport</h2>
+
+      <p class="muted">
+        Kopieer het rapport en stuur het naar ChatGPT.
+        Hiermee kunnen we bepalen welke vragen
+        als eerste uitgebreid of gecorrigeerd moeten worden.
+      </p>
+
+      <div class="controls">
+
+        <button id="copyReport"
+                class="success">
+
+          📋 Kopieer volledig rapport
+
+        </button>
+
+        <button id="showReport"
+                class="secondary">
+
+          Bekijk rapport
+
+        </button>
+
+      </div>
+
+      <p id="copyStatus">
+      </p>
+
+      <pre id="reportText"
+           class="hidden">
+      </pre>
+
+    </section>
+
+  </main>
+
+  <footer>
+
+    🎈 QuizBallon V9 Testcentrum
+
+    <br>
+
+    Deze pagina verandert niets aan QuizBallon V8.
+
+    <br>
+
+    Een technische test bewijst niet dat alle
+    biologische antwoorden correct zijn.
+
+  </footer>
+
+</div>
+
+<!-- LAAD UITSLUITEND DE V9 DIERENDATABASE -->
+
+<script src="antwoorden/dieren.js?v=9-1">
+</script>
+
+<script>
+
+(function () {
+
+  "use strict";
+
+  const $ = id =>
+    document.getElementById(id);
+
+  const format = aantal =>
+    Number(aantal || 0)
+      .toLocaleString("nl-NL");
+
+  const escapeHtml = waarde =>
+    String(waarde ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
+  const normaliseer = tekst =>
+    String(tekst ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+
+  const category =
+    window.QB_V9_CATEGORIEEN?.Dieren;
+
+  const debug =
+    window.QB_V9_DIeren_DEBUG;
+
+  const capturedErrors =
+    window.QB_TEST_ERRORS || [];
+
+  $("loading").classList.add("hidden");
+
+  // ==========================================================
+  // CONTROLE: IS DE DATABASE GELADEN?
+  // ==========================================================
+
+  if (
+    !category ||
+    !Array.isArray(category.questions)
+  ) {
+
+    $("fatalError")
+      .classList.remove("hidden");
+
+    let bericht =
+      "❌ De dierendatabase kon niet worden geladen.";
+
+    bericht +=
+      "\n\nVerwachte locatie:" +
+      "\nantwoorden/dieren.js";
+
+    bericht +=
+      "\n\nControleer of alle tien delen " +
+      "in het bestand staan en zijn opgeslagen.";
+
+    if (capturedErrors.length) {
+
+      bericht +=
+        "\n\nGEVONDEN JAVASCRIPT-FOUTEN:\n";
+
+      for (const error of capturedErrors) {
+
+        bericht +=
+          "\n" +
+          error.message +
+          "\nBestand: " +
+          error.filename +
+          "\nRegel: " +
+          error.line +
+          "\nKolom: " +
+          error.column +
+          "\n";
+
+      }
+
+    } else {
+
+      bericht +=
+        "\n\nEr is geen bruikbare V9-export gevonden.";
+
+    }
+
+    $("fatalError").textContent =
+      bericht;
+
+    return;
+
+  }
+
+  // ==========================================================
+  // GEGEVENS OPHALEN
+  // ==========================================================
+
+  const questions =
+    category.questions;
+
+  const summary =
+    category.summary || {};
+
+  const report =
+    questions.map((question, index) => {
+
+      const answers =
+        Array.isArray(question.answers)
+          ? question.answers
+          : [];
+
+      const count =
+        answers.length;
+
+      const rockets =
+        answers.filter(
+          answer => answer.isRocket
+        ).length;
+
+      return {
+
+        nummer:
+          question.questionNumber ||
+          index + 1,
+
+        vraag:
+          question.question,
+
+        antwoorden:
+          count,
+
+        raketten:
+          rockets,
+
+        ontbrekend:
+          Math.max(0, 1000 - count),
+
+        percentage:
+          Math.min(100, count / 10)
+
+      };
+
+    });
+
+  function safeDebug(method) {
+
+    try {
+
+      if (
+        debug &&
+        typeof debug[method] === "function"
+      ) {
+
+        const resultaat =
+          debug[method]();
+
+        return Array.isArray(resultaat)
+          ? resultaat
+          : [];
+
+      }
+
+    } catch (error) {
+
+      capturedErrors.push({
+
+        message:
+          method + ": " + error.message,
+
+        filename:
+          "test-dieren.html",
+
+        line: 0,
+
+        column: 0
+
+      });
+
+    }
+
+    return [];
+
+  }
+
+  const failedTests =
+    safeDebug("mislukteTests");
+
+  const allTests =
+    safeDebug("tests");
+
+  const exportErrors =
+    safeDebug("fouten");
+
+  const conflicts =
+    safeDebug("naamconflicten");
+
+  const rocketTests =
+    safeDebug("raketTests");
+
+  const missingNames =
+    safeDebug("ontbrekendeNamen");
+
+  const independentErrors = [];
+
+  // ==========================================================
+  // ONAFHANKELIJKE TECHNISCHE CONTROLE
+  // ==========================================================
+
+  const questionIds = new Set();
+
+  function expectedRockets(count) {
+
+    if (count === 0) return 0;
+
+    return Math.min(
+      count,
+      Math.max(
+        1,
+        Math.ceil((count + 50) / 100)
+      )
+    );
+
+  }
+
+  if (questions.length !== 50) {
+
+    independentErrors.push({
+
+      fout:
+        "Er zijn geen exact 50 vragen.",
+
+      werkelijk:
+        questions.length
+
+    });
+
+  }
+
+  for (const question of questions) {
+
+    const number =
+      question.questionNumber;
+
+    if (questionIds.has(question.id)) {
+
+      independentErrors.push({
+
+        vraag: number,
+
+        fout: "Dubbel vraag-ID"
+
+      });
+
+    }
+
+    questionIds.add(question.id);
+
+    if (
+      !Array.isArray(question.answers)
+    ) {
+
+      independentErrors.push({
+
+        vraag: number,
+
+        fout: "Antwoorden ontbreken"
+
+      });
+
+      continue;
+
+    }
+
+    const names = new Set();
+
+    const rocketCount =
+      question.answers.filter(
+        answer => answer.isRocket
+      ).length;
+
+    if (
+      rocketCount !==
+      expectedRockets(
+        question.answers.length
+      )
+    ) {
+
+      independentErrors.push({
+
+        vraag: number,
+
+        fout:
+          "Verkeerd aantal raketten",
+
+        verwacht:
+          expectedRockets(
+            question.answers.length
+          ),
+
+        werkelijk:
+          rocketCount
+
+      });
+
+    }
+
+    for (
+      const answer of question.answers
+    ) {
+
+      const key =
+        normaliseer(answer.answer);
+
+      if (!key) {
+
+        independentErrors.push({
+
+          vraag: number,
+
+          fout: "Lege antwoordnaam"
+
+        });
+
+      }
+
+      if (names.has(key)) {
+
+        independentErrors.push({
+
+          vraag: number,
+
+          antwoord: answer.answer,
+
+          fout: "Dubbel antwoord"
+
+        });
+
+      }
+
+      names.add(key);
+
+      if (
+        !Number.isInteger(answer.points) ||
+        answer.points < 10 ||
+        answer.points > 100
+      ) {
+
+        independentErrors.push({
+
+          vraag: number,
+
+          antwoord: answer.answer,
+
+          fout:
+            "Ongeldige puntenwaarde"
+
+        });
+
+      }
+
+      if (
+        answer.isRocket &&
+        answer.points !== 100
+      ) {
+
+        independentErrors.push({
+
+          vraag: number,
+
+          antwoord: answer.answer,
+
+          fout:
+            "Raket heeft geen 100 punten"
+
+        });
+
+      }
+
+      if (
+        !answer.isRocket &&
+        answer.points === 100
+      ) {
+
+        independentErrors.push({
+
+          vraag: number,
+
+          antwoord: answer.answer,
+
+          fout:
+            "Normaal antwoord heeft 100 punten"
+
+        });
+
+      }
+
+    }
+
+  }
+
+  const technicalErrorCount =
+    capturedErrors.length +
+    exportErrors.length +
+    independentErrors.length +
+    failedTests.length +
+    rocketTests.filter(
+      test => !test.geslaagd
+    ).length;
+
+  // ==========================================================
+  // STATISTIEKEN
+  // ==========================================================
+
+  const totalAnswers =
+    report.reduce(
+      (sum, question) =>
+        sum + question.antwoorden,
+      0
+    );
+
+  const totalRockets =
+    report.reduce(
+      (sum, question) =>
+        sum + question.raketten,
+      0
+    );
+
+  const completed =
+    report.filter(
+      question =>
+        question.antwoorden >= 1000
+    ).length;
+
+  const totalMissing =
+    report.reduce(
+      (sum, question) =>
+        sum + question.ontbrekend,
+      0
+    );
+
+  const creditedAnswers =
+    report.reduce(
+      (sum, question) =>
+        sum + Math.min(
+          1000,
+          question.antwoorden
+        ),
+      0
+    );
+
+  const progress =
+    questions.length
+      ? creditedAnswers /
+        (questions.length * 1000) * 100
+      : 0;
+
+  const loadDuration =
+    performance.now() -
+    window.QB_TEST_START;
+
+  $("dashboard")
+    .classList.remove("hidden");
+
+  $("totalAnimals").textContent =
+    summary.bruikbareDierrecords == null
+      ? "?"
+      : format(
+          summary.bruikbareDierrecords
+        );
+
+  $("totalQuestions").textContent =
+    format(questions.length);
+
+  $("totalAnswers").textContent =
+    format(totalAnswers);
+
+  $("totalRockets").textContent =
+    format(totalRockets);
+
+  $("averageAnswers").textContent =
+    format(
+      Math.round(
+        totalAnswers /
+        Math.max(1, questions.length)
+      )
+    );
+
+  $("completedQuestions").textContent =
+    completed + "/" + questions.length;
+
+  $("totalConflicts").textContent =
+    format(
+      summary.naamconflicten ??
+      conflicts.length
+    );
+
+  $("totalErrors").textContent =
+    format(technicalErrorCount);
+
+  $("progressText").textContent =
+    progress.toFixed(1) +
+    "% van het streefdoel";
+
+  $("overallProgress").style.width =
+    progress + "%";
+
+  $("remainingText").textContent =
+    format(totalMissing) +
+    " aanvullende antwoordkoppelingen " +
+    "nodig om iedere vraag op 1.000 te brengen. " +
+    "Niet iedere vraag heeft noodzakelijk " +
+    "1.000 biologisch passende antwoorden.";
+
+  const sortedByCount =
+    [...report].sort(
+      (a, b) =>
+        b.antwoorden - a.antwoorden
+    );
+
+  if (sortedByCount.length) {
+
+    const biggest =
+      sortedByCount[0];
+
+    const smallest =
+      sortedByCount[
+        sortedByCount.length - 1
+      ];
+
+    $("extremeQuestions").innerHTML =
+
+      "<strong>Grootste vraag:</strong> " +
+
+      escapeHtml(biggest.vraag) +
+
+      " — " +
+
+      format(biggest.antwoorden) +
+
+      " antwoorden<br><br>" +
+
+      "<strong>Kleinste vraag:</strong> " +
+
+      escapeHtml(smallest.vraag) +
+
+      " — " +
+
+      format(smallest.antwoorden) +
+
+      " antwoorden";
+
+  }
+
+  $("loadingTime").textContent =
+    "Laden en eerste controles: " +
+    loadDuration.toFixed(1) +
+    " milliseconden.";
+
+  // ==========================================================
+  // ALGEMENE STATUS
+  // ==========================================================
+
+  if (
+    technicalErrorCount === 0 &&
+    category.technicallyReady === true &&
+    debug
+  ) {
+
+    $("generalStatus").innerHTML =
+
+      '<div class="notice notice-success">' +
+
+      "✅ De database is geladen en de " +
+
+      "beschikbare technische controles " +
+
+      "zijn geslaagd." +
+
+      "</div>";
+
+  } else {
+
+    $("generalStatus").innerHTML =
+
+      '<div class="notice notice-warning">' +
+
+      "⚠️ De database is geladen, maar " +
+
+      "er zijn technische controles die " +
+
+      "nog aandacht nodig hebben." +
+
+      "</div>";
+
+  }
+
+  $("generalStatus").innerHTML +=
+
+    '<div class="notice notice-info">' +
+
+    "ℹ️ Dit is een conceptdatabase. " +
+
+    "Het aantal opgeslagen antwoorden is " +
+
+    "niet hetzelfde als het aantal " +
+
+    "onafhankelijk biologisch gecontroleerde antwoorden." +
+
+    "</div>";
+
+  // ==========================================================
+  // VRAGENLIJST
+  // ==========================================================
+
+  function progressColor(count) {
+
+    if (count >= 1000) {
+      return "#22c55e";
+    }
+
+    if (count >= 750) {
+      return "#84cc16";
+    }
+
+    if (count >= 500) {
+      return "#eab308";
+    }
+
+    if (count >= 250) {
+      return "#f97316";
+    }
+
+    return "#ef4444";
+
+  }
+
+  function renderQuestions() {
+
+    const search =
+      normaliseer(
+        $("questionSearch").value
+      );
+
+    const sorting =
+      $("questionSort").value;
+
+    const filtering =
+      $("questionFilter").value;
+
+    let rows =
+      report.filter(question => {
+
+        if (
+          search &&
+          !normaliseer(question.vraag)
+            .includes(search)
+        ) {
+
+          return false;
+
+        }
+
+        if (filtering === "complete") {
+          return question.antwoorden >= 1000;
+        }
+
+        if (filtering === "incomplete") {
+          return question.antwoorden < 1000;
+        }
+
+        if (filtering === "low") {
+          return question.antwoorden < 100;
+        }
+
+        if (filtering === "empty") {
+          return question.antwoorden === 0;
+        }
+
+        return true;
+
+      });
+
+    rows.sort((a, b) => {
+
+      if (sorting === "most") {
+        return b.antwoorden - a.antwoorden;
+      }
+
+      if (sorting === "least") {
+        return a.antwoorden - b.antwoorden;
+      }
+
+      if (sorting === "rockets") {
+        return b.raketten - a.raketten;
+      }
+
+      if (sorting === "missing") {
+        return b.ontbrekend - a.ontbrekend;
+      }
+
+      return a.nummer - b.nummer;
+
+    });
+
+    $("visibleQuestionCount").textContent =
+      rows.length +
+      " van " +
+      report.length +
+      " vragen";
+
+    $("questionTable").innerHTML =
+      rows.map(question => {
+
+        const color =
+          progressColor(
+            question.antwoorden
+          );
+
+        return `
+
+          <tr>
+
+            <td class="number-cell">
+              ${question.nummer}
+            </td>
+
+            <td class="question-cell">
+              ${escapeHtml(question.vraag)}
+            </td>
+
+            <td style="color:${color}">
+              <strong>
+                ${format(question.antwoorden)}
+              </strong>
+            </td>
+
+            <td>
+              🚀 ${format(question.raketten)}
+            </td>
+
+            <td>
+              ${format(question.ontbrekend)}
+            </td>
+
+            <td class="progress-cell">
+
+              <div class="progress">
+
+                <div class="progress-fill"
+                     style="
+                       width:${question.percentage}%;
+                       background:${color};
+                     ">
+                </div>
+
+              </div>
+
+              <small>
+                ${question.percentage.toFixed(1)}%
+              </small>
+
+            </td>
+
+            <td>
+
+              <button
+                class="small-button"
+                data-question="${question.nummer}">
+
+                Bekijk
+
+              </button>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }).join("");
+
+  }
+
+  $("questionSearch")
+    .addEventListener(
+      "input",
+      renderQuestions
+    );
+
+  $("questionSort")
+    .addEventListener(
+      "change",
+      renderQuestions
+    );
+
+  $("questionFilter")
+    .addEventListener(
+      "change",
+      renderQuestions
+    );
+
+  // ==========================================================
+  // VRAAGSELECTIES
+  // ==========================================================
+
+  const questionOptions =
+    report.map(question => `
+
+      <option value="${question.nummer}">
+
+        ${question.nummer}.
+        ${escapeHtml(question.vraag)}
+
+      </option>
+
+    `).join("");
+
+  for (
+    const id of [
+      "testQuestion",
+      "browseQuestion",
+      "letterQuestion"
+    ]
+  ) {
+
+    $(id).innerHTML =
+      questionOptions;
+
+  }
+
+  function getQuestion(number) {
+
+    return questions.find(
+      question =>
+        Number(question.questionNumber) ===
+        Number(number)
+    );
+
+  }
+
+  // ==========================================================
+  // ANTWOORDTESTER
+  // ==========================================================
+
+  function testAnswer() {
+
+    const questionNumber =
+      Number(
+        $("testQuestion").value
+      );
+
+    const answer =
+      $("testAnswer").value.trim();
+
+    const result =
+      $("testResult");
+
+    if (!answer) {
+
+      result.className = "result";
+
+      result.textContent =
+        "Vul eerst een antwoord in.";
+
+      return;
+
+    }
+
+    let checked;
+
+    try {
+
+      checked =
+        category.check(
+          questionNumber,
+          answer
+        );
+
+    } catch (error) {
+
+      result.className =
+        "result invalid";
+
+      result.textContent =
+        "Technische fout: " +
+        error.message;
+
+      return;
+
+    }
+
+    if (!checked.valid) {
+
+      result.className =
+        "result invalid";
+
+      result.innerHTML = `
+
+        <h3>❌ Niet geaccepteerd</h3>
+
+        <strong>
+          ${escapeHtml(answer)}
+        </strong>
+
+        <p>
+          Dit antwoord staat niet bij
+          deze vraag in de huidige database.
+        </p>
+
+        <p class="muted">
+          Dat betekent niet automatisch
+          dat het antwoord biologisch fout is.
+          Het kan ook ontbreken.
+        </p>
+
+      `;
+
+      return;
+
+    }
+
+    result.className =
+      "result valid";
+
+    result.innerHTML = `
+
+      <h3>✅ Geaccepteerd</h3>
+
+      <strong>
+        ${escapeHtml(checked.answer)}
+      </strong>
+
+      <div class="result-score">
+
+        ${checked.isRocket ? "🚀" : "🎈"}
+
+        ${checked.points} punten
+
+      </div>
+
+      <p>
+        ${checked.isRocket
+          ? "Dit antwoord is een raket!"
+          : "Dit is een normaal antwoord."}
+      </p>
+
+      <p class="aliases">
+
+        Synoniemen:
+
+        ${escapeHtml(
+          (checked.aliases || [])
+            .join(", ") ||
+          "Geen"
+        )}
+
+      </p>
+
+      ${checked.ambiguous
+        ? "<p>⚠️ Deze naam verwijst naar " +
+          "meerdere mogelijke dieren.</p>"
+        : ""}
+
+    `;
+
+  }
+
+  $("testButton")
+    .addEventListener(
+      "click",
+      testAnswer
+    );
+
+  $("testAnswer")
+    .addEventListener(
+      "keydown",
+      event => {
+
+        if (event.key === "Enter") {
+          testAnswer();
+        }
+
+      }
+    );
+
+  $("randomAnswerButton")
+    .addEventListener(
+      "click",
+      () => {
+
+        const question =
+          getQuestion(
+            $("testQuestion").value
+          );
+
+        if (!question?.answers?.length) {
+          return;
+        }
+
+        const random =
+          question.answers[
+            Math.floor(
+              Math.random() *
+              question.answers.length
+            )
+          ];
+
+        $("testAnswer").value =
+          random.answer;
+
+        testAnswer();
+
+      }
+    );
+
+  // ==========================================================
+  // ANTWOORDENDATABASE
+  // ==========================================================
+
+  let answerLimit = 200;
+
+  function renderAnswers() {
+
+    const question =
+      getQuestion(
+        $("browseQuestion").value
+      );
+
+    if (!question) return;
+
+    const search =
+      normaliseer(
+        $("answerSearch").value
+      );
+
+    const sorting =
+      $("answerSort").value;
+
+    const filtering =
+      $("answerFilter").value;
+
+    let answers =
+      question.answers.filter(answer => {
+
+        if (
+          filtering === "rockets" &&
+          !answer.isRocket
+        ) {
+
+          return false;
+
+        }
+
+        if (
+          filtering === "normal" &&
+          answer.isRocket
+        ) {
+
+          return false;
+
+        }
+
+        if (search) {
+
+          const names = [
+            answer.answer,
+            ...(answer.aliases || [])
+          ];
+
+          return names.some(
+            name =>
+              normaliseer(name)
+                .includes(search)
+          );
+
+        }
+
+        return true;
+
+      });
+
+    answers.sort((a, b) => {
+
+      if (sorting === "highest") {
+        return b.points - a.points;
+      }
+
+      if (sorting === "lowest") {
+        return a.points - b.points;
+      }
+
+      return a.answer.localeCompare(
+        b.answer,
+        "nl"
+      );
+
+    });
+
+    const displayed =
+      answers.slice(0, answerLimit);
+
+    $("answerCount").textContent =
+
+      format(answers.length) +
+
+      " overeenkomende antwoorden · " +
+
+      format(displayed.length) +
+
+      " weergegeven";
+
+    $("answerList").innerHTML =
+      displayed.map(answer => `
+
+        <article class="answer-card
+          ${answer.isRocket ? "rocket" : ""}">
+
+          <div class="answer-name">
+
+            ${answer.isRocket ? "🚀 " : ""}
+
+            ${escapeHtml(answer.answer)}
+
+          </div>
+
+          <div class="answer-points">
+
+            ${answer.points} punten
+
+          </div>
+
+          <div class="aliases">
+
+            ${escapeHtml(
+              (answer.aliases || [])
+                .join(", ")
+            )}
+
+          </div>
+
+        </article>
+
+      `).join("");
+
+    $("loadMoreAnswers").classList.toggle(
+
+      "hidden",
+
+      displayed.length >= answers.length
+
+    );
+
+  }
+
+  for (
+    const id of [
+      "browseQuestion",
+      "answerSort",
+      "answerFilter"
+    ]
+  ) {
+
+    $(id).addEventListener(
+      "change",
+      () => {
+
+        answerLimit = 200;
+
+        renderAnswers();
+
+      }
+    );
+
+  }
+
+  $("answerSearch")
+    .addEventListener(
+      "input",
+      () => {
+
+        answerLimit = 200;
+
+        renderAnswers();
+
+      }
+    );
+
+  $("loadMoreAnswers")
+    .addEventListener(
+      "click",
+      () => {
+
+        answerLimit += 200;
+
+        renderAnswers();
+
+      }
+    );
+
+  $("questionTable")
+    .addEventListener(
+      "click",
+      event => {
+
+        const button =
+          event.target.closest(
+            "[data-question]"
+          );
+
+        if (!button) return;
+
+        $("browseQuestion").value =
+          button.dataset.question;
+
+        $("testQuestion").value =
+          button.dataset.question;
+
+        $("letterQuestion").value =
+          button.dataset.question;
+
+        $("answerSearch").value = "";
+
+        $("answerFilter").value = "all";
+
+        answerLimit = 200;
+
+        renderAnswers();
+
+        renderLetters();
+
+        $("answerBrowser").scrollIntoView({
+
+          behavior: "smooth"
+
+        });
+
+      }
+    );
+
+  // ==========================================================
+  // LETTERREGELS
+  // ==========================================================
+
+  function renderLetters() {
+
+    const number =
+      Number(
+        $("letterQuestion").value
+      );
+
+    $("letterResult")
+      .classList.add("hidden");
+
+    if (
+      typeof category.availableLetters !==
+      "function"
+    ) {
+
+      $("letterGrid").textContent =
+        "Letterfunctie ontbreekt.";
+
+      return;
+
+    }
+
+    const letters =
+      category.availableLetters(
+        number,
+        1
+      );
+
+    $("letterGrid").innerHTML =
+      letters.map(letter => `
+
+        <button
+          class="letter-card"
+          data-letter="${escapeHtml(letter.letter)}">
+
+          <div class="letter-name">
+
+            ${escapeHtml(letter.letter)}
+
+          </div>
+
+          <div class="letter-detail">
+
+            ${format(letter.aantal)}
+            antwoorden
+
+          </div>
+
+          <div class="letter-detail">
+
+            🚀 ${format(letter.raketten)}
+
+          </div>
+
+        </button>
+
+      `).join("");
+
+  }
+
+  $("letterQuestion")
+    .addEventListener(
+      "change",
+      renderLetters
+    );
+
+  $("letterGrid")
+    .addEventListener(
+      "click",
+      event => {
+
+        const button =
+          event.target.closest(
+            "[data-letter]"
+          );
+
+        if (!button) return;
+
+        const letter =
+          button.dataset.letter;
+
+        const number =
+          Number(
+            $("letterQuestion").value
+          );
+
+        const answers =
+          category.letterAnswers(
+            number,
+            letter
+          );
+
+        const rockets =
+          answers.filter(
+            answer => answer.isRocket
+          );
+
+        document
+          .querySelectorAll(".letter-card")
+          .forEach(card =>
+            card.classList.remove("active")
+          );
+
+        button.classList.add("active");
+
+        $("letterResult")
+          .classList.remove("hidden");
+
+        $("letterResult").innerHTML = `
+
+          <h3>Beginletter ${escapeHtml(letter)}</h3>
+
+          <p>
+            ${format(answers.length)}
+            antwoorden
+          </p>
+
+          <h3>
+            🚀 ${format(rockets.length)} raketten
+          </h3>
+
+          <p>
+
+            ${rockets.map(answer =>
+
+              escapeHtml(answer.answer)
+
+            ).join(", ")}
+
+          </p>
+
+          <h3>Voorbeelden</h3>
+
+          <p>
+
+            ${answers.slice(0, 30)
+              .map(answer =>
+
+                escapeHtml(answer.answer) +
+
+                " (" +
+
+                answer.points +
+
+                " punten)"
+
+              ).join("<br>")}
+
+          </p>
+
+        `;
+
+      }
+    );
+
+  // ==========================================================
+  // AUTOMATISCHE TESTRESULTATEN
+  // ==========================================================
+
+  const passedTests =
+    allTests.filter(
+      test => test.geslaagd
+    ).length;
+
+  const passedRocketTests =
+    rocketTests.filter(
+      test => test.geslaagd
+    ).length;
+
+  $("automatedTestSummary").innerHTML = `
+
+    <p>
+
+      Antwoordtests:
+
+      <strong class="green">
+
+        ${passedTests}
+
+      </strong>
+
+      / ${allTests.length} geslaagd
+
+    </p>
+
+    <p>
+
+      Raketformuletests:
+
+      <strong class="green">
+
+        ${passedRocketTests}
+
+      </strong>
+
+      / ${rocketTests.length} geslaagd
+
+    </p>
+
+    <p>
+
+      Mislukte antwoordtests:
+
+      <strong class="red">
+
+        ${failedTests.length}
+
+      </strong>
+
+    </p>
+
+  `;
+
+  if (allTests.length === 0) {
+
+    $("failedTests").innerHTML =
+      '<div class="notice notice-warning">' +
+      "Er zijn geen automatische " +
+      "antwoordtestresultaten beschikbaar." +
+      "</div>";
+
+  } else if (failedTests.length === 0) {
+
+    $("failedTests").innerHTML =
+      '<div class="notice notice-success">' +
+      "✅ Alle beschikbare antwoordtests zijn geslaagd." +
+      "</div>";
+
+  } else {
+
+    $("failedTests").innerHTML =
+      failedTests.map(test => `
+
+        <div class="error-card">
+
+          <strong>
+
+            Vraag ${escapeHtml(test.nummer)}:
+
+            ${escapeHtml(
+              test.invoer ||
+              test.antwoord
+            )}
+
+          </strong>
+
+          <p>
+
+            Verwacht:
+
+            ${test.verwacht
+              ? "Geaccepteerd"
+              : "Afgewezen"}
+
+            <br>
+
+            Werkelijk:
+
+            ${test.resultaat
+              ? "Geaccepteerd"
+              : "Afgewezen"}
+
+          </p>
+
+        </div>
+
+      `).join("");
+
+  }
+
+  // ==========================================================
+  // NAAMCONFLICTEN
+  // ==========================================================
+
+  $("conflictSummary").textContent =
+
+    format(conflicts.length) +
+
+    " geregistreerde naamconflicten.";
+
+  $("showConflicts")
+    .addEventListener(
+      "click",
+      () => {
+
+        const list =
+          $("conflictList");
+
+        const hidden =
+          list.classList.toggle("hidden");
+
+        $("showConflicts").textContent =
+          hidden
+
+            ? "Toon naamconflicten"
+
+            : "Verberg naamconflicten";
+
+        if (hidden) return;
+
+        if (!conflicts.length) {
+
+          list.textContent =
+            "Geen naamconflicten gerapporteerd.";
+
+          return;
+
+        }
+
+        list.innerHTML =
+          conflicts.slice(0, 500)
+            .map(conflict => `
+
+              <div class="conflict-card">
+
+                <strong>
+
+                  Vraag
+
+                  ${escapeHtml(
+                    conflict.vraagnummer
+                  )}
+
+                  —
+
+                  ${escapeHtml(
+                    conflict.invoer
+                  )}
+
+                </strong>
+
+                <p>
+
+                  ${escapeHtml(
+                    (
+                      conflict.mogelijkeDieren ||
+                      []
+                    ).join(" | ")
+                  )}
+
+                </p>
+
+              </div>
+
+            `).join("");
+
+        if (conflicts.length > 500) {
+
+          list.innerHTML +=
+
+            "<p>De eerste 500 conflicten " +
+
+            "worden weergegeven.</p>";
+
+        }
+
+      }
+    );
+
+  // ==========================================================
+  // TECHNISCHE FOUTEN
+  // ==========================================================
+
+  const combinedErrors = [
+
+    ...capturedErrors,
+
+    ...exportErrors,
+
+    ...independentErrors,
+
+    ...rocketTests.filter(
+      test => !test.geslaagd
+    )
+
+  ];
+
+  $("technicalSummary").innerHTML = `
+
+    <p>
+      Browserfouten:
+      ${capturedErrors.length}
+    </p>
+
+    <p>
+      Exportfouten:
+      ${exportErrors.length}
+    </p>
+
+    <p>
+      Onafhankelijke technische fouten:
+      ${independentErrors.length}
+    </p>
+
+    <p>
+      Niet gevonden diernamen:
+      ${missingNames.length}
+    </p>
+
+    <p>
+      Technisch gereed volgens database:
+
+      ${category.technicallyReady
+        ? "Ja"
+        : "Nee"}
+
+    </p>
+
+  `;
+
+  if (!combinedErrors.length) {
+
+    $("technicalErrors").innerHTML =
+      '<div class="notice notice-success">' +
+      "✅ Geen fouten gevonden door " +
+      "de uitgevoerde structurele controles." +
+      "</div>";
+
+  } else {
+
+    $("technicalErrors").innerHTML =
+      combinedErrors.slice(0, 300)
+        .map(error => `
+
+          <div class="error-card">
+
+            <pre>${
+              escapeHtml(
+                JSON.stringify(
+                  error,
+                  null,
+                  2
+                )
+              )
+            }</pre>
+
+          </div>
+
+        `).join("");
+
+  }
+
+  // ==========================================================
+  // SNELHEIDSTEST
+  // ==========================================================
+
+  let lastSpeedResult = null;
+
+  $("speedTestButton")
+    .addEventListener(
+      "click",
+      () => {
+
+        const question =
+          questions.find(
+            question =>
+              question.answers.length > 0
+          );
+
+        if (!question) return;
+
+        const number =
+          question.questionNumber;
+
+        const answer =
+          question.answers[0].answer;
+
+        const repetitions = 10000;
+
+        const start =
+          performance.now();
+
+        let accepted = 0;
+
+        for (
+          let i = 0;
+          i < repetitions;
+          i++
+        ) {
+
+          if (
+            category.check(
+              number,
+              answer
+            ).valid
+          ) {
+
+            accepted++;
+
+          }
+
+        }
+
+        const duration =
+          performance.now() - start;
+
+        lastSpeedResult = {
+
+          controles:
+            repetitions,
+
+          geaccepteerd:
+            accepted,
+
+          milliseconden:
+            Number(
+              duration.toFixed(3)
+            ),
+
+          gemiddeld:
+            Number(
+              (
+                duration /
+                repetitions
+              ).toFixed(6)
+            )
+
+        };
+
+        $("speedResult")
+          .classList.remove("hidden");
+
+        $("speedResult").innerHTML = `
+
+          <h3>⚡ Test voltooid</h3>
+
+          <p>
+
+            Controles:
+            ${format(repetitions)}
+
+          </p>
+
+          <p>
+
+            Totale tijd:
+            ${duration.toFixed(3)} ms
+
+          </p>
+
+          <p>
+
+            Gemiddeld per controle:
+
+            ${
+              (
+                duration / repetitions
+              ).toFixed(6)
+            } ms
+
+          </p>
+
+          <p>
+
+            Geaccepteerde testantwoorden:
+
+            ${format(accepted)}
+
+          </p>
+
+        `;
+
+      }
+    );
+
+  // ==========================================================
+  // VOLLEDIG TEKSTRAPPORT
+  // ==========================================================
+
+  function createReport() {
+
+    const lines = [
+
+      "QUIZBALLON V9 - DIEREN TESTRAPPORT",
+
+      "=================================",
+
+      "",
+
+      "Versie: " +
+        category.version,
+
+      "Dierrecords: " +
+        (
+          summary.opgeslagenDierrecords ??
+          "Onbekend"
+        ),
+
+      "Bruikbare dierrecords: " +
+        (
+          summary.bruikbareDierrecords ??
+          "Onbekend"
+        ),
+
+      "Totaal vragen: " +
+        questions.length,
+
+      "Totaal antwoordkoppelingen: " +
+        totalAnswers,
+
+      "Totaal raketten: " +
+        totalRockets,
+
+      "Gemiddeld per vraag: " +
+        Math.round(
+          totalAnswers /
+          Math.max(1, questions.length)
+        ),
+
+      "Vragen met minimaal 1000 antwoorden: " +
+        completed,
+
+      "Vragen onder 1000: " +
+        (questions.length - completed),
+
+      "Voortgang: " +
+        progress.toFixed(2) + "%",
+
+      "Ontbrekend tot streefdoel: " +
+        totalMissing,
+
+      "Naamconflicten: " +
+        conflicts.length,
+
+      "Browserfouten: " +
+        capturedErrors.length,
+
+      "Exportfouten: " +
+        exportErrors.length,
+
+      "Onafhankelijke technische fouten: " +
+        independentErrors.length,
+
+      "Geslaagde antwoordtests: " +
+        passedTests + "/" +
+        allTests.length,
+
+      "Geslaagde rakettests: " +
+        passedRocketTests + "/" +
+        rocketTests.length,
+
+      "Ontbrekende diernamen: " +
+        missingNames.length,
+
+      "Technisch gereed: " +
+        (
+          category.technicallyReady
+            ? "Ja"
+            : "Nee"
+        ),
+
+      "Biologisch onafhankelijk gecontroleerd: Nee",
+
+      "",
+
+      "ALLE 50 VRAGEN",
+
+      "=================================",
+
+      ""
+
+    ];
+
+    for (const question of report) {
+
+      lines.push(
+
+        question.nummer + ". " +
+
+        question.vraag +
+
+        " | Antwoorden: " +
+
+        question.antwoorden +
+
+        " | Raketten: " +
+
+        question.raketten +
+
+        " | Tekort: " +
+
+        question.ontbrekend
+
+      );
+
+    }
+
+    lines.push(
+
+      "",
+
+      "MISLUKTE ANTWOORDTESTS",
+
+      "================================="
+
+    );
+
+    if (!failedTests.length) {
+
+      lines.push(
+        "Geen gerapporteerde mislukte tests."
+      );
+
+    }
+
+    for (const test of failedTests) {
+
+      lines.push(
+        JSON.stringify(test)
+      );
+
+    }
+
+    lines.push(
+
+      "",
+
+      "TECHNISCHE FOUTEN",
+
+      "================================="
+
+    );
+
+    if (!combinedErrors.length) {
+
+      lines.push(
+        "Geen gevonden technische fouten."
+      );
+
+    }
+
+    for (const error of combinedErrors) {
+
+      lines.push(
+        JSON.stringify(error)
+      );
+
+    }
+
+    lines.push(
+
+      "",
+
+      "ONTBREKENDE DIERNAMEN",
+
+      "=================================",
+
+      ...missingNames
+
+    );
+
+    lines.push(
+
+      "",
+
+      "NAAMCONFLICTEN - EERSTE 100",
+
+      "================================="
+
+    );
+
+    for (
+      const conflict of conflicts.slice(0, 100)
+    ) {
+
+      lines.push(
+        JSON.stringify(conflict)
+      );
+
+    }
+
+    if (lastSpeedResult) {
+
+      lines.push(
+
+        "",
+
+        "SNELHEIDSTEST",
+
+        "=================================",
+
+        JSON.stringify(
+          lastSpeedResult,
+          null,
+          2
+        )
+
+      );
+
+    }
+
+    return lines.join("\n");
+
+  }
+
+  $("showReport")
+    .addEventListener(
+      "click",
+      () => {
+
+        $("reportText").textContent =
+          createReport();
+
+        $("reportText")
+          .classList.toggle("hidden");
+
+      }
+    );
+
+  $("copyReport")
+    .addEventListener(
+      "click",
+      async () => {
+
+        const text =
+          createReport();
+
+        try {
+
+          await navigator.clipboard
+            .writeText(text);
+
+          $("copyStatus").textContent =
+            "✅ Het volledige rapport is gekopieerd.";
+
+        } catch (error) {
+
+          $("reportText").textContent =
+            text;
+
+          $("reportText")
+            .classList.remove("hidden");
+
+          const range =
+            document.createRange();
+
+          range.selectNodeContents(
+            $("reportText")
+          );
+
+          const selection =
+            window.getSelection();
+
+          selection.removeAllRanges();
+
+          selection.addRange(range);
+
+          $("copyStatus").textContent =
+            "Het rapport is geselecteerd. " +
+            "Druk op Ctrl+C om het te kopiëren.";
+
+        }
+
+      }
+    );
+
+  // ==========================================================
+  // DASHBOARD STARTEN
+  // ==========================================================
+
+  renderQuestions();
+
+  renderAnswers();
+
+  renderLetters();
+
+})();
+
+</script>
+
+</body>
+</html>
