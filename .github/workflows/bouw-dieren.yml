@@ -17,10 +17,6 @@ jobs:
 
     steps:
 
-      # ========================================================
-      # REPOSITORY OPENEN
-      # ========================================================
-
       - name: Repository openen
         uses: actions/checkout@v4
 
@@ -29,44 +25,20 @@ jobs:
         with:
           node-version: "22"
 
-      # ========================================================
-      # BRONBESTANDEN CONTROLEREN
-      # ========================================================
-
       - name: Bronbestanden controleren
         shell: bash
         run: |
-          echo "QuizBallon V9.2 - Bronbestanden controleren"
-
           test -f antwoorden/dieren.js
           test -f antwoorden/dieren-aanvulling.js
           test -f antwoorden/dieren-aanvulling-2.js
 
-          echo ""
-          echo "Alle drie de dierenbestanden zijn aanwezig."
-
-          ls -lh antwoorden/dieren.js
-          ls -lh antwoorden/dieren-aanvulling.js
-          ls -lh antwoorden/dieren-aanvulling-2.js
-
-      # ========================================================
-      # JAVASCRIPT-SYNTAX CONTROLEREN
-      # ========================================================
-
-      - name: JavaScript-syntax controleren
-        shell: bash
-        run: |
           node --check antwoorden/dieren.js
           node --check antwoorden/dieren-aanvulling.js
           node --check antwoorden/dieren-aanvulling-2.js
 
-          echo "Alle drie de bestanden zijn syntactisch geldig."
+          echo "Alle drie de bronbestanden zijn aanwezig."
 
-      # ========================================================
-      # DATABASE VERWERKEN
-      # ========================================================
-
-      - name: Database verwerken en controleren
+      - name: Database repareren, verwerken en controleren
         shell: bash
         run: |
           node <<'NODE'
@@ -80,19 +52,10 @@ jobs:
           // INSTELLINGEN
           // ====================================================
 
-          const VERWACHTE_VERSIE = "9.2.0";
+          const VERSIE = "9.2.0";
 
-          const UITVOERMAP = path.join(
-            "antwoorden",
-            "gebouwd",
-            "dieren"
-          );
-
-          const BRONBESTANDEN = [
-            "antwoorden/dieren.js",
-            "antwoorden/dieren-aanvulling.js",
-            "antwoorden/dieren-aanvulling-2.js"
-          ];
+          const UITVOERMAP =
+            "antwoorden/gebouwd/dieren";
 
           const BASISLIJN = {
             versie: "9.1.0",
@@ -103,13 +66,25 @@ jobs:
             vragenMet1000: 14
           };
 
-          const bouwStart = performance.now();
+          const BRONBESTANDEN = [
+            "antwoorden/dieren.js",
+            "antwoorden/dieren-aanvulling.js",
+            "antwoorden/dieren-aanvulling-2.js"
+          ];
+
+          const start = performance.now();
 
           const tijden = {};
+
+          const reparaties = [];
 
           const fouten = [];
 
           const waarschuwingen = [];
+
+          fs.mkdirSync("bouwrapport", {
+            recursive: true
+          });
 
           // ====================================================
           // HULPFUNCTIES
@@ -129,44 +104,39 @@ jobs:
 
           function aantalRaketten(aantal) {
 
-            const n = Math.floor(Number(aantal));
-
-            if (!Number.isFinite(n) || n <= 0) {
-              return 0;
-            }
+            if (aantal <= 0) return 0;
 
             return Math.max(
               1,
-              Math.ceil((n + 50) / 100)
+              Math.ceil((aantal + 50) / 100)
             );
 
           }
 
-          function seconden(ms) {
+          function rondAf(
+            waarde,
+            decimalen = 2
+          ) {
 
             return Number(
-              (ms / 1000).toFixed(3)
+              waarde.toFixed(decimalen)
             );
 
           }
 
-          function rondAf(waarde, decimalen = 2) {
+          function seconden() {
 
-            return Number(
-              Number(waarde).toFixed(decimalen)
+            return rondAf(
+              (performance.now() - start) / 1000,
+              3
             );
 
           }
 
-          function maakJSON(object) {
+          function schrijfJSON(bestand, gegevens) {
 
-            return JSON.stringify(object);
-
-          }
-
-          function schrijfJSON(bestand, object) {
-
-            const inhoud = maakJSON(object);
+            const inhoud =
+              JSON.stringify(gegevens);
 
             fs.writeFileSync(
               bestand,
@@ -184,50 +154,298 @@ jobs:
           function leesJSON(bestand) {
 
             return JSON.parse(
-              fs.readFileSync(
-                bestand,
-                "utf8"
-              )
+              fs.readFileSync(bestand, "utf8")
             );
 
           }
 
-          function veiligeLijst(waarde) {
+          // ====================================================
+          // AUTOMATISCHE REPARATIE V9.2
+          // ====================================================
 
-            return Array.isArray(waarde)
-              ? waarde
-              : [];
+          function vervangGecontroleerd(
+            code,
+            oud,
+            nieuw,
+            verwacht,
+            omschrijving
+          ) {
+
+            const aantal =
+              code.split(oud).length - 1;
+
+            if (aantal !== verwacht) {
+
+              throw new Error(
+                `Reparatie niet uitgevoerd: ${omschrijving}. ` +
+                `Verwacht ${verwacht} vindplaatsen, ` +
+                `gevonden ${aantal}.`
+              );
+
+            }
+
+            reparaties.push({
+              omschrijving,
+              aantal
+            });
+
+            console.log(
+              `Reparatie: ${omschrijving} (${aantal}x)`
+            );
+
+            return code
+              .split(oud)
+              .join(nieuw);
 
           }
 
-          function leesDebugLijst(
+          function repareerAanvulling2(code) {
+
+            console.log("");
+            console.log(
+              "Automatische reparatie V9.2 starten."
+            );
+
+            const markering =
+              "  const eindStartV92 = Date.now();";
+
+            const positie =
+              code.indexOf(markering);
+
+            if (
+              positie === -1 ||
+              positie !== code.lastIndexOf(markering)
+            ) {
+
+              throw new Error(
+                "De eindverwerking van deel 8 is niet uniek gevonden."
+              );
+
+            }
+
+            let inhoudelijkeDelen =
+              code.slice(0, positie);
+
+            let eindverwerking =
+              code.slice(positie);
+
+            // REPARATIE 1:
+            // In delen 1 t/m 7 heten de aliassen
+            // van oorspronkelijke dierrecords
+            // daadwerkelijk "aliases".
+
+            inhoudelijkeDelen =
+              vervangGecontroleerd(
+                inhoudelijkeDelen,
+                "record.synoniemen || []",
+                "record.aliases || []",
+                5,
+                "Aliassen in inhoudelijke delen herstellen"
+              );
+
+            // REPARATIE 2:
+            // Een Map bevat vraagnummer en punten.
+            // Alleen de sleutels zijn vraagnummers.
+
+            eindverwerking =
+              vervangGecontroleerd(
+                eindverwerking,
+                "for (const waarde of record.vragen || [])",
+                "for (const waarde of record.vragen.keys())",
+                1,
+                "Vraagnummers correct uitlezen"
+              );
+
+            // REPARATIE 3:
+            // Bestaande synoniemen behouden bij export.
+
+            eindverwerking =
+              vervangGecontroleerd(
+                eindverwerking,
+                "record.synoniemen || []",
+                "record.aliases || []",
+                1,
+                "Synoniemen bij export herstellen"
+              );
+
+            // REPARATIE 4:
+            // De oorspronkelijke punten staan
+            // in record.vragen.
+
+            eindverwerking =
+              vervangGecontroleerd(
+                eindverwerking,
+                "record.puntenPerVraag,",
+                "record.vragen,\n      record.puntenPerVraag,",
+                1,
+                "Opgeslagen punten correct uitlezen"
+              );
+
+            // REPARATIE 5:
+            // De daadwerkelijke naam van de watertests
+            // uit deel 2 toevoegen.
+
+            eindverwerking =
+              vervangGecontroleerd(
+                eindverwerking,
+                '"extraMeerTestsDeel2",',
+                '"extraWaterTestsDeel2",\n        "extraMeerTestsDeel2",',
+                1,
+                "Ontbrekende watertests herstellen"
+              );
+
+            const gerepareerdeCode =
+              inhoudelijkeDelen +
+              eindverwerking;
+
+            console.log(
+              "Alle automatische reparaties toegepast."
+            );
+
+            return gerepareerdeCode;
+
+          }
+
+          // ====================================================
+          // JAVASCRIPT-OMGEVING
+          // ====================================================
+
+          const stilConsole = {
+            log() {},
+            info() {},
+            debug() {},
+            table() {},
+            group() {},
+            groupCollapsed() {},
+            groupEnd() {},
+            time() {},
+            timeEnd() {},
+            warn() {},
+            error() {}
+          };
+
+          const context = vm.createContext({
+            console: stilConsole,
+            performance
+          });
+
+          context.window = context;
+          context.self = context;
+
+          // ====================================================
+          // BRONBESTAND LADEN
+          // ====================================================
+
+          function laadBestand(bestand) {
+
+            console.log("");
+            console.log(`Verwerken: ${bestand}`);
+
+            const bestandStart =
+              performance.now();
+
+            let code = fs.readFileSync(
+              bestand,
+              "utf8"
+            );
+
+            if (
+              bestand ===
+              "antwoorden/dieren-aanvulling-2.js"
+            ) {
+
+              code = repareerAanvulling2(code);
+
+            }
+
+            try {
+
+              const script =
+                new vm.Script(code, {
+                  filename: bestand
+                });
+
+              script.runInContext(
+                context,
+                {
+                  timeout: 1200000
+                }
+              );
+
+            } catch (fout) {
+
+              console.error(
+                `Fout in ${bestand}:`
+              );
+
+              console.error(
+                fout.stack || fout.message
+              );
+
+              throw fout;
+
+            }
+
+            tijden[bestand] = rondAf(
+              (
+                performance.now() -
+                bestandStart
+              ) / 1000,
+              3
+            );
+
+            console.log(
+              `Verwerkt in ${tijden[bestand]} seconden.`
+            );
+
+            const categorie =
+              context.QB_V9_CATEGORIEEN?.Dieren;
+
+            if (categorie) {
+
+              console.log(
+                `Versie: ${categorie.version}`
+              );
+
+              console.log(
+                `Dierrecords: ${
+                  categorie.summary?.bruikbareDierrecords ??
+                  "Onbekend"
+                }`
+              );
+
+              console.log(
+                `Antwoordkoppelingen: ${
+                  categorie.summary?.totaalVraagAntwoorden ??
+                  "Onbekend"
+                }`
+              );
+
+            }
+
+          }
+
+          // ====================================================
+          // DEBUGLIJSTEN UITLEZEN
+          // ====================================================
+
+          function leesDebug(
             debug,
             naam,
             verplicht = false
           ) {
 
-            if (
-              typeof debug?.[naam] !== "function"
-            ) {
+            try {
 
-              const melding =
-                `Debugfunctie ${naam} ontbreekt.`;
+              if (
+                typeof debug?.[naam] !== "function"
+              ) {
 
-              if (verplicht) {
-
-                fouten.push(melding);
-
-              } else {
-
-                waarschuwingen.push(melding);
+                throw new Error(
+                  "Functie ontbreekt."
+                );
 
               }
-
-              return [];
-
-            }
-
-            try {
 
               const resultaat =
                 debug[naam]();
@@ -266,1953 +484,1530 @@ jobs:
           }
 
           // ====================================================
-          // JAVASCRIPT-OMGEVING VOOR DE DIERDATABASE
+          // TESTRESULTATEN VERWERKEN
           // ====================================================
 
-          const stilConsole = {
+          function controleerTests(naam, tests) {
 
-            log() {},
+            if (tests.length === 0) {
 
-            info() {},
+              fouten.push(
+                `${naam}: geen tests uitgevoerd.`
+              );
 
-            debug() {},
+            }
 
-            table() {},
+            const mislukt =
+              tests.filter(
+                test => test.geslaagd !== true
+              );
 
-            group() {},
+            const geslaagd =
+              tests.length - mislukt.length;
 
-            groupCollapsed() {},
+            console.log(
+              `${naam}: ${geslaagd}/${tests.length}`
+            );
 
-            groupEnd() {},
+            for (const test of mislukt) {
 
-            time() {},
+              fouten.push(
+                `${naam}: ${JSON.stringify(test)}`
+              );
 
-            timeEnd() {},
+            }
 
-            warn() {},
+            return {
+              geslaagd,
+              totaal: tests.length,
+              mislukt
+            };
 
-            error() {}
-
-          };
-
-          const context = vm.createContext({
-
-            console: stilConsole,
-
-            performance
-
-          });
-
-          context.window = context;
-          context.self = context;
+          }
 
           // ====================================================
-          // BRONBESTANDEN LADEN
+          // HOOFDPROGRAMMA
           // ====================================================
 
-          function laadBestand(bestand) {
+          function bouwen() {
 
-            if (!fs.existsSync(bestand)) {
+            console.log(
+              "=========================================="
+            );
+
+            console.log(
+              "QUIZBALLON V9.2 - GEREPAREERDE BOUW"
+            );
+
+            console.log(
+              "=========================================="
+            );
+
+            // Eerst de bestaande werkende versie.
+
+            laadBestand(BRONBESTANDEN[0]);
+
+            laadBestand(BRONBESTANDEN[1]);
+
+            const basis =
+              context.QB_V9_CATEGORIEEN?.Dieren;
+
+            if (
+              !basis ||
+              basis.version !== "9.1.0"
+            ) {
 
               throw new Error(
-                `Bronbestand ontbreekt: ${bestand}`
+                "De oorspronkelijke V9.1-database ontbreekt."
               );
 
             }
 
-            const start = performance.now();
+            if (
+              basis.summary?.totaalVraagAntwoorden !==
+              BASISLIJN.antwoorden
+            ) {
 
-            const code = fs.readFileSync(
-              bestand,
-              "utf8"
-            );
-
-            console.log("");
-            console.log(
-              `Bezig met verwerken: ${bestand}`
-            );
-
-            console.log(
-              `Bestandsgrootte: ${
-                rondAf(
-                  Buffer.byteLength(code, "utf8") / 1024,
-                  1
-                )
-              } KB`
-            );
-
-            try {
-
-              vm.runInContext(
-
-                code,
-
-                context,
-
-                {
-
-                  filename: bestand,
-
-                  timeout: 1200000
-
-                }
-
+              throw new Error(
+                "De V9.1-basis komt niet overeen met de bekende database."
               );
-
-            } catch (fout) {
-
-              console.error("");
-              console.error(
-                `FOUT IN BESTAND: ${bestand}`
-              );
-
-              console.error(
-                fout.stack || fout.message
-              );
-
-              throw fout;
 
             }
 
-            const duur = seconden(
-              performance.now() - start
-            );
+            if (
+              basis.summary?.bruikbareDierrecords !==
+              BASISLIJN.uniekeDieren
+            ) {
 
-            tijden[bestand] = duur;
+              throw new Error(
+                "Het aantal oorspronkelijke dierrecords klopt niet."
+              );
 
-            console.log(
-              `${bestand} verwerkt in ${duur} seconden.`
-            );
+            }
+
+            // Daarna de gerepareerde uitbreiding.
+
+            laadBestand(BRONBESTANDEN[2]);
 
             const categorie =
               context.QB_V9_CATEGORIEEN?.Dieren;
 
-            if (categorie) {
+            const debug =
+              context.QB_V9_DIeren_DEBUG;
 
-              console.log(
-                `Actieve dataversie: ${categorie.version}`
-              );
+            if (
+              !categorie ||
+              categorie.version !== VERSIE
+            ) {
 
-              console.log(
-                `Bruikbare records: ${
-                  categorie.summary?.bruikbareDierrecords ??
-                  "Onbekend"
-                }`
-              );
-
-              console.log(
-                `Antwoordkoppelingen: ${
-                  categorie.summary?.totaalVraagAntwoorden ??
-                  "Onbekend"
-                }`
+              throw new Error(
+                "De definitieve V9.2-export ontbreekt."
               );
 
             }
 
-          }
+            if (!debug) {
 
-          console.log(
-            "=========================================="
-          );
+              throw new Error(
+                "De V9.2-debugfuncties ontbreken."
+              );
 
-          console.log(
-            "QUIZBALLON V9.2 - DIEREN BOUWEN"
-          );
+            }
 
-          console.log(
-            "=========================================="
-          );
+            if (
+              !Array.isArray(categorie.questions)
+            ) {
 
-          for (const bestand of BRONBESTANDEN) {
+              throw new Error(
+                "De vragenlijst ontbreekt."
+              );
 
-            laadBestand(bestand);
+            }
 
-          }
-
-          // ====================================================
-          // DEFINITIEVE EXPORT OPHALEN
-          // ====================================================
-
-          const categorie =
-            context.QB_V9_CATEGORIEEN?.Dieren;
-
-          const debug =
-            context.QB_V9_DIeren_DEBUG;
-
-          if (!categorie) {
-
-            throw new Error(
-              "De Dieren-categorie is niet geëxporteerd."
+            const vragen = JSON.parse(
+              JSON.stringify(categorie.questions)
             );
 
-          }
-
-          if (!debug) {
-
-            throw new Error(
-              "De debugfuncties ontbreken."
+            vragen.sort(
+              (a, b) =>
+                a.questionNumber -
+                b.questionNumber
             );
 
-          }
+            // ==================================================
+            // ONAFHANKELIJKE STRUCTUURCONTROLE
+            // ==================================================
 
-          if (
-            categorie.version !== VERWACHTE_VERSIE
-          ) {
-
-            throw new Error(
-
-              `Verwacht versie ${VERWACHTE_VERSIE}, ` +
-
-              `maar gevonden ${categorie.version}.`
-
-            );
-
-          }
-
-          if (
-            !Array.isArray(categorie.questions)
-          ) {
-
-            throw new Error(
-              "De geëxporteerde vragenlijst ontbreekt."
-            );
-
-          }
-
-          const vragen = JSON.parse(
-
-            JSON.stringify(
-              categorie.questions
-            )
-
-          );
-
-          vragen.sort(
-
-            (a, b) =>
-
-              Number(a.questionNumber) -
-              Number(b.questionNumber)
-
-          );
-
-          if (vragen.length !== 50) {
-
-            fouten.push(
-
-              `Verwacht 50 vragen, gevonden ${vragen.length}.`
-
-            );
-
-          }
-
-          // ====================================================
-          // VRAGEN EN ANTWOORDEN CONTROLEREN
-          // ====================================================
-
-          console.log("");
-          console.log(
-            "Alle geëxporteerde vragen controleren..."
-          );
-
-          const uniekeDieren = new Set();
-
-          const uniekeVraagIds = new Set();
-
-          const uniekeVraagnummers = new Set();
-
-          let totaalAntwoorden = 0;
-
-          let totaalRaketten = 0;
-
-          let totaalAliassen = 0;
-
-          let vragenMet1000 = 0;
-
-          let begrensdeVoortgang = 0;
-
-          let ontbrekendTotStreefdoel = 0;
-
-          const vraagRapport = [];
-
-          for (const vraag of vragen) {
-
-            const nummer =
-              Number(vraag.questionNumber);
-
-            if (
-              !Number.isInteger(nummer) ||
-              nummer < 1 ||
-              nummer > 50
-            ) {
+            if (vragen.length !== 50) {
 
               fouten.push(
-                `Ongeldig vraagnummer: ${nummer}`
-              );
-
-              continue;
-
-            }
-
-            if (
-              uniekeVraagnummers.has(nummer)
-            ) {
-
-              fouten.push(
-                `Dubbel vraagnummer: ${nummer}`
+                `Verwacht 50 vragen, gevonden ${vragen.length}.`
               );
 
             }
 
-            uniekeVraagnummers.add(nummer);
+            const uniekeDieren =
+              new Set();
 
-            if (
-              typeof vraag.id !== "string" ||
-              !vraag.id.trim()
-            ) {
+            const vraagIds =
+              new Set();
 
-              fouten.push(
-                `Vraag ${nummer} heeft geen geldige ID.`
-              );
+            const vraagnummers =
+              new Set();
 
-            }
+            const vraagRapport = [];
 
-            if (
-              uniekeVraagIds.has(vraag.id)
-            ) {
+            let totaalAntwoorden = 0;
 
-              fouten.push(
-                `Dubbele vraag-ID: ${vraag.id}`
-              );
+            let totaalRaketten = 0;
 
-            }
+            let totaalAliassen = 0;
 
-            uniekeVraagIds.add(vraag.id);
+            let vragenMet1000 = 0;
 
-            if (
-              typeof vraag.question !== "string" ||
-              !vraag.question.trim()
-            ) {
+            let begrensdeVoortgang = 0;
 
-              fouten.push(
-                `Vraag ${nummer} heeft geen vraagtekst.`
-              );
+            let ontbrekendTotStreefdoel = 0;
 
-            }
+            for (const vraag of vragen) {
 
-            if (
-              !Array.isArray(vraag.answers) ||
-              vraag.answers.length === 0
-            ) {
-
-              fouten.push(
-                `Vraag ${nummer} heeft geen antwoorden.`
-              );
-
-              continue;
-
-            }
-
-            const gezien = new Set();
-
-            let raketten = 0;
-
-            for (
-              const antwoord of vraag.answers
-            ) {
-
-              const naam = antwoord.answer;
-
-              const sleutel = normaliseer(naam);
+              const nummer =
+                vraag.questionNumber;
 
               if (
-                typeof naam !== "string" ||
-                !sleutel
+                !Number.isInteger(nummer) ||
+                nummer < 1 ||
+                nummer > 50
               ) {
 
                 fouten.push(
-                  `Vraag ${nummer}: ongeldige diernaam.`
+                  `Ongeldig vraagnummer: ${nummer}`
                 );
 
                 continue;
 
               }
 
-              if (gezien.has(sleutel)) {
+              if (
+                vraagnummers.has(nummer)
+              ) {
 
                 fouten.push(
-
-                  `Vraag ${nummer}: dubbel antwoord ${naam}.`
-
+                  `Dubbel vraagnummer: ${nummer}`
                 );
 
               }
 
-              gezien.add(sleutel);
-
-              uniekeDieren.add(sleutel);
+              vraagnummers.add(nummer);
 
               if (
-                !Number.isInteger(antwoord.points) ||
-                antwoord.points < 10 ||
-                antwoord.points > 100
+                typeof vraag.id !== "string" ||
+                !vraag.id.trim()
               ) {
 
                 fouten.push(
+                  `Vraag ${nummer} heeft geen geldige ID.`
+                );
 
-                  `Vraag ${nummer}: ongeldige punten bij ${naam}.`
+              }
 
+              if (vraagIds.has(vraag.id)) {
+
+                fouten.push(
+                  `Dubbele vraag-ID: ${vraag.id}`
+                );
+
+              }
+
+              vraagIds.add(vraag.id);
+
+              if (
+                typeof vraag.question !== "string" ||
+                !vraag.question.trim()
+              ) {
+
+                fouten.push(
+                  `Vraag ${nummer} heeft geen vraagtekst.`
+                );
+
+              }
+
+              const antwoorden =
+                Array.isArray(vraag.answers)
+                  ? vraag.answers
+                  : [];
+
+              if (antwoorden.length === 0) {
+
+                fouten.push(
+                  `Vraag ${nummer} heeft geen antwoorden.`
+                );
+
+              }
+
+              const gezien =
+                new Set();
+
+              let raketten = 0;
+
+              for (const antwoord of antwoorden) {
+
+                const naam =
+                  antwoord.answer;
+
+                const sleutel =
+                  normaliseer(naam);
+
+                if (
+                  typeof naam !== "string" ||
+                  !sleutel
+                ) {
+
+                  fouten.push(
+                    `Vraag ${nummer}: lege diernaam.`
+                  );
+
+                  continue;
+
+                }
+
+                if (gezien.has(sleutel)) {
+
+                  fouten.push(
+                    `Vraag ${nummer}: dubbel antwoord ${naam}.`
+                  );
+
+                }
+
+                gezien.add(sleutel);
+
+                uniekeDieren.add(sleutel);
+
+                if (
+                  !Number.isInteger(antwoord.points) ||
+                  antwoord.points < 10 ||
+                  antwoord.points > 100
+                ) {
+
+                  fouten.push(
+                    `Vraag ${nummer}: ongeldige punten bij ${naam}.`
+                  );
+
+                }
+
+                if (
+                  antwoord.isRocket !==
+                  (antwoord.points === 100)
+                ) {
+
+                  fouten.push(
+                    `Vraag ${nummer}: onjuiste raketstatus bij ${naam}.`
+                  );
+
+                }
+
+                if (antwoord.isRocket) {
+
+                  raketten++;
+
+                }
+
+                if (
+                  !Array.isArray(antwoord.aliases)
+                ) {
+
+                  fouten.push(
+                    `Vraag ${nummer}: ongeldige aliassen bij ${naam}.`
+                  );
+
+                } else {
+
+                  const aliasSleutels =
+                    new Set([sleutel]);
+
+                  for (
+                    const alias of antwoord.aliases
+                  ) {
+
+                    const aliasSleutel =
+                      normaliseer(alias);
+
+                    if (
+                      typeof alias !== "string" ||
+                      !aliasSleutel
+                    ) {
+
+                      fouten.push(
+                        `Vraag ${nummer}: ongeldige alias bij ${naam}.`
+                      );
+
+                      continue;
+
+                    }
+
+                    if (
+                      aliasSleutels.has(aliasSleutel)
+                    ) {
+
+                      fouten.push(
+                        `Vraag ${nummer}: dubbele alias bij ${naam}.`
+                      );
+
+                    }
+
+                    aliasSleutels.add(aliasSleutel);
+
+                  }
+
+                  totaalAliassen +=
+                    antwoord.aliases.length;
+
+                }
+
+              }
+
+              const aantal =
+                antwoorden.length;
+
+              const verwacht =
+                aantalRaketten(aantal);
+
+              if (raketten !== verwacht) {
+
+                fouten.push(
+                  `Vraag ${nummer}: ${raketten} raketten ` +
+                  `in plaats van ${verwacht}.`
                 );
 
               }
 
               if (
-                antwoord.isRocket !==
-                (antwoord.points === 100)
+                vraag.answerCount !== aantal
               ) {
 
                 fouten.push(
-
-                  `Vraag ${nummer}: onjuiste raketstatus bij ${naam}.`
-
+                  `Vraag ${nummer}: answerCount klopt niet.`
                 );
 
               }
 
-              if (antwoord.isRocket) {
-
-                raketten++;
-
-              }
-
               if (
-                !Array.isArray(antwoord.aliases)
+                vraag.rocketCount !== raketten
               ) {
 
                 fouten.push(
+                  `Vraag ${nummer}: rocketCount klopt niet.`
+                );
 
-                  `Vraag ${nummer}: ongeldige aliaslijst bij ${naam}.`
+              }
 
+              totaalAntwoorden += aantal;
+
+              totaalRaketten += raketten;
+
+              begrensdeVoortgang +=
+                Math.min(aantal, 1000);
+
+              ontbrekendTotStreefdoel +=
+                Math.max(0, 1000 - aantal);
+
+              if (aantal >= 1000) {
+
+                vragenMet1000++;
+
+              }
+
+              vraagRapport.push({
+                vraag: nummer,
+                vraagtekst: vraag.question,
+                antwoorden: aantal,
+                raketten,
+                tekort: Math.max(0, 1000 - aantal)
+              });
+
+              console.log(
+                `Vraag ${String(nummer).padStart(2, "0")}: ` +
+                `${aantal} antwoorden, ${raketten} raketten.`
+              );
+
+            }
+
+            for (
+              let nummer = 1;
+              nummer <= 50;
+              nummer++
+            ) {
+
+              if (!vraagnummers.has(nummer)) {
+
+                fouten.push(
+                  `Vraag ${nummer} ontbreekt.`
+                );
+
+              }
+
+            }
+
+            // ==================================================
+            // EXTRA BESCHERMING TEGEN LEGE EXPORT
+            // ==================================================
+
+            if (
+              totaalAntwoorden <= BASISLIJN.antwoorden
+            ) {
+
+              fouten.push(
+                "De uitbreiding bevat niet meer antwoordkoppelingen dan V9.1."
+              );
+
+            }
+
+            if (
+              uniekeDieren.size <= BASISLIJN.uniekeDieren
+            ) {
+
+              fouten.push(
+                "De uitbreiding bevat niet meer dierrecords dan V9.1."
+              );
+
+            }
+
+            // ==================================================
+            // ALLE TESTEN OPHALEN
+            // ==================================================
+
+            const tests =
+              leesDebug(debug, "tests", true);
+
+            const raketTests =
+              leesDebug(debug, "raketTests", true);
+
+            const letterTests =
+              leesDebug(debug, "letterTests", true);
+
+            const letterBankTests =
+              leesDebug(debug, "letterBankTests", true);
+
+            const exportFouten =
+              leesDebug(debug, "fouten", true);
+
+            const naamconflicten =
+              leesDebug(debug, "naamconflicten");
+
+            const ontbrekendeNamen =
+              leesDebug(debug, "ontbrekendeNamen");
+
+            const ontbrekendeKoppelingen =
+              leesDebug(debug, "ontbrekendeKoppelingen");
+
+            const overgeslagenConflicten =
+              leesDebug(debug, "overgeslagenConflicten");
+
+            const dubbeleNamen =
+              leesDebug(debug, "dubbeleNamen");
+
+            const bronWaarschuwingen =
+              leesDebug(debug, "waarschuwingen");
+
+            console.log("");
+            console.log(
+              "=========================================="
+            );
+
+            console.log("TESTRESULTATEN");
+
+            console.log(
+              "=========================================="
+            );
+
+            const antwoordResultaat =
+              controleerTests(
+                "Antwoordtests",
+                tests
+              );
+
+            const raketResultaat =
+              controleerTests(
+                "Rakettests",
+                raketTests
+              );
+
+            const letterResultaat =
+              controleerTests(
+                "Lettertests",
+                letterTests
+              );
+
+            const letterBankResultaat =
+              controleerTests(
+                "Letterbanktests",
+                letterBankTests
+              );
+
+            // ==================================================
+            // ONAFHANKELIJKE ANTWOORDTESTS
+            // ==================================================
+
+            const indexPerVraag =
+              new Map();
+
+            for (const vraag of vragen) {
+
+              const namen =
+                new Set();
+
+              for (
+                const antwoord of vraag.answers || []
+              ) {
+
+                namen.add(
+                  normaliseer(antwoord.answer)
+                );
+
+                for (
+                  const alias of antwoord.aliases || []
+                ) {
+
+                  namen.add(
+                    normaliseer(alias)
+                  );
+
+                }
+
+              }
+
+              indexPerVraag.set(
+                vraag.questionNumber,
+                namen
+              );
+
+            }
+
+            const onafhankelijkeTests = [];
+
+            for (const test of tests) {
+
+              const resultaat =
+                indexPerVraag
+                  .get(Number(test.nummer))
+                  ?.has(normaliseer(test.invoer)) ||
+                false;
+
+              const geslaagd =
+                resultaat === test.verwacht;
+
+              onafhankelijkeTests.push({
+                nummer: test.nummer,
+                invoer: test.invoer,
+                verwacht: test.verwacht,
+                resultaat,
+                geslaagd
+              });
+
+              if (!geslaagd) {
+
+                fouten.push(
+                  `Onafhankelijke antwoordtest: ` +
+                  `vraag ${test.nummer}, ${test.invoer}.`
+                );
+
+              }
+
+            }
+
+            const onafhankelijkeTestsGeslaagd =
+              onafhankelijkeTests.filter(
+                test => test.geslaagd
+              ).length;
+
+            console.log(
+              `Onafhankelijke antwoordtests: ` +
+              `${onafhankelijkeTestsGeslaagd}/${onafhankelijkeTests.length}`
+            );
+
+            // ==================================================
+            // RAKETFORMULE ONAFHANKELIJK TESTEN
+            // ==================================================
+
+            const extraRaketTests = [
+              [0,0],
+              [1,1],
+              [50,1],
+              [51,2],
+              [150,2],
+              [151,3],
+              [250,3],
+              [251,4],
+              [350,4],
+              [351,5],
+              [950,10],
+              [951,11],
+              [1000,11],
+              [1050,11],
+              [1051,12],
+              [5000,51],
+              [10000,101]
+            ];
+
+            for (
+              const [aantal, verwacht] of
+              extraRaketTests
+            ) {
+
+              if (
+                aantalRaketten(aantal) !== verwacht
+              ) {
+
+                fouten.push(
+                  `Onafhankelijke rakettest mislukt bij ${aantal}.`
+                );
+
+              }
+
+            }
+
+            // ==================================================
+            // SAMENVATTING CONTROLEREN
+            // ==================================================
+
+            const bronSamenvatting =
+              categorie.summary || {};
+
+            const vergelijkingen = [
+              [
+                "Bruikbare dierrecords",
+                bronSamenvatting.bruikbareDierrecords,
+                uniekeDieren.size
+              ],
+              [
+                "Antwoordkoppelingen",
+                bronSamenvatting.totaalVraagAntwoorden,
+                totaalAntwoorden
+              ],
+              [
+                "Raketten",
+                bronSamenvatting.totaalRaketten,
+                totaalRaketten
+              ],
+              [
+                "Aantal vragen",
+                bronSamenvatting.totaalVragen,
+                vragen.length
+              ],
+              [
+                "Vragen met 1000 antwoorden",
+                bronSamenvatting.vragenMet1000Antwoorden,
+                vragenMet1000
+              ]
+            ];
+
+            for (
+              const [naam, verwacht, gevonden] of
+              vergelijkingen
+            ) {
+
+              if (verwacht !== gevonden) {
+
+                fouten.push(
+                  `${naam}: verwacht ${verwacht}, gevonden ${gevonden}.`
+                );
+
+              }
+
+            }
+
+            for (const fout of exportFouten) {
+
+              fouten.push(
+                typeof fout === "string"
+                  ? fout
+                  : JSON.stringify(fout)
+              );
+
+            }
+
+            for (const waarschuwing of bronWaarschuwingen) {
+
+              waarschuwingen.push(
+                typeof waarschuwing === "string"
+                  ? waarschuwing
+                  : JSON.stringify(waarschuwing)
+              );
+
+            }
+
+            if (
+              categorie.technicallyReady !== true
+            ) {
+
+              fouten.push(
+                "V9.2 meldt dat nog niet alle controles zijn geslaagd."
+              );
+
+            }
+
+            // ==================================================
+            // DEFINITIEVE STATISTIEKEN
+            // ==================================================
+
+            const voortgang = rondAf(
+              begrensdeVoortgang / 50000 * 100
+            );
+
+            const statistieken = {
+
+              uniqueAnimals:
+                uniekeDieren.size,
+
+              questionCount:
+                vragen.length,
+
+              answerCount:
+                totaalAntwoorden,
+
+              rocketCount:
+                totaalRaketten,
+
+              aliasLinks:
+                totaalAliassen,
+
+              completedQuestions:
+                vragenMet1000,
+
+              incompleteQuestions:
+                50 - vragenMet1000,
+
+              progress:
+                voortgang,
+
+              missingToTarget:
+                ontbrekendTotStreefdoel,
+
+              passedTests:
+                antwoordResultaat.geslaagd,
+
+              totalTests:
+                antwoordResultaat.totaal,
+
+              passedRocketTests:
+                raketResultaat.geslaagd,
+
+              totalRocketTests:
+                raketResultaat.totaal,
+
+              passedLetterTests:
+                letterResultaat.geslaagd,
+
+              totalLetterTests:
+                letterResultaat.totaal,
+
+              passedLetterBankTests:
+                letterBankResultaat.geslaagd,
+
+              totalLetterBankTests:
+                letterBankResultaat.totaal,
+
+              passedIndependentTests:
+                onafhankelijkeTestsGeslaagd,
+
+              totalIndependentTests:
+                onafhankelijkeTests.length,
+
+              conflicts:
+                naamconflicten.length,
+
+              warnings:
+                waarschuwingen.length,
+
+              newAnimals:
+                uniekeDieren.size -
+                BASISLIJN.uniekeDieren,
+
+              newAnswerLinks:
+                totaalAntwoorden -
+                BASISLIJN.antwoorden,
+
+              newRockets:
+                totaalRaketten -
+                BASISLIJN.raketten,
+
+              progressDifference:
+                rondAf(
+                  voortgang -
+                  BASISLIJN.voortgang
+                )
+
+            };
+
+            // ==================================================
+            // BOUWRAPPORT
+            // ==================================================
+
+            const controleRapport = {
+
+              version: VERSIE,
+
+              category: "Dieren",
+
+              baseline: BASISLIJN,
+
+              repairs: reparaties,
+
+              timings: tijden,
+
+              summary: statistieken,
+
+              sourceSummary:
+                bronSamenvatting,
+
+              tests,
+
+              rocketTests:
+                raketTests,
+
+              letterTests,
+
+              letterBankTests,
+
+              independentTests:
+                onafhankelijkeTests,
+
+              failedTests:
+                antwoordResultaat.mislukt,
+
+              failedRocketTests:
+                raketResultaat.mislukt,
+
+              failedLetterTests:
+                letterResultaat.mislukt,
+
+              failedLetterBankTests:
+                letterBankResultaat.mislukt,
+
+              missingNames:
+                ontbrekendeNamen,
+
+              missingLinks:
+                ontbrekendeKoppelingen,
+
+              conflicts:
+                naamconflicten,
+
+              skippedConflicts:
+                overgeslagenConflicten,
+
+              duplicateNames:
+                dubbeleNamen,
+
+              warnings:
+                waarschuwingen,
+
+              exportErrors:
+                [...new Set(fouten)],
+
+              questions:
+                vraagRapport,
+
+              contentVerified: false,
+
+              contentComplete: false,
+
+              buildVerified: false,
+
+              totalBuildSeconds:
+                seconden()
+
+            };
+
+            schrijfJSON(
+              "bouwrapport/controle.json",
+              controleRapport
+            );
+
+            // ==================================================
+            // RESULTATEN TONEN
+            // ==================================================
+
+            console.log("");
+            console.log(
+              "=========================================="
+            );
+
+            console.log(
+              "QUIZBALLON V9.2 - RESULTATEN"
+            );
+
+            console.log(
+              "=========================================="
+            );
+
+            console.log(
+              `Unieke diernamen: ${uniekeDieren.size}`
+            );
+
+            console.log(
+              `Nieuwe diernamen: ${statistieken.newAnimals}`
+            );
+
+            console.log(
+              `Antwoordkoppelingen: ${totaalAntwoorden}`
+            );
+
+            console.log(
+              `Nieuwe antwoordkoppelingen: ${statistieken.newAnswerLinks}`
+            );
+
+            console.log(
+              `Raketten: ${totaalRaketten}`
+            );
+
+            console.log(
+              `Vragen met 1000+ antwoorden: ${vragenMet1000}/50`
+            );
+
+            console.log(
+              `Voortgang: ${voortgang}%`
+            );
+
+            console.log(
+              `Ontbrekend tot streefdoel: ${ontbrekendTotStreefdoel}`
+            );
+
+            console.log(
+              `Naamconflicten: ${naamconflicten.length}`
+            );
+
+            console.log(
+              `Waarschuwingen: ${waarschuwingen.length}`
+            );
+
+            console.log(
+              `Technische fouten: ${controleRapport.exportErrors.length}`
+            );
+
+            // ==================================================
+            // GITHUB SAMENVATTING
+            // ==================================================
+
+            if (process.env.GITHUB_STEP_SUMMARY) {
+
+              const regels = [
+                "# QuizBallon Dieren V9.2",
+                "",
+                "Automatische reparatie toegepast.",
+                "",
+                "| Onderdeel | V9.1 | V9.2 |",
+                "|---|---:|---:|",
+                `| Diernamen | 17123 | ${uniekeDieren.size} |`,
+                `| Antwoorden | 62945 | ${totaalAntwoorden} |`,
+                `| Raketten | 676 | ${totaalRaketten} |`,
+                `| Vragen met 1000+ | 14 | ${vragenMet1000} |`,
+                `| Voortgang | 51.31% | ${voortgang}% |`,
+                "",
+                "## Testresultaten",
+                "",
+                `- Antwoordtests: ${antwoordResultaat.geslaagd}/${antwoordResultaat.totaal}`,
+                `- Rakettests: ${raketResultaat.geslaagd}/${raketResultaat.totaal}`,
+                `- Lettertests: ${letterResultaat.geslaagd}/${letterResultaat.totaal}`,
+                `- Letterbanktests: ${letterBankResultaat.geslaagd}/${letterBankResultaat.totaal}`,
+                `- Onafhankelijke antwoordtests: ${onafhankelijkeTestsGeslaagd}/${onafhankelijkeTests.length}`,
+                `- Technische fouten: ${controleRapport.exportErrors.length}`,
+                "",
+                "## Alle 50 vragen",
+                "",
+                "| Vraag | Antwoorden | Raketten | Tekort |",
+                "|---:|---:|---:|---:|"
+              ];
+
+              for (const vraag of vraagRapport) {
+
+                regels.push(
+                  `| ${vraag.vraag} | ${vraag.antwoorden} | ${vraag.raketten} | ${vraag.tekort} |`
+                );
+
+              }
+
+              regels.push(
+                "",
+                "## Mislukte antwoordtests",
+                ""
+              );
+
+              if (
+                antwoordResultaat.mislukt.length === 0
+              ) {
+
+                regels.push(
+                  "Geen mislukte antwoordtests."
                 );
 
               } else {
 
                 for (
-                  const alias of antwoord.aliases
+                  const test of
+                  antwoordResultaat.mislukt
                 ) {
 
-                  if (
-                    typeof alias !== "string" ||
-                    !normaliseer(alias)
-                  ) {
-
-                    fouten.push(
-
-                      `Vraag ${nummer}: ongeldige alias bij ${naam}.`
-
-                    );
-
-                  }
+                  regels.push(
+                    `- Vraag ${test.nummer}: ${test.invoer}. ` +
+                    `Verwacht: ${test.verwacht}. ` +
+                    `Gevonden: ${test.resultaat}.`
+                  );
 
                 }
 
-                totaalAliassen +=
-                  antwoord.aliases.length;
+              }
+
+              regels.push(
+                "",
+                "Biologische volledigheid is niet onafhankelijk vastgesteld."
+              );
+
+              fs.appendFileSync(
+                process.env.GITHUB_STEP_SUMMARY,
+                regels.join("\n") + "\n"
+              );
+
+            }
+
+            // ==================================================
+            // BIJ FOUTEN NIET PUBLICEREN
+            // ==================================================
+
+            if (
+              controleRapport.exportErrors.length > 0
+            ) {
+
+              console.error("");
+              console.error(
+                "V9.2 heeft nog niet alle controles doorstaan."
+              );
+
+              for (
+                const fout of
+                controleRapport.exportErrors.slice(0, 100)
+              ) {
+
+                console.error(`- ${fout}`);
+
+              }
+
+              console.error(
+                "De volledige foutlijst staat in het bouwrapport."
+              );
+
+              console.error(
+                "De werkende V9.1-bestanden worden niet vervangen."
+              );
+
+              throw new Error(
+                `${controleRapport.exportErrors.length} controles mislukt.`
+              );
+
+            }
+
+            // ==================================================
+            // JSON-VRAAGBESTANDEN GENEREREN
+            // ==================================================
+
+            fs.mkdirSync(
+              UITVOERMAP,
+              {
+                recursive: true
+              }
+            );
+
+            const manifestVragen = [];
+
+            let totaalBytes = 0;
+
+            for (const vraag of vragen) {
+
+              const bestandsnaam =
+                String(vraag.questionNumber)
+                  .padStart(2, "0") +
+                ".json";
+
+              const bestand =
+                path.join(
+                  UITVOERMAP,
+                  bestandsnaam
+                );
+
+              const bytes =
+                schrijfJSON(
+                  bestand,
+                  vraag
+                );
+
+              totaalBytes += bytes;
+
+              manifestVragen.push({
+
+                id: vraag.id,
+
+                baseQuestionId:
+                  vraag.baseQuestionId ||
+                  vraag.id,
+
+                topicId:
+                  vraag.topicId ||
+                  vraag.id,
+
+                questionNumber:
+                  vraag.questionNumber,
+
+                question:
+                  vraag.question,
+
+                category:
+                  vraag.category,
+
+                qb650Category:
+                  "Dieren",
+
+                hint:
+                  vraag.hint || "",
+
+                answerCount:
+                  vraag.answers.length,
+
+                rocketCount:
+                  vraag.rocketCount,
+
+                file:
+                  bestandsnaam,
+
+                bytes
+
+              });
+
+              console.log(
+                `${bestandsnaam}: ` +
+                `${vraag.answers.length} antwoorden, ` +
+                `${rondAf(bytes / 1024, 1)} KB`
+              );
+
+            }
+
+            // ==================================================
+            // MANIFEST
+            // ==================================================
+
+            const manifest = {
+
+              version:
+                VERSIE,
+
+              category:
+                "Dieren",
+
+              contentVerified:
+                false,
+
+              contentComplete:
+                false,
+
+              buildVerified:
+                true,
+
+              summary: {
+
+                ...statistieken,
+
+                totalBytes:
+                  totaalBytes,
+
+                averageQuestionBytes:
+                  Math.round(
+                    totaalBytes / vragen.length
+                  )
+
+              },
+
+              questions:
+                manifestVragen
+
+            };
+
+            schrijfJSON(
+              path.join(
+                UITVOERMAP,
+                "manifest.json"
+              ),
+              manifest
+            );
+
+            // ==================================================
+            // GEGENEREERDE BESTANDEN CONTROLEREN
+            // ==================================================
+
+            const controleManifest =
+              leesJSON(
+                path.join(
+                  UITVOERMAP,
+                  "manifest.json"
+                )
+              );
+
+            if (
+              controleManifest.version !== VERSIE ||
+              controleManifest.questions.length !== 50
+            ) {
+
+              throw new Error(
+                "Het gegenereerde manifest klopt niet."
+              );
+
+            }
+
+            let controleAntwoorden = 0;
+
+            let controleRaketten = 0;
+
+            let controleBytes = 0;
+
+            const controleDieren =
+              new Set();
+
+            for (
+              const metadata of
+              controleManifest.questions
+            ) {
+
+              const bestand =
+                path.join(
+                  UITVOERMAP,
+                  metadata.file
+                );
+
+              const vraag =
+                leesJSON(bestand);
+
+              const bytes =
+                fs.statSync(bestand).size;
+
+              if (
+                vraag.id !== metadata.id ||
+                vraag.questionNumber !== metadata.questionNumber ||
+                vraag.dataVersion !== VERSIE
+              ) {
+
+                throw new Error(
+                  `Vraaggegevens kloppen niet in ${metadata.file}.`
+                );
+
+              }
+
+              if (
+                vraag.answers.length !== metadata.answerCount
+              ) {
+
+                throw new Error(
+                  `Antwoordaantal klopt niet in ${metadata.file}.`
+                );
+
+              }
+
+              const raketten =
+                vraag.answers.filter(
+                  antwoord => antwoord.isRocket
+                ).length;
+
+              if (
+                raketten !== metadata.rocketCount
+              ) {
+
+                throw new Error(
+                  `Raketaantal klopt niet in ${metadata.file}.`
+                );
+
+              }
+
+              if (bytes !== metadata.bytes) {
+
+                throw new Error(
+                  `Bestandsgrootte klopt niet in ${metadata.file}.`
+                );
+
+              }
+
+              controleAntwoorden +=
+                vraag.answers.length;
+
+              controleRaketten +=
+                raketten;
+
+              controleBytes +=
+                bytes;
+
+              for (
+                const antwoord of vraag.answers
+              ) {
+
+                controleDieren.add(
+                  normaliseer(antwoord.answer)
+                );
 
               }
 
             }
 
-            const aantal =
-              vraag.answers.length;
-
-            const verwachteRaketten =
-              aantalRaketten(aantal);
-
             if (
-              raketten !== verwachteRaketten
+              controleAntwoorden !== totaalAntwoorden ||
+              controleRaketten !== totaalRaketten ||
+              controleBytes !== totaalBytes ||
+              controleDieren.size !== uniekeDieren.size
             ) {
 
-              fouten.push(
-
-                `Vraag ${nummer}: ${raketten} raketten ` +
-
-                `in plaats van ${verwachteRaketten}.`
-
+              throw new Error(
+                "Gegevens verloren gegaan tijdens de JSON-export."
               );
 
             }
 
-            if (
-              vraag.answerCount !== aantal
-            ) {
+            // ==================================================
+            // DEFINITIEF CONTROLERAPPORT
+            // ==================================================
 
-              fouten.push(
+            controleRapport.summary =
+              manifest.summary;
 
-                `Vraag ${nummer}: answerCount klopt niet.`
+            controleRapport.buildVerified =
+              true;
 
-              );
+            controleRapport.totalBuildSeconds =
+              seconden();
 
-            }
+            controleRapport.exportErrors =
+              [];
 
-            if (
-              vraag.rocketCount !== raketten
-            ) {
+            schrijfJSON(
+              path.join(
+                UITVOERMAP,
+                "controle.json"
+              ),
+              controleRapport
+            );
 
-              fouten.push(
+            schrijfJSON(
+              "bouwrapport/controle.json",
+              controleRapport
+            );
 
-                `Vraag ${nummer}: rocketCount klopt niet.`
+            // ==================================================
+            // SUCCESMELDING
+            // ==================================================
 
-              );
-
-            }
-
-            totaalAntwoorden += aantal;
-
-            totaalRaketten += raketten;
-
-            begrensdeVoortgang +=
-              Math.min(aantal, 1000);
-
-            ontbrekendTotStreefdoel +=
-              Math.max(0, 1000 - aantal);
-
-            if (aantal >= 1000) {
-
-              vragenMet1000++;
-
-            }
-
-            vraagRapport.push({
-
-              vraag: nummer,
-
-              vraagtekst: vraag.question,
-
-              antwoorden: aantal,
-
-              raketten,
-
-              tekort: Math.max(
-                0,
-                1000 - aantal
-              )
-
-            });
+            console.log("");
+            console.log(
+              "=========================================="
+            );
 
             console.log(
+              "QUIZBALLON V9.2 SUCCESVOL GEBOUWD"
+            );
 
-              `Vraag ${String(nummer).padStart(2, "0")}: ` +
+            console.log(
+              "=========================================="
+            );
 
-              `${aantal} antwoorden, ${raketten} raketten.`
+            console.log(
+              `Versie: ${VERSIE}`
+            );
 
+            console.log(
+              `Diernamen: ${uniekeDieren.size}`
+            );
+
+            console.log(
+              `Antwoordkoppelingen: ${totaalAntwoorden}`
+            );
+
+            console.log(
+              `Raketten: ${totaalRaketten}`
+            );
+
+            console.log(
+              `JSON-grootte: ${rondAf(totaalBytes / 1024 / 1024)} MB`
+            );
+
+            console.log(
+              `Voortgang: ${voortgang}%`
+            );
+
+            console.log(
+              `Bouwtijd: ${seconden()} seconden`
+            );
+
+            console.log(
+              "Technisch gereed: Ja"
+            );
+
+            console.log(
+              "Biologisch onafhankelijk gecontroleerd: Nee"
             );
 
           }
 
-          for (
-            let nummer = 1;
-            nummer <= 50;
-            nummer++
-          ) {
+          // ====================================================
+          // BOUW UITVOEREN
+          // ====================================================
+
+          try {
+
+            bouwen();
+
+          } catch (fout) {
+
+            const rapportBestand =
+              "bouwrapport/controle.json";
+
+            let rapport = {};
 
             if (
-              !uniekeVraagnummers.has(nummer)
+              fs.existsSync(rapportBestand)
             ) {
 
-              fouten.push(
-                `Vraag ${nummer} ontbreekt.`
-              );
+              try {
+
+                rapport =
+                  leesJSON(rapportBestand);
+
+              } catch {}
 
             }
 
-          }
+            rapport.version = VERSIE;
 
-          // ====================================================
-          // ANTWOORDTESTS OPHALEN
-          // ====================================================
+            rapport.buildVerified = false;
 
-          const tests = leesDebugLijst(
+            rapport.repairs = reparaties;
 
-            debug,
+            rapport.timings = tijden;
 
-            "tests",
-
-            true
-
-          );
-
-          const raketTests = leesDebugLijst(
-
-            debug,
-
-            "raketTests",
-
-            true
-
-          );
-
-          const letterTests = leesDebugLijst(
-
-            debug,
-
-            "letterTests",
-
-            true
-
-          );
-
-          const letterBankTests = leesDebugLijst(
-
-            debug,
-
-            "letterBankTests",
-
-            true
-
-          );
-
-          const exportFouten = leesDebugLijst(
-
-            debug,
-
-            "fouten",
-
-            true
-
-          );
-
-          const naamconflicten = leesDebugLijst(
-
-            debug,
-
-            "naamconflicten"
-
-          );
-
-          const ontbrekendeNamen = leesDebugLijst(
-
-            debug,
-
-            "ontbrekendeNamen"
-
-          );
-
-          const ontbrekendeKoppelingen =
-            leesDebugLijst(
-
-              debug,
-
-              "ontbrekendeKoppelingen"
-
-            );
-
-          const overgeslagenConflicten =
-            leesDebugLijst(
-
-              debug,
-
-              "overgeslagenConflicten"
-
-            );
-
-          const bronWaarschuwingen =
-            leesDebugLijst(
-
-              debug,
-
-              "waarschuwingen"
-
-            );
-
-          const dubbeleNamen = leesDebugLijst(
-
-            debug,
-
-            "dubbeleNamen"
-
-          );
-
-          // ====================================================
-          // TESTRESULTATEN VERWERKEN
-          // ====================================================
-
-          function controleerTests(
-            naam,
-            lijst
-          ) {
-
-            if (lijst.length === 0) {
-
-              fouten.push(
-
-                `${naam}: er zijn geen tests uitgevoerd.`
-
-              );
-
-            }
-
-            const geslaagd = lijst.filter(
-
-              test => test.geslaagd === true
-
-            ).length;
-
-            const mislukt = lijst.filter(
-
-              test => test.geslaagd !== true
-
-            );
-
-            console.log(
-
-              `${naam}: ${geslaagd}/${lijst.length} geslaagd.`
-
-            );
-
-            for (const test of mislukt) {
-
-              const melding =
-
-                `${naam} mislukt: ` +
-
-                JSON.stringify(test);
-
-              fouten.push(melding);
-
-              console.error(melding);
-
-            }
-
-            return {
-
-              geslaagd,
-
-              totaal: lijst.length,
-
-              mislukt
-
+            rapport.fatalError = {
+              message: fout.message,
+              stack: fout.stack
             };
 
-          }
-
-          console.log("");
-          console.log(
-            "=========================================="
-          );
-
-          console.log("TESTRESULTATEN");
-
-          console.log(
-            "=========================================="
-          );
-
-          const antwoordResultaat =
-            controleerTests(
-
-              "Antwoordtests",
-
-              tests
-
-            );
-
-          const raketResultaat =
-            controleerTests(
-
-              "Rakettests",
-
-              raketTests
-
-            );
-
-          const letterResultaat =
-            controleerTests(
-
-              "Lettertests",
-
-              letterTests
-
-            );
-
-          const letterBankResultaat =
-            controleerTests(
-
-              "Letterbanktests",
-
-              letterBankTests
-
-            );
-
-          // ====================================================
-          // EXTRA ONAFHANKELIJKE RAKETTESTS
-          // ====================================================
-
-          const extraRaketTests = [
-
-            [0,0],
-
-            [1,1],
-
-            [50,1],
-
-            [51,2],
-
-            [150,2],
-
-            [151,3],
-
-            [250,3],
-
-            [251,4],
-
-            [350,4],
-
-            [351,5],
-
-            [950,10],
-
-            [951,11],
-
-            [1000,11],
-
-            [1050,11],
-
-            [1051,12],
-
-            [5000,51],
-
-            [10000,101]
-
-          ];
-
-          for (
-            const [aantal, verwacht] of
-            extraRaketTests
-          ) {
-
-            const resultaat =
-              aantalRaketten(aantal);
-
-            if (resultaat !== verwacht) {
-
-              fouten.push(
-
-                `Onafhankelijke rakettest mislukt: ` +
-
-                `${aantal} antwoorden, ` +
-
-                `${resultaat} in plaats van ${verwacht}.`
-
-              );
-
-            }
-
-          }
-
-          // ====================================================
-          // EXPORTSTATISTIEKEN VERGELIJKEN
-          // ====================================================
-
-          const bronSamenvatting =
-            categorie.summary || {};
-
-          function vergelijkStatistiek(
-            naam,
-            verwacht,
-            gevonden
-          ) {
-
-            if (verwacht !== gevonden) {
-
-              fouten.push(
-
-                `${naam}: export vermeldt ${verwacht}, ` +
-
-                `bouwcontrole vindt ${gevonden}.`
-
-              );
-
-            }
-
-          }
-
-          vergelijkStatistiek(
-
-            "Bruikbare dierrecords",
-
-            bronSamenvatting.bruikbareDierrecords,
-
-            uniekeDieren.size
-
-          );
-
-          vergelijkStatistiek(
-
-            "Antwoordkoppelingen",
-
-            bronSamenvatting.totaalVraagAntwoorden,
-
-            totaalAntwoorden
-
-          );
-
-          vergelijkStatistiek(
-
-            "Raketten",
-
-            bronSamenvatting.totaalRaketten,
-
-            totaalRaketten
-
-          );
-
-          vergelijkStatistiek(
-
-            "Aantal vragen",
-
-            bronSamenvatting.totaalVragen,
-
-            vragen.length
-
-          );
-
-          vergelijkStatistiek(
-
-            "Vragen met minimaal 1000 antwoorden",
-
-            bronSamenvatting.vragenMet1000Antwoorden,
-
-            vragenMet1000
-
-          );
-
-          if (
-            categorie.technicallyReady !== true
-          ) {
-
-            fouten.push(
-
-              "De V9.2-database meldt dat de technische " +
-
-              "controle nog niet volledig geslaagd is."
-
-            );
-
-          }
-
-          for (const fout of exportFouten) {
-
-            fouten.push(
-
-              typeof fout === "string"
-
-                ? fout
-
-                : JSON.stringify(fout)
-
-            );
-
-          }
-
-          for (
-            const waarschuwing of
-            bronWaarschuwingen
-          ) {
-
-            waarschuwingen.push(
-
-              typeof waarschuwing === "string"
-
-                ? waarschuwing
-
-                : JSON.stringify(waarschuwing)
-
-            );
-
-          }
-
-          // ====================================================
-          // VOORTGANG BEREKENEN
-          // ====================================================
-
-          const voortgang = rondAf(
-
-            begrensdeVoortgang /
-            50000 * 100
-
-          );
-
-          const basisStatistieken = {
-
-            uniqueAnimals:
-              uniekeDieren.size,
-
-            questionCount:
-              vragen.length,
-
-            answerCount:
-              totaalAntwoorden,
-
-            rocketCount:
-              totaalRaketten,
-
-            aliasLinks:
-              totaalAliassen,
-
-            completedQuestions:
-              vragenMet1000,
-
-            incompleteQuestions:
-              50 - vragenMet1000,
-
-            progress:
-              voortgang,
-
-            missingToTarget:
-              ontbrekendTotStreefdoel,
-
-            passedTests:
-              antwoordResultaat.geslaagd,
-
-            totalTests:
-              antwoordResultaat.totaal,
-
-            passedRocketTests:
-              raketResultaat.geslaagd,
-
-            totalRocketTests:
-              raketResultaat.totaal,
-
-            passedLetterTests:
-              letterResultaat.geslaagd,
-
-            totalLetterTests:
-              letterResultaat.totaal,
-
-            passedLetterBankTests:
-              letterBankResultaat.geslaagd,
-
-            totalLetterBankTests:
-              letterBankResultaat.totaal,
-
-            conflicts:
-              naamconflicten.length,
-
-            warnings:
-              waarschuwingen.length,
-
-            newAnimals:
-
-              uniekeDieren.size -
-              BASISLIJN.uniekeDieren,
-
-            newAnswerLinks:
-
-              totaalAntwoorden -
-              BASISLIJN.antwoorden,
-
-            newRockets:
-
-              totaalRaketten -
-              BASISLIJN.raketten,
-
-            progressDifference:
-
-              rondAf(
-                voortgang -
-                BASISLIJN.voortgang
-              )
-
-          };
-
-          // ====================================================
-          // UITGEBREID BOUWRAPPORT
-          // ====================================================
-
-          const controleRapport = {
-
-            version:
-              categorie.version,
-
-            category: "Dieren",
-
-            baseline:
-              BASISLIJN,
-
-            timings:
-              tijden,
-
-            summary:
-              basisStatistieken,
-
-            sourceSummary:
-              bronSamenvatting,
-
-            tests:
-              tests,
-
-            rocketTests:
-              raketTests,
-
-            letterTests:
-              letterTests,
-
-            letterBankTests:
-              letterBankTests,
-
-            failedTests:
-              antwoordResultaat.mislukt,
-
-            failedRocketTests:
-              raketResultaat.mislukt,
-
-            failedLetterTests:
-              letterResultaat.mislukt,
-
-            failedLetterBankTests:
-              letterBankResultaat.mislukt,
-
-            missingNames:
-              ontbrekendeNamen,
-
-            missingLinks:
-              ontbrekendeKoppelingen,
-
-            conflicts:
-              naamconflicten,
-
-            skippedConflicts:
-              overgeslagenConflicten,
-
-            duplicateNames:
-              dubbeleNamen,
-
-            warnings:
-              waarschuwingen,
-
-            exportErrors:
-              fouten,
-
-            questions:
-              vraagRapport,
-
-            contentVerified: false,
-
-            contentComplete: false,
-
-            buildVerified:
-              fouten.length === 0,
-
-            totalBuildSeconds:
-
-              seconden(
-
-                performance.now() -
-                bouwStart
-
-              )
-
-          };
-
-          // ====================================================
-          // RAPPORT ALTIJD BEWAREN
-          // ====================================================
-
-          // Ook wanneer een test mislukt blijft dit
-          // rapport beschikbaar als GitHub-artifact.
-
-          fs.mkdirSync(
-
-            "bouwrapport",
-
-            { recursive: true }
-
-          );
-
-          schrijfJSON(
-
-            "bouwrapport/controle.json",
-
-            controleRapport
-
-          );
-
-          const uniekeFouten = [
-
-            ...new Set(fouten)
-
-          ];
-
-          // ====================================================
-          // EINDRESULTATEN TONEN
-          // ====================================================
-
-          console.log("");
-          console.log(
-            "=========================================="
-          );
-
-          console.log(
-            "QUIZBALLON DIEREN V9.2 - RESULTATEN"
-          );
-
-          console.log(
-            "=========================================="
-          );
-
-          console.log(
-            `Versie: ${categorie.version}`
-          );
-
-          console.log(
-            `Unieke diernamen: ${uniekeDieren.size}`
-          );
-
-          console.log(
-            `Nieuwe diernamen: ${
-              basisStatistieken.newAnimals
-            }`
-          );
-
-          console.log(
-            `Antwoordkoppelingen: ${totaalAntwoorden}`
-          );
-
-          console.log(
-            `Nieuwe antwoordkoppelingen: ${
-              basisStatistieken.newAnswerLinks
-            }`
-          );
-
-          console.log(
-            `Raketten: ${totaalRaketten}`
-          );
-
-          console.log(
-            `Nieuwe raketten: ${
-              basisStatistieken.newRockets
-            }`
-          );
-
-          console.log(
-            `Vragen met minimaal 1000 antwoorden: ${
-              vragenMet1000
-            }/50`
-          );
-
-          console.log(
-            `Voortgang: ${voortgang}%`
-          );
-
-          console.log(
-            `Vorige voortgang: ${
-              BASISLIJN.voortgang
-            }%`
-          );
-
-          console.log(
-            `Verschil: ${
-              basisStatistieken.progressDifference
-            } procentpunten`
-          );
-
-          console.log(
-            `Ontbrekend tot streefdoel: ${
-              ontbrekendTotStreefdoel
-            }`
-          );
-
-          console.log(
-            `Naamconflicten: ${
-              naamconflicten.length
-            }`
-          );
-
-          console.log(
-            `Waarschuwingen: ${
-              waarschuwingen.length
-            }`
-          );
-
-          console.log(
-            `Technische fouten: ${
-              uniekeFouten.length
-            }`
-          );
-
-          console.log(
-            "Biologisch onafhankelijk gecontroleerd: Nee"
-          );
-
-          // ====================================================
-          // STOPPEN BIJ MISLUKTE TESTS
-          // ====================================================
-
-          if (uniekeFouten.length > 0) {
-
-            console.error("");
-            console.error(
-              "=========================================="
+            rapport.totalBuildSeconds =
+              seconden();
+
+            schrijfJSON(
+              rapportBestand,
+              rapport
             );
 
             console.error(
-              "DE DATABASE HEEFT DE CONTROLE NIET DOORSTAAN"
+              fout.stack || fout.message
             );
 
-            console.error(
-              "=========================================="
-            );
-
-            for (const fout of uniekeFouten) {
-
-              console.error(`- ${fout}`);
-
-            }
-
-            console.error("");
-
-            console.error(
-
-              "De bestaande werkende V9.1-JSON-bestanden " +
-
-              "worden niet vervangen."
-
-            );
-
-            throw new Error(
-
-              `${uniekeFouten.length} technische fouten gevonden.`
-
-            );
+            process.exitCode = 1;
 
           }
-
-          // ====================================================
-          // JSON-BESTANDEN GENEREREN
-          // ====================================================
-
-          console.log("");
-          console.log(
-            "Alle technische controles zijn geslaagd."
-          );
-
-          console.log(
-            "De 50 afzonderlijke vraagbanken genereren..."
-          );
-
-          fs.mkdirSync(
-
-            UITVOERMAP,
-
-            { recursive: true }
-
-          );
-
-          const manifestVragen = [];
-
-          let totaalBytes = 0;
-
-          for (const vraag of vragen) {
-
-            const nummer =
-              vraag.questionNumber;
-
-            const bestandsnaam =
-
-              String(nummer)
-
-                .padStart(2, "0") +
-
-              ".json";
-
-            const bestand = path.join(
-
-              UITVOERMAP,
-
-              bestandsnaam
-
-            );
-
-            const bytes = schrijfJSON(
-
-              bestand,
-
-              vraag
-
-            );
-
-            totaalBytes += bytes;
-
-            manifestVragen.push({
-
-              id:
-                vraag.id,
-
-              baseQuestionId:
-
-                vraag.baseQuestionId ||
-                vraag.id,
-
-              topicId:
-
-                vraag.topicId ||
-                vraag.id,
-
-              questionNumber:
-                nummer,
-
-              question:
-                vraag.question,
-
-              category:
-                vraag.category,
-
-              qb650Category:
-                "Dieren",
-
-              hint:
-                vraag.hint || "",
-
-              answerCount:
-                vraag.answers.length,
-
-              rocketCount:
-                vraag.rocketCount,
-
-              file:
-                bestandsnaam,
-
-              bytes
-
-            });
-
-            console.log(
-
-              `${bestandsnaam}: ` +
-
-              `${vraag.answers.length} antwoorden, ` +
-
-              `${rondAf(bytes / 1024, 1)} KB.`
-
-            );
-
-          }
-
-          // ====================================================
-          // MANIFEST MAKEN
-          // ====================================================
-
-          const manifest = {
-
-            version:
-              categorie.version,
-
-            category:
-              "Dieren",
-
-            contentVerified:
-              false,
-
-            contentComplete:
-              false,
-
-            buildVerified:
-              true,
-
-            summary: {
-
-              ...basisStatistieken,
-
-              totalBytes:
-                totaalBytes,
-
-              averageQuestionBytes:
-
-                Math.round(
-
-                  totaalBytes /
-                  vragen.length
-
-                )
-
-            },
-
-            questions:
-              manifestVragen
-
-          };
-
-          schrijfJSON(
-
-            path.join(
-
-              UITVOERMAP,
-
-              "manifest.json"
-
-            ),
-
-            manifest
-
-          );
-
-          // ====================================================
-          // GEGENEREERDE BESTANDEN OPNIEUW CONTROLEREN
-          // ====================================================
-
-          console.log("");
-          console.log(
-            "Gegenereerde bestanden opnieuw inlezen..."
-          );
-
-          const teruggelezenManifest =
-            leesJSON(
-
-              path.join(
-
-                UITVOERMAP,
-
-                "manifest.json"
-
-              )
-
-            );
-
-          if (
-            teruggelezenManifest.version !==
-            VERWACHTE_VERSIE
-          ) {
-
-            throw new Error(
-
-              "De versie in manifest.json klopt niet."
-
-            );
-
-          }
-
-          if (
-            teruggelezenManifest.questions.length !== 50
-          ) {
-
-            throw new Error(
-
-              "Het manifest bevat geen 50 vragen."
-
-            );
-
-          }
-
-          let controleAntwoorden = 0;
-
-          let controleRaketten = 0;
-
-          let controleBytes = 0;
-
-          const controleDieren = new Set();
-
-          for (
-            const metadata of
-            teruggelezenManifest.questions
-          ) {
-
-            const bestand = path.join(
-
-              UITVOERMAP,
-
-              metadata.file
-
-            );
-
-            const gegevens =
-              leesJSON(bestand);
-
-            const bestandsgrootte =
-              fs.statSync(bestand).size;
-
-            if (
-              gegevens.id !== metadata.id
-            ) {
-
-              throw new Error(
-
-                `Vraag-ID klopt niet in ${metadata.file}.`
-
-              );
-
-            }
-
-            if (
-              gegevens.questionNumber !==
-              metadata.questionNumber
-            ) {
-
-              throw new Error(
-
-                `Vraagnummer klopt niet in ${metadata.file}.`
-
-              );
-
-            }
-
-            if (
-              gegevens.dataVersion !==
-              VERWACHTE_VERSIE
-            ) {
-
-              throw new Error(
-
-                `Dataversie klopt niet in ${metadata.file}.`
-
-              );
-
-            }
-
-            if (
-              gegevens.answers.length !==
-              metadata.answerCount
-            ) {
-
-              throw new Error(
-
-                `Antwoordaantal klopt niet in ${metadata.file}.`
-
-              );
-
-            }
-
-            const raketten =
-              gegevens.answers.filter(
-
-                antwoord =>
-                  antwoord.isRocket === true
-
-              ).length;
-
-            if (
-              raketten !== metadata.rocketCount
-            ) {
-
-              throw new Error(
-
-                `Raketaantal klopt niet in ${metadata.file}.`
-
-              );
-
-            }
-
-            if (
-              bestandsgrootte !== metadata.bytes
-            ) {
-
-              throw new Error(
-
-                `Bestandsgrootte klopt niet in ${metadata.file}.`
-
-              );
-
-            }
-
-            controleAntwoorden +=
-              gegevens.answers.length;
-
-            controleRaketten +=
-              raketten;
-
-            controleBytes +=
-              bestandsgrootte;
-
-            for (
-              const antwoord of gegevens.answers
-            ) {
-
-              controleDieren.add(
-
-                normaliseer(antwoord.answer)
-
-              );
-
-            }
-
-          }
-
-          if (
-            controleAntwoorden !== totaalAntwoorden
-          ) {
-
-            throw new Error(
-
-              "Tijdens de export zijn antwoorden verloren gegaan."
-
-            );
-
-          }
-
-          if (
-            controleRaketten !== totaalRaketten
-          ) {
-
-            throw new Error(
-
-              "Tijdens de export zijn raketten verloren gegaan."
-
-            );
-
-          }
-
-          if (
-            controleDieren.size !== uniekeDieren.size
-          ) {
-
-            throw new Error(
-
-              "Tijdens de export zijn diernamen verloren gegaan."
-
-            );
-
-          }
-
-          if (
-            controleBytes !== totaalBytes
-          ) {
-
-            throw new Error(
-
-              "De totale JSON-bestandsgrootte klopt niet."
-
-            );
-
-          }
-
-          // ====================================================
-          // DEFINITIEF CONTROLERAPPORT OPSLAAN
-          // ====================================================
-
-          controleRapport.summary =
-            manifest.summary;
-
-          controleRapport.buildVerified =
-            true;
-
-          controleRapport.totalBuildSeconds =
-            seconden(
-
-              performance.now() -
-              bouwStart
-
-            );
-
-          controleRapport.exportErrors = [];
-
-          schrijfJSON(
-
-            path.join(
-
-              UITVOERMAP,
-
-              "controle.json"
-
-            ),
-
-            controleRapport
-
-          );
-
-          schrijfJSON(
-
-            "bouwrapport/controle.json",
-
-            controleRapport
-
-          );
-
-          // ====================================================
-          // GITHUB SAMENVATTING
-          // ====================================================
-
-          if (
-            process.env.GITHUB_STEP_SUMMARY
-          ) {
-
-            const regels = [
-
-              "# QuizBallon Dieren V9.2",
-
-              "",
-
-              "Alle technische controles zijn geslaagd.",
-
-              "",
-
-              "| Onderdeel | V9.1 | V9.2 |",
-
-              "|---|---:|---:|",
-
-              `| Diernamen | ${BASISLIJN.uniekeDieren} | ${uniekeDieren.size} |`,
-
-              `| Antwoordkoppelingen | ${BASISLIJN.antwoorden} | ${totaalAntwoorden} |`,
-
-              `| Raketten | ${BASISLIJN.raketten} | ${totaalRaketten} |`,
-
-              `| Vragen met 1000+ antwoorden | ${BASISLIJN.vragenMet1000} | ${vragenMet1000} |`,
-
-              `| Voortgang | ${BASISLIJN.voortgang}% | ${voortgang}% |`,
-
-              "",
-
-              "## Tests",
-
-              "",
-
-              `- Antwoordtests: ${antwoordResultaat.geslaagd}/${antwoordResultaat.totaal}`,
-
-              `- Rakettests: ${raketResultaat.geslaagd}/${raketResultaat.totaal}`,
-
-              `- Lettertests: ${letterResultaat.geslaagd}/${letterResultaat.totaal}`,
-
-              `- Letterbanktests: ${letterBankResultaat.geslaagd}/${letterBankResultaat.totaal}`,
-
-              "",
-
-              "## Prestaties",
-
-              "",
-
-              `- Totale JSON-grootte: ${rondAf(totaalBytes / 1024 / 1024)} MB`,
-
-              `- Gemiddelde vraaggrootte: ${rondAf(totaalBytes / 50 / 1024, 1)} KB`,
-
-              `- Totale bouwtijd: ${controleRapport.totalBuildSeconds} seconden`,
-
-              "",
-
-              "## Alle 50 vragen",
-
-              "",
-
-              "| Vraag | Antwoorden | Raketten | Tekort tot 1000 |",
-
-              "|---:|---:|---:|---:|"
-
-            ];
-
-            for (const vraag of vraagRapport) {
-
-              regels.push(
-
-                `| ${vraag.vraag} | ${vraag.antwoorden} | ${vraag.raketten} | ${vraag.tekort} |`
-
-              );
-
-            }
-
-            regels.push(
-
-              "",
-
-              "Biologische volledigheid is niet onafhankelijk vastgesteld."
-
-            );
-
-            fs.appendFileSync(
-
-              process.env.GITHUB_STEP_SUMMARY,
-
-              regels.join("\n") + "\n"
-
-            );
-
-          }
-
-          // ====================================================
-          // EINDE BOUWPROCES
-          // ====================================================
-
-          console.log("");
-          console.log(
-            "=========================================="
-          );
-
-          console.log(
-            "QUIZBALLON V9.2 SUCCESVOL GEBOUWD"
-          );
-
-          console.log(
-            "=========================================="
-          );
-
-          console.log(
-            `Versie: ${manifest.version}`
-          );
-
-          console.log(
-            `Vraagbestanden: ${vragen.length}`
-          );
-
-          console.log(
-            `Diernamen: ${uniekeDieren.size}`
-          );
-
-          console.log(
-            `Antwoordkoppelingen: ${totaalAntwoorden}`
-          );
-
-          console.log(
-            `Raketten: ${totaalRaketten}`
-          );
-
-          console.log(
-
-            `Totale JSON-grootte: ${
-
-              rondAf(
-                totaalBytes / 1024 / 1024
-              )
-
-            } MB`
-
-          );
-
-          console.log(
-
-            `Gemiddelde vraaggrootte: ${
-
-              rondAf(
-                totaalBytes / 50 / 1024,
-                1
-              )
-
-            } KB`
-
-          );
-
-          console.log(
-            `Voortgang: ${voortgang}%`
-          );
-
-          console.log(
-
-            `Totale bouwtijd: ${
-
-              controleRapport.totalBuildSeconds
-
-            } seconden.`
-
-          );
-
-          console.log(
-            "Technisch gereed: Ja"
-          );
-
-          console.log(
-            "Biologisch onafhankelijk gecontroleerd: Nee"
-          );
 
           NODE
-
-      # ========================================================
-      # BOUWRAPPORT BESCHIKBAAR MAKEN
-      # ========================================================
 
       - name: Bouwrapport bewaren
         if: always()
@@ -2220,18 +2015,12 @@ jobs:
         with:
           name: quizballon-dieren-v92-bouwrapport
           path: bouwrapport/
-          if-no-files-found: ignore
+          if-no-files-found: warn
           retention-days: 14
-
-      # ========================================================
-      # GEGENEREERDE BESTANDEN CONTROLEREN
-      # ========================================================
 
       - name: Gegenereerde bestanden controleren
         shell: bash
         run: |
-          echo "Controleren of alle JSON-bestanden bestaan..."
-
           test -f antwoorden/gebouwd/dieren/manifest.json
           test -f antwoorden/gebouwd/dieren/controle.json
 
@@ -2239,14 +2028,9 @@ jobs:
             test -f "antwoorden/gebouwd/dieren/${nummer}.json"
           done
 
-          echo ""
-          echo "Alle 52 vereiste bestanden zijn aanwezig."
+          echo "Alle 52 vereiste JSON-bestanden aanwezig."
 
           du -sh antwoorden/gebouwd/dieren/
-
-      # ========================================================
-      # GEGENEREERDE BESTANDEN OPSLAAN
-      # ========================================================
 
       - name: Gegenereerde bestanden opslaan
         shell: bash
@@ -2263,15 +2047,11 @@ jobs:
 
           else
 
-            git commit -m "Bouw QuizBallon Dieren V9.2 antwoordbestanden"
+            git commit -m "Bouw gerepareerde QuizBallon Dieren V9.2 database"
 
             git push
 
           fi
-
-      # ========================================================
-      # SUCCESMELDING
-      # ========================================================
 
       - name: Bouwproces afgerond
         shell: bash
@@ -2280,10 +2060,12 @@ jobs:
           echo "QUIZBALLON DIEREN V9.2 IS GEBOUWD"
           echo "=========================================="
           echo ""
+          echo "De automatische reparatie is toegepast."
           echo "50 afzonderlijke vraagbanken."
           echo "1 manifestbestand."
           echo "1 controlerapport."
           echo ""
+          echo "De oorspronkelijke dierenbestanden zijn niet gewijzigd."
           echo "De snelle laadstructuur blijft behouden."
           echo "De actieve V8-game is niet gewijzigd."
           echo ""
