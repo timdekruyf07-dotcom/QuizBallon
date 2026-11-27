@@ -1,0 +1,2072 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>QuizBallon - Snel Testcentrum</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --background: #090e1b;
+      --panel: #151d30;
+      --border: #29364e;
+      --text: #ffffff;
+      --muted: #9cacc6;
+      --green: #22c55e;
+      --blue: #60a5fa;
+      --orange: #f59e0b;
+      --red: #ef4444;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: auto;
+      padding: 24px;
+    }
+
+    header {
+      text-align: center;
+      padding: 35px 10px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 5vw, 42px);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .green {
+      color: var(--green);
+    }
+
+    .orange {
+      color: var(--orange);
+    }
+
+    .red {
+      color: var(--red);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 24px;
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      text-align: center;
+    }
+
+    .value {
+      font-size: 32px;
+      font-weight: bold;
+      color: var(--blue);
+      margin: 12px 0;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .notice {
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      background: #172554;
+      border: 1px solid #3b82f6;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .notice.success {
+      background: #052e16;
+      border-color: #22c55e;
+    }
+
+    .notice.error {
+      background: #450a0a;
+      border-color: #ef4444;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 15px 0;
+    }
+
+    input,
+    select,
+    button {
+      padding: 12px 15px;
+      font-family: inherit;
+      font-size: 15px;
+      border-radius: 10px;
+    }
+
+    input,
+    select {
+      background: #0c1323;
+      color: white;
+      border: 1px solid var(--border);
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    input {
+      flex: 1;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 750px;
+    }
+
+    th,
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--muted);
+      background: #101827;
+    }
+
+    .result {
+      background: #0c1323;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-top: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    .result.valid {
+      background: #052e16;
+      border-color: var(--green);
+    }
+
+    .result.invalid {
+      background: #450a0a;
+      border-color: var(--red);
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .answer {
+      background: #0c1323;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .answer.rocket {
+      background: #422006;
+      border-color: #f59e0b;
+    }
+
+    .aliases {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    .progress {
+      height: 18px;
+      background: #29364e;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--green);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #090e1b;
+      padding: 16px;
+      border-radius: 12px;
+      line-height: 1.6;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 650px) {
+
+      .container {
+        padding: 12px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .stats {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+      }
+
+      .stat {
+        padding: 15px 8px;
+      }
+
+      .value {
+        font-size: 24px;
+      }
+
+      .controls > * {
+        width: 100%;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <header>
+
+    <h1>⚡ QuizBallon Snel Testcentrum</h1>
+
+    <p class="muted">
+
+      Vooraf berekende antwoordbanken
+
+    </p>
+
+    <p id="version"></p>
+
+  </header>
+
+  <div id="status"
+       class="notice">
+
+    Databaseoverzicht laden...
+
+  </div>
+
+  <main id="dashboard"
+        class="hidden">
+
+    <div id="stats"
+         class="stats">
+    </div>
+
+    <section class="panel">
+
+      <h2>⚡ Laadprestaties</h2>
+
+      <p>
+
+        Oude geschatte laadtijd:
+
+        <strong>circa 240 seconden</strong>
+
+      </p>
+
+      <p id="manifestTime"></p>
+
+      <p id="questionTime">
+
+        Er is nog geen afzonderlijke vraag geladen.
+
+      </p>
+
+      <p id="loadedFiles"></p>
+
+      <p class="muted">
+
+        Het overzicht bevat alleen metadata.
+
+        Antwoorden worden pas opgehaald wanneer
+        je een vraag selecteert.
+
+      </p>
+
+    </section>
+
+    <section class="panel">
+
+      <h2>🎯 Voortgang Dieren</h2>
+
+      <h3 id="progressText"></h3>
+
+      <div class="progress">
+
+        <div id="progressFill"
+             class="progress-fill">
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="panel">
+
+      <h2>📋 Alle 50 vragen</h2>
+
+      <div class="controls">
+
+        <input id="questionSearch"
+               placeholder="Zoek een vraag...">
+
+        <select id="questionSort">
+
+          <option value="number">
+            Vraagnummer
+          </option>
+
+          <option value="most">
+            Meeste antwoorden
+          </option>
+
+          <option value="least">
+            Minste antwoorden
+          </option>
+
+          <option value="size">
+            Grootste bestand
+          </option>
+
+        </select>
+
+      </div>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Nr.</th>
+
+              <th>Vraag</th>
+
+              <th>Antwoorden</th>
+
+              <th>Raketten</th>
+
+              <th>Bestandsgrootte</th>
+
+              <th>Laden</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="questionTable"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+    <section class="panel"
+             id="tester">
+
+      <h2>🔍 Afzonderlijke vraag testen</h2>
+
+      <div class="controls">
+
+        <select id="selectedQuestion">
+        </select>
+
+        <button id="loadQuestion">
+
+          Laad vraag
+
+        </button>
+
+      </div>
+
+      <div id="questionStatus"
+           class="result">
+
+        Selecteer een vraag om de antwoorden te laden.
+
+      </div>
+
+      <div id="answerControls"
+           class="hidden">
+
+        <div class="controls">
+
+          <input id="answerInput"
+                 placeholder="Typ een antwoord..."
+                 autocomplete="off">
+
+          <button id="checkAnswer">
+
+            Controleer
+
+          </button>
+
+        </div>
+
+        <div id="answerResult"
+             class="result">
+
+          Vul een antwoord in.
+
+        </div>
+
+        <div class="controls">
+
+          <button id="speedTest">
+
+            Test 10.000 antwoordcontroles
+
+          </button>
+
+        </div>
+
+        <div id="speedResult"
+             class="result hidden">
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="panel"
+             id="browser"
+             class="hidden">
+
+      <h2>📚 Geladen antwoorden</h2>
+
+      <div class="controls">
+
+        <input id="answerSearch"
+               placeholder="Zoek dier of synoniem...">
+
+        <select id="answerFilter">
+
+          <option value="all">
+
+            Alle antwoorden
+
+          </option>
+
+          <option value="rockets">
+
+            Alleen raketten
+
+          </option>
+
+          <option value="normal">
+
+            Alleen normale antwoorden
+
+          </option>
+
+        </select>
+
+      </div>
+
+      <p id="answerCount"
+         class="muted">
+      </p>
+
+      <div id="answerList"
+           class="answers">
+      </div>
+
+      <div class="controls">
+
+        <button id="moreAnswers">
+
+          Meer antwoorden tonen
+
+        </button>
+
+      </div>
+
+    </section>
+
+    <section class="panel">
+
+      <h2>🛠️ Bouwrapport</h2>
+
+      <p class="muted">
+
+        Bekijk de tijd die GitHub nodig had voor
+        het verwerken van de oorspronkelijke bestanden.
+
+      </p>
+
+      <button id="loadBuildReport">
+
+        Laad bouwrapport
+
+      </button>
+
+      <pre id="buildReport"
+           class="hidden"></pre>
+
+    </section>
+
+    <section class="panel">
+
+      <h2>📄 Prestatierapport</h2>
+
+      <div class="controls">
+
+        <button id="copyReport">
+
+          📋 Kopieer rapport
+
+        </button>
+
+        <button id="showReport">
+
+          Bekijk rapport
+
+        </button>
+
+      </div>
+
+      <p id="copyStatus"></p>
+
+      <pre id="report"
+           class="hidden"></pre>
+
+    </section>
+
+  </main>
+
+  <footer>
+
+    🎈 QuizBallon V9
+
+    <br>
+
+    Deze testpagina laadt geen oorspronkelijke
+    dierendatabase of aanvullingsscripts.
+
+  </footer>
+
+</div>
+
+<script>
+
+(function () {
+
+  "use strict";
+
+  const start = performance.now();
+
+  const BASE =
+    "antwoorden/gebouwd/dieren/";
+
+  const $ = id =>
+    document.getElementById(id);
+
+  const format = aantal =>
+    Number(aantal || 0)
+      .toLocaleString("nl-NL");
+
+  const escape = waarde =>
+    String(waarde ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
+  function normaal(tekst) {
+
+    return String(tekst ?? "")
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/ß/g, "ss")
+      .replace(/æ/g, "ae")
+      .replace(/œ/g, "oe")
+      .replace(/[^a-z0-9]/g, "");
+
+  }
+
+  function bytes(aantal) {
+
+    if (aantal >= 1048576) {
+
+      return (
+        aantal / 1048576
+      ).toFixed(2) + " MB";
+
+    }
+
+    if (aantal >= 1024) {
+
+      return (
+        aantal / 1024
+      ).toFixed(1) + " KB";
+
+    }
+
+    return aantal + " B";
+
+  }
+
+  let manifest = null;
+
+  let manifestDuration = 0;
+
+  let currentQuestion = null;
+
+  let currentIndex = new Map();
+
+  let answerLimit = 200;
+
+  let buildReport = null;
+
+  let lastSpeedTest = null;
+
+  let requestNumber = 0;
+
+  const cache = new Map();
+
+  const loadMeasurements = [];
+
+  const errors = [];
+
+  // ========================================================
+  // JSON-BESTANDEN OPHALEN
+  // ========================================================
+
+  async function fetchJson(bestand, cacheMode = "default") {
+
+    const response = await fetch(
+
+      BASE + bestand,
+
+      {
+        cache: cacheMode
+      }
+
+    );
+
+    if (!response.ok) {
+
+      throw new Error(
+
+        bestand +
+
+        " — HTTP " +
+
+        response.status
+
+      );
+
+    }
+
+    return await response.json();
+
+  }
+
+  // ========================================================
+  // KLEIN DATABASEOVERZICHT LADEN
+  // ========================================================
+
+  async function startDashboard() {
+
+    try {
+
+      manifest = await fetchJson(
+        "manifest.json",
+        "no-cache"
+      );
+
+      if (
+        !Array.isArray(manifest.questions) ||
+        manifest.questions.length !== 50
+      ) {
+
+        throw new Error(
+          "Manifest bevat geen 50 vragen."
+        );
+
+      }
+
+      $("version").textContent =
+
+        "Databaseversie: " +
+
+        manifest.version;
+
+      renderStats();
+
+      renderQuestions();
+
+      $("selectedQuestion").innerHTML =
+
+        manifest.questions.map(vraag => `
+
+          <option value="${vraag.questionNumber}">
+
+            ${vraag.questionNumber}.
+
+            ${escape(vraag.question)}
+
+          </option>
+
+        `).join("");
+
+      $("dashboard")
+        .classList.remove("hidden");
+
+      $("browser")
+        .classList.add("hidden");
+
+      manifestDuration =
+        performance.now() - start;
+
+      $("manifestTime").textContent =
+
+        "Nieuwe overzichtstijd: " +
+
+        manifestDuration.toFixed(1) +
+
+        " ms (" +
+
+        (manifestDuration / 1000).toFixed(3) +
+
+        " seconden).";
+
+      $("status").className =
+        "notice success";
+
+      $("status").textContent =
+
+        "✅ Het databaseoverzicht is geladen. " +
+
+        "Er zijn nog geen antwoordbanken opgehaald.";
+
+      updateLoadedFiles();
+
+    } catch (error) {
+
+      errors.push(error.message);
+
+      $("status").className =
+        "notice error";
+
+      $("status").textContent =
+
+        "❌ Het snelle overzicht kon niet worden geladen." +
+
+        "\n\n" +
+
+        error.message +
+
+        "\n\nVoer eerst de GitHub Action " +
+
+        "'QuizBallon - Bouw Dieren V9' uit.";
+
+    }
+
+  }
+
+  // ========================================================
+  // STATISTIEKEN
+  // ========================================================
+
+  function renderStats() {
+
+    const s = manifest.summary;
+
+    function stat(icon, waarde, label) {
+
+      return `
+
+        <div class="stat">
+
+          <div>${icon}</div>
+
+          <div class="value">
+
+            ${escape(waarde)}
+
+          </div>
+
+          <div class="label">
+
+            ${escape(label)}
+
+          </div>
+
+        </div>
+
+      `;
+
+    }
+
+    $("stats").innerHTML = [
+
+      stat(
+        "🐾",
+        format(s.uniqueAnimals),
+        "Unieke canonieke diernamen"
+      ),
+
+      stat(
+        "❓",
+        s.questionCount,
+        "Vragen"
+      ),
+
+      stat(
+        "💬",
+        format(s.answerCount),
+        "Antwoordkoppelingen"
+      ),
+
+      stat(
+        "🚀",
+        format(s.rocketCount),
+        "Raketten"
+      ),
+
+      stat(
+        "🎯",
+        s.completedQuestions + "/50",
+        "Vragen met 1.000+ antwoorden"
+      ),
+
+      stat(
+        "💾",
+        bytes(s.totalBytes),
+        "Totale JSON-bestandsgrootte"
+      ),
+
+      stat(
+        "📦",
+        bytes(s.averageQuestionBytes),
+        "Gemiddeld per vraag"
+      ),
+
+      stat(
+        "✅",
+        s.passedTests + "/" + s.totalTests,
+        "Antwoordtests bij het bouwen"
+      )
+
+    ].join("");
+
+    $("progressText").textContent =
+
+      s.progress + "% van het streefdoel";
+
+    $("progressFill").style.width =
+
+      Math.min(100, s.progress) + "%";
+
+  }
+
+  // ========================================================
+  // VRAGENOVERZICHT
+  // ========================================================
+
+  function renderQuestions() {
+
+    if (!manifest) return;
+
+    const zoekterm =
+      normaal($("questionSearch").value);
+
+    const sortering =
+      $("questionSort").value;
+
+    const vragen =
+      manifest.questions.filter(vraag =>
+
+        normaal(vraag.question)
+          .includes(zoekterm)
+
+      );
+
+    vragen.sort((a, b) => {
+
+      if (sortering === "most") {
+
+        return b.answerCount - a.answerCount;
+
+      }
+
+      if (sortering === "least") {
+
+        return a.answerCount - b.answerCount;
+
+      }
+
+      if (sortering === "size") {
+
+        return b.bytes - a.bytes;
+
+      }
+
+      return a.questionNumber -
+             b.questionNumber;
+
+    });
+
+    $("questionTable").innerHTML =
+
+      vragen.map(vraag => `
+
+        <tr>
+
+          <td>
+
+            ${vraag.questionNumber}
+
+          </td>
+
+          <td>
+
+            ${escape(vraag.question)}
+
+          </td>
+
+          <td>
+
+            ${format(vraag.answerCount)}
+
+          </td>
+
+          <td>
+
+            🚀 ${format(vraag.rocketCount)}
+
+          </td>
+
+          <td>
+
+            ${bytes(vraag.bytes)}
+
+          </td>
+
+          <td>
+
+            <button
+              data-question="${vraag.questionNumber}">
+
+              Laden
+
+            </button>
+
+          </td>
+
+        </tr>
+
+      `).join("");
+
+  }
+
+  // ========================================================
+  // LOKALE ZOEKINDEX
+  // ========================================================
+
+  function maakIndex(vraag) {
+
+    const index = new Map();
+
+    for (const antwoord of vraag.answers) {
+
+      const namen = [
+
+        antwoord.answer,
+
+        ...(antwoord.aliases || [])
+
+      ];
+
+      for (const naam of namen) {
+
+        const sleutel = normaal(naam);
+
+        if (!sleutel) continue;
+
+        if (!index.has(sleutel)) {
+
+          index.set(sleutel, []);
+
+        }
+
+        const opties =
+          index.get(sleutel);
+
+        if (!opties.includes(antwoord)) {
+
+          opties.push(antwoord);
+
+        }
+
+      }
+
+    }
+
+    for (const opties of index.values()) {
+
+      opties.sort(
+
+        (a, b) =>
+
+          a.points - b.points ||
+
+          a.answer.localeCompare(
+            b.answer,
+            "nl"
+          )
+
+      );
+
+    }
+
+    return index;
+
+  }
+
+  // ========================================================
+  // ÉÉN VRAAG LADEN
+  // ========================================================
+
+  async function laadVraag(nummer) {
+
+    const aanvraag = ++requestNumber;
+
+    const metadata =
+      manifest.questions.find(
+
+        vraag =>
+          vraag.questionNumber ===
+          Number(nummer)
+
+      );
+
+    if (!metadata) return;
+
+    const begin = performance.now();
+
+    const uitCache =
+      cache.has(metadata.questionNumber);
+
+    $("questionStatus").textContent =
+
+      "⏳ Vraag " +
+
+      nummer +
+
+      " wordt geladen...";
+
+    $("answerControls")
+      .classList.add("hidden");
+
+    $("browser")
+      .classList.add("hidden");
+
+    try {
+
+      let vraag;
+
+      let index;
+
+      if (uitCache) {
+
+        const opgeslagen =
+          cache.get(metadata.questionNumber);
+
+        vraag = opgeslagen.vraag;
+
+        index = opgeslagen.index;
+
+      } else {
+
+        vraag = await fetchJson(
+
+          metadata.file +
+          "?v=" +
+          encodeURIComponent(manifest.version)
+
+        );
+
+        if (
+
+          vraag.id !== metadata.id ||
+
+          !Array.isArray(vraag.answers) ||
+
+          vraag.answers.length !==
+            metadata.answerCount ||
+
+          vraag.answers.filter(
+            antwoord => antwoord.isRocket
+          ).length !== metadata.rocketCount
+
+        ) {
+
+          throw new Error(
+
+            "Antwoordbestand wijkt af van het manifest."
+
+          );
+
+        }
+
+        index = maakIndex(vraag);
+
+        // Houd maximaal tien vraagbanken
+        // in het geheugen.
+
+        if (cache.size >= 10) {
+
+          const oudste =
+            cache.keys().next().value;
+
+          cache.delete(oudste);
+
+        }
+
+        cache.set(
+
+          metadata.questionNumber,
+
+          {
+            vraag,
+            index
+          }
+
+        );
+
+      }
+
+      if (aanvraag !== requestNumber) return;
+
+      currentQuestion = vraag;
+
+      currentIndex = index;
+
+      const duur =
+        performance.now() - begin;
+
+      loadMeasurements.push({
+
+        vraag: Number(nummer),
+
+        antwoorden:
+          vraag.answers.length,
+
+        bytes:
+          metadata.bytes,
+
+        milliseconden:
+          Number(duur.toFixed(3)),
+
+        uitGeheugen:
+          uitCache
+
+      });
+
+      $("questionStatus").textContent =
+
+        "✅ " +
+
+        vraag.question +
+
+        "\n" +
+
+        format(vraag.answers.length) +
+
+        " antwoorden · " +
+
+        vraag.rocketCount +
+
+        " raketten";
+
+      $("questionTime").textContent =
+
+        "Laatste vraag geladen in " +
+
+        duur.toFixed(1) +
+
+        " ms" +
+
+        (uitCache ? " (uit geheugen)." : ".");
+
+      $("answerControls")
+        .classList.remove("hidden");
+
+      $("browser")
+        .classList.remove("hidden");
+
+      $("answerResult").className =
+        "result";
+
+      $("answerResult").textContent =
+        "Vul een antwoord in.";
+
+      $("speedResult")
+        .classList.add("hidden");
+
+      $("answerSearch").value = "";
+
+      $("answerFilter").value = "all";
+
+      answerLimit = 200;
+
+      renderAnswers();
+
+      updateLoadedFiles();
+
+    } catch (error) {
+
+      if (aanvraag !== requestNumber) return;
+
+      errors.push(error.message);
+
+      currentQuestion = null;
+
+      currentIndex = new Map();
+
+      $("questionStatus").textContent =
+
+        "❌ Vraag laden mislukt: " +
+
+        error.message;
+
+    }
+
+  }
+
+  function updateLoadedFiles() {
+
+    $("loadedFiles").textContent =
+
+      "Vraagbanken opgehaald of hergebruikt: " +
+
+      loadMeasurements.length +
+
+      " · In geheugen: " +
+
+      cache.size +
+
+      "/10.";
+
+  }
+
+  // ========================================================
+  // ANTWOORD CONTROLEREN
+  // ========================================================
+
+  function check(tekst) {
+
+    const opties =
+      currentIndex.get(normaal(tekst));
+
+    if (!opties?.length) {
+
+      return {
+        valid: false
+      };
+
+    }
+
+    return {
+
+      valid: true,
+
+      ...opties[0],
+
+      ambiguous:
+        opties.length > 1
+
+    };
+
+  }
+
+  function controleerAntwoord() {
+
+    if (!currentQuestion) return;
+
+    const invoer =
+      $("answerInput").value.trim();
+
+    if (!invoer) return;
+
+    const resultaat = check(invoer);
+
+    if (!resultaat.valid) {
+
+      $("answerResult").className =
+        "result invalid";
+
+      $("answerResult").textContent =
+
+        "❌ Niet geaccepteerd: " +
+
+        invoer;
+
+      return;
+
+    }
+
+    $("answerResult").className =
+      "result valid";
+
+    $("answerResult").innerHTML = `
+
+      <strong>
+
+        ✅ ${escape(resultaat.answer)}
+
+      </strong>
+
+      <h2>
+
+        ${resultaat.isRocket ? "🚀" : "🎈"}
+
+        ${resultaat.points} punten
+
+      </h2>
+
+      <p class="aliases">
+
+        ${escape(
+          (resultaat.aliases || [])
+            .join(", ")
+        )}
+
+      </p>
+
+      ${resultaat.ambiguous
+
+        ? "<p>⚠️ Dubbelzinnige naam</p>"
+
+        : ""
+
+      }
+
+    `;
+
+  }
+
+  // ========================================================
+  // GELADEN ANTWOORDEN TONEN
+  // ========================================================
+
+  function renderAnswers() {
+
+    if (!currentQuestion) return;
+
+    const zoekterm =
+      normaal($("answerSearch").value);
+
+    const filter =
+      $("answerFilter").value;
+
+    const antwoorden =
+      currentQuestion.answers.filter(antwoord => {
+
+        if (
+
+          filter === "rockets" &&
+
+          !antwoord.isRocket
+
+        ) return false;
+
+        if (
+
+          filter === "normal" &&
+
+          antwoord.isRocket
+
+        ) return false;
+
+        return [
+
+          antwoord.answer,
+
+          ...(antwoord.aliases || [])
+
+        ].some(
+
+          naam =>
+            normaal(naam).includes(zoekterm)
+
+        );
+
+      });
+
+    const zichtbaar =
+      antwoorden.slice(0, answerLimit);
+
+    $("answerCount").textContent =
+
+      format(antwoorden.length) +
+
+      " resultaten · " +
+
+      format(zichtbaar.length) +
+
+      " weergegeven";
+
+    $("answerList").innerHTML =
+
+      zichtbaar.map(antwoord => `
+
+        <div class="answer
+          ${antwoord.isRocket ? "rocket" : ""}">
+
+          <strong>
+
+            ${antwoord.isRocket ? "🚀 " : ""}
+
+            ${escape(antwoord.answer)}
+
+          </strong>
+
+          <p>
+
+            ${antwoord.points} punten
+
+          </p>
+
+          <div class="aliases">
+
+            ${escape(
+              (antwoord.aliases || [])
+                .join(", ")
+            )}
+
+          </div>
+
+        </div>
+
+      `).join("");
+
+    $("moreAnswers").classList.toggle(
+
+      "hidden",
+
+      zichtbaar.length >= antwoorden.length
+
+    );
+
+  }
+
+  // ========================================================
+  // SNELHEIDSTEST
+  // ========================================================
+
+  function snelheidstest() {
+
+    if (!currentQuestion?.answers?.length) return;
+
+    const herhalingen = 10000;
+
+    const antwoorden =
+      currentQuestion.answers;
+
+    let geaccepteerd = 0;
+
+    const begin = performance.now();
+
+    for (let i = 0; i < herhalingen; i++) {
+
+      const invoer =
+
+        antwoorden[
+          i % antwoorden.length
+        ].answer;
+
+      if (check(invoer).valid) {
+
+        geaccepteerd++;
+
+      }
+
+    }
+
+    const duur =
+      performance.now() - begin;
+
+    lastSpeedTest = {
+
+      vraag:
+        currentQuestion.questionNumber,
+
+      controles:
+        herhalingen,
+
+      geaccepteerd,
+
+      totaalMs:
+        Number(duur.toFixed(3)),
+
+      gemiddeldMs:
+        Number(
+          (duur / herhalingen).toFixed(6)
+        )
+
+    };
+
+    $("speedResult")
+      .classList.remove("hidden");
+
+    $("speedResult").textContent =
+
+      format(herhalingen) +
+
+      " controles in " +
+
+      duur.toFixed(3) +
+
+      " ms. Gemiddeld " +
+
+      (duur / herhalingen).toFixed(6) +
+
+      " ms per antwoord.";
+
+  }
+
+  // ========================================================
+  // RAPPORT VAN GITHUB OPHALEN
+  // ========================================================
+
+  async function laadBouwrapport() {
+
+    try {
+
+      buildReport = await fetchJson(
+
+        "controle.json",
+
+        "no-cache"
+
+      );
+
+      $("buildReport").textContent =
+
+        JSON.stringify(
+
+          {
+            version:
+              buildReport.version,
+
+            timings:
+              buildReport.timings,
+
+            totalBuildSeconds:
+              buildReport.totalBuildSeconds,
+
+            summary:
+              buildReport.summary,
+
+            exportErrors:
+              buildReport.exportErrors
+
+          },
+
+          null,
+
+          2
+
+        );
+
+      $("buildReport")
+        .classList.remove("hidden");
+
+    } catch (error) {
+
+      errors.push(error.message);
+
+      $("buildReport").textContent =
+        error.message;
+
+      $("buildReport")
+        .classList.remove("hidden");
+
+    }
+
+  }
+
+  // ========================================================
+  // PRESTATIERAPPORT
+  // ========================================================
+
+  function maakRapport() {
+
+    if (!manifest) {
+      return "Geen manifest geladen.";
+    }
+
+    const s = manifest.summary;
+
+    const regels = [
+
+      "QUIZBALLON V9 - PRESTATIERAPPORT",
+
+      "=================================",
+
+      "",
+
+      "Versie: " + manifest.version,
+
+      "Oude geschatte laadtijd: 240 seconden",
+
+      "Nieuwe overzichtstijd: " +
+
+        manifestDuration.toFixed(1) + " ms",
+
+      "Vraagbanken bij het openen: 0",
+
+      "Aantal vragen: " +
+        s.questionCount,
+
+      "Unieke canonieke diernamen: " +
+        s.uniqueAnimals,
+
+      "Antwoordkoppelingen: " +
+        s.answerCount,
+
+      "Raketten: " +
+        s.rocketCount,
+
+      "Totale JSON-grootte: " +
+        bytes(s.totalBytes),
+
+      "Gemiddelde vraaggrootte: " +
+        bytes(s.averageQuestionBytes),
+
+      "Vragen met 1000+ antwoorden: " +
+        s.completedQuestions,
+
+      "Voortgang: " +
+        s.progress + "%",
+
+      "Antwoordtests: " +
+
+        s.passedTests + "/" + s.totalTests,
+
+      "Rakettests: " +
+
+        s.passedRocketTests + "/" +
+
+        s.totalRocketTests,
+
+      "",
+
+      "AFZONDERLIJKE LAADMETINGEN",
+
+      "================================="
+
+    ];
+
+    for (const meting of loadMeasurements) {
+
+      regels.push(
+        JSON.stringify(meting)
+      );
+
+    }
+
+    if (!loadMeasurements.length) {
+
+      regels.push(
+        "Nog geen vragen geladen."
+      );
+
+    }
+
+    regels.push(
+
+      "",
+
+      "SNELHEIDSTEST",
+
+      "=================================",
+
+      lastSpeedTest
+
+        ? JSON.stringify(
+            lastSpeedTest,
+            null,
+            2
+          )
+
+        : "Nog niet uitgevoerd.",
+
+      "",
+
+      "GITHUB BOUWTIJD",
+
+      "================================="
+
+    );
+
+    if (buildReport) {
+
+      regels.push(
+
+        JSON.stringify(
+
+          {
+            timings:
+              buildReport.timings,
+
+            totalBuildSeconds:
+              buildReport.totalBuildSeconds
+          },
+
+          null,
+
+          2
+
+        )
+
+      );
+
+    } else {
+
+      regels.push(
+        "Bouwrapport nog niet geladen."
+      );
+
+    }
+
+    regels.push(
+
+      "",
+
+      "FOUTEN",
+
+      "=================================",
+
+      ...errors
+
+    );
+
+    if (!errors.length) {
+
+      regels.push("Geen gevonden fouten.");
+
+    }
+
+    return regels.join("\n");
+
+  }
+
+  // ========================================================
+  // KNOPPEN EN INVOERVELDEN
+  // ========================================================
+
+  $("questionSearch").addEventListener(
+
+    "input",
+
+    renderQuestions
+
+  );
+
+  $("questionSort").addEventListener(
+
+    "change",
+
+    renderQuestions
+
+  );
+
+  $("questionTable").addEventListener(
+
+    "click",
+
+    event => {
+
+      const knop =
+        event.target.closest("[data-question]");
+
+      if (!knop) return;
+
+      $("selectedQuestion").value =
+        knop.dataset.question;
+
+      laadVraag(
+        knop.dataset.question
+      );
+
+      $("tester").scrollIntoView({
+
+        behavior: "smooth"
+
+      });
+
+    }
+
+  );
+
+  $("loadQuestion").addEventListener(
+
+    "click",
+
+    () => laadVraag(
+      $("selectedQuestion").value
+    )
+
+  );
+
+  $("checkAnswer").addEventListener(
+
+    "click",
+
+    controleerAntwoord
+
+  );
+
+  $("answerInput").addEventListener(
+
+    "keydown",
+
+    event => {
+
+      if (event.key === "Enter") {
+
+        controleerAntwoord();
+
+      }
+
+    }
+
+  );
+
+  $("answerSearch").addEventListener(
+
+    "input",
+
+    () => {
+
+      answerLimit = 200;
+
+      renderAnswers();
+
+    }
+
+  );
+
+  $("answerFilter").addEventListener(
+
+    "change",
+
+    () => {
+
+      answerLimit = 200;
+
+      renderAnswers();
+
+    }
+
+  );
+
+  $("moreAnswers").addEventListener(
+
+    "click",
+
+    () => {
+
+      answerLimit += 200;
+
+      renderAnswers();
+
+    }
+
+  );
+
+  $("speedTest").addEventListener(
+
+    "click",
+
+    snelheidstest
+
+  );
+
+  $("loadBuildReport").addEventListener(
+
+    "click",
+
+    laadBouwrapport
+
+  );
+
+  $("showReport").addEventListener(
+
+    "click",
+
+    () => {
+
+      $("report").textContent =
+        maakRapport();
+
+      $("report")
+        .classList.toggle("hidden");
+
+    }
+
+  );
+
+  $("copyReport").addEventListener(
+
+    "click",
+
+    async () => {
+
+      const tekst = maakRapport();
+
+      try {
+
+        await navigator.clipboard.writeText(
+          tekst
+        );
+
+        $("copyStatus").textContent =
+
+          "✅ Rapport gekopieerd.";
+
+      } catch (error) {
+
+        $("report").textContent = tekst;
+
+        $("report")
+          .classList.remove("hidden");
+
+        const range =
+          document.createRange();
+
+        range.selectNodeContents(
+          $("report")
+        );
+
+        const selection =
+          window.getSelection();
+
+        selection.removeAllRanges();
+
+        selection.addRange(range);
+
+        $("copyStatus").textContent =
+
+          "Druk op Ctrl+C om het rapport te kopiëren.";
+
+      }
+
+    }
+
+  );
+
+  // ========================================================
+  // START
+  // ========================================================
+
+  startDashboard();
+
+})();
+
+</script>
+
+</body>
+
+</html>
